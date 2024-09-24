@@ -1,0 +1,54 @@
+Command List:
+
+In the main menu, items are listed in the following way:
+[no.][name][shortcut]
+In the main menu, you can write either of these things to make a choice.
+Outside the main menu, such as in your inventory or exploring a room, some
+commands are available to you. 
+
+.........
+Inventory
+'''''''''
+"in"  - Inspect
+        Display stats of an item
+        "in self" will inspect your current stats.
+"eq"  - Equip
+        Requires an item in your backpack
+        Switch your currently equipped item for the specified item       
+"d"   - Drop item
+        Removes item from your backpack onto the ground of the room             
+        you are in.                                                            
+        (explore the room to pick it back up)
+"use" - Use item
+        Will use items such as potions in your backpack.
+...........
+Exploration
+'''''''''''
+"in"  - Inspect
+        Display stats of an item
+        "in self" will inspect your current stats.
+"o"   - Open
+        Open a container to see what's inside
+"t"   - Take
+        Takes item(s) from somewhere.
+        Requires a container or enemy to loot
+        Can only be done with no live enemies in room
+"m"   - Return to menu
+        Use in inventory or while exploring to return to menu
+
+......
+Combat
+''''''
+
+"f"   - Flee
+        Use to exit combat.
+"a"   - Aimed attack
+        + 5 Attack
+        - 5 Defense
+        Concentrate on hitting your enemy, opening you up to
+        enemy attacks
+"d"   - Defend
+        + 5 Defense
+        - 5 Attack
+        Focus on avoiding an incoming attack at the cost
+        of your accuracy.
