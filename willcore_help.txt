@@ -27,7 +27,7 @@ Exploration
 "in"  - Inspect
         Display stats of an item
         "in self" will inspect your current stats.
-"o"   - Open
+"o"   - Open                                       Fast det här är kinda bullshit tho? Tror inte jag behåller detta, containers är bara för loot tables.
         Open a container to see what's inside
 "t"   - Take
         Takes item(s) from somewhere.
@@ -52,3 +52,5 @@ Combat
         - 5 Attack
         Focus on avoiding an incoming attack at the cost
         of your accuracy.
+"move"- Special moves
+        Show all known Special Moves

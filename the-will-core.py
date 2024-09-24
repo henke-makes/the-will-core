@@ -72,7 +72,7 @@ from time import sleep
 
 #CLASSES
 class player:
-    def __init__(self, hp, speed, attack, defense, armor, inventory, name):
+    def __init__(self, hp, speed, attack, defense, armor, inventory, name, exp, level):
         self.hp = hp
         self.speed = speed
         self.attack = attack
@@ -80,8 +80,10 @@ class player:
         self.armor = armor
         self.inventory = inventory
         self.name = name
+        self.exp = exp
+        self.level = level
 class enemy:
-    def __init__(self, hp, speed, attack, defense, armor, name, inventory, loot):
+    def __init__(self, hp, speed, attack, defense, armor, name, inventory, loot, level):
         self.hp = hp
         self.speed = speed
         self.attack = attack
@@ -90,6 +92,7 @@ class enemy:
         self.name = name
         self.inventory = inventory
         self.loot = loot
+        self.level = level
 class item:
     def __init__(self, hp, speed, attack, defense, min_dmg, max_dmg, armor, slot, name):
         self.hp = hp
@@ -142,6 +145,8 @@ relentless_attack_keyword = 0
 relentless_attack_discovered = False
 disarm_keyword = 0
 disarm_discovered = False
+turtle_keyword = 0
+turtle_discovered = False
 
 #FUNCTIONS
 def generate_items(how_many, *items):
@@ -154,19 +159,21 @@ def generate_items(how_many, *items):
         incoming_item_list.remove(item)
         i += 1
     return outgoing_item_list
-def generate_enemy(hp, speed, attack, defense, armor, name, inventory, loot):
-    gen_enemy = enemy(hp, speed, attack, defense, armor, name, inventory, loot)
+def generate_enemy(hp, speed, attack, defense, armor, name, inventory, loot, exp):
+    gen_enemy = enemy(hp, speed, attack, defense, armor, name, inventory, loot, exp)
     return gen_enemy
 def generate_world(xsize, ysize):
     global map_xsize
     global map_ysize
+    global relentless_attack_keyword
+    global disarm_keyword
     room_list = []
     room_n = 0
     j = 0
     while j < ysize:
         i = 0
         while i < xsize:
-            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_dagger, item_cloak, item_shield), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [item_shield]))
+            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_dagger, item_cloak, item_shield), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [item_shield], 1))
             room_n += 1
             room_list.append(new_room)
             i += 1
@@ -174,9 +181,6 @@ def generate_world(xsize, ysize):
     map_xsize = xsize
     map_ysize = ysize
     return room_list
-#Generate spells
-relentless_attack_keyword = "hej"
-disarm_keyword = "svejs"
 def render_map():
     for x in room_list:
         if player_xpos == x.xpos and player_ypos == x.ypos:
@@ -310,31 +314,47 @@ def explore(): #use parse_text() here to allow for looting etc
     else:
         print("Nothing in the room to explore")
     parse_text("How will you explore the room? (\"help\" for command list)\n", "ex")
+def calculate_combat_speed(instance):
+    combat_value = instance.speed
+    for x in instance.inventory.values():
+        if x.speed != 0:
+            combat_value += x.speed
+    return combat_value
 def combat():
     print("Prepare to fight a mighty " + current_room.enemy.name + "!")
     global player_char
     global relentless_attack_keyword
     global relentless_attack_discovered
+    global turtle_keyword
+    global turtle_discovered
+    global disarm_keyword
+    global disarm_discovered
+    global player_move
     combat = True
     while combat:
+        player_turn = 0
+        enemy_turn = 0
         player_speed = calculate_combat_speed(player_char)
         print("Player speed: " + str(player_speed))
         enemy_speed = calculate_combat_speed(current_room.enemy)
         print("Enemy speed: " + str(enemy_speed))
-        player_turn = 0
-        enemy_turn = 0
+        combat_threshold = max(player_speed, enemy_speed) * 4
+        print("Combat Threshold: " +str(combat_threshold))
         player_move = ""
         enemy_move = ""
-        player_move = input("Press enter to continue, A/D for moves, or type something to cheer " + player_char.name + " on!\n")
-        if player_move.lower() == "f":
-            print("NOPE")
+        if combat_move():
+            pass
+        else:
             break
         delete_row = False
-        while player_char.hp > 0 and current_room.enemy.hp > 0:            
+        while player_char.hp > 0 and current_room.enemy.hp > 0: #-------------------- PLAYER TURN         
             if player_turn >= combat_threshold:
                 print(player_char.name + " takes a swing!")
                 sleep(1)
-                attack(player_char, player_move, current_room.enemy, enemy_move)
+                if player_move != turtle_keyword:
+                    attack(player_char, player_move, current_room.enemy, enemy_move)
+                else:
+                    print("You curled up like a turtle.")
                 player_move = ""
                 player_turn = 0
                 delete_row = False
@@ -342,19 +362,10 @@ def combat():
                     current_room.enemy.hp = 0
                     print("You have defeated " + current_room.enemy.name + "!")
                     break
-                #-----------------------------------------------PLAYER MOVES
-                player_move = input("Press enter to continue, A/D for moves, or type something to cheer " + player_char.name + " on!\n")
-                if player_move.lower() == "f":
-                    print("You flee the battle!")
+                if combat_move():
+                    pass
+                else:
                     break
-                if player_move.lower() == "a": 
-                    print(player_char.name + " will do an aimed attack (+5 ATK, -5 DEF)")
-                if player_move.lower() == "d": 
-                    print(player_char.name + " will defend (+5 DEF, -5 ATK)")
-                if player_move == relentless_attack_keyword: #OH WAIT, du lär dig nya combat moves!! Plus kanske buffs
-                    if relentless_attack_discovered == False:
-                        print("You have discovered Relentless Attack!")
-                    relentless_attack_discovered = True
 
             if enemy_turn >= combat_threshold and current_room.enemy.hp > 0:
                 print(current_room.enemy.name + " takes a swing!")
@@ -368,25 +379,72 @@ def combat():
                     death()
             if player_turn < combat_threshold and enemy_turn < combat_threshold:
                 player_turn += player_speed
+                if player_turn > combat_threshold:
+                    player_turn = combat_threshold
                 enemy_turn += enemy_speed
+                if enemy_turn > combat_threshold:
+                    enemy_turn = combat_threshold
                 if delete_row:
                     delete_rows(2)
                 delete_row = True
-                print("Player: " + "█" * player_turn + "-" * (combat_threshold - player_turn))
-                print("Enemy : " + "█" * enemy_turn + "-" * (combat_threshold - enemy_turn))
+                print("Player: " + "█" * player_turn + "-" * (combat_threshold - player_turn) + " " + str(player_char.hp) + " HP")
+                print("Enemy : " + "█" * enemy_turn + "-" * (combat_threshold - enemy_turn) + " " + str(current_room.enemy.hp) + " HP")
                 sleep(.5)
         combat = False
-def calculate_combat_speed(instance):
-    combat_value = instance.speed
-    for x in instance.inventory.values():
-        if x.speed != 0:
-            combat_value += x.speed
-    return combat_value
+def combat_move():
+    global turtle_discovered
+    global relentless_attack_discovered
+    global disarm_discovered
+    loop = True
+    while loop:
+        player_move = input("Press enter to continue, A/D for moves, or type something to cheer " + player_char.name + " on!\n")
+        if player_move.lower() == "f":
+            print("You flee the battle!")
+            return False
+        if player_move.lower() == "a": 
+            print(player_char.name + " will do an aimed attack (+5 ATK, -5 DEF)")
+            return True
+        if player_move.lower() == "d": 
+            print(player_char.name + " will defend (+5 DEF, -5 ATK)")
+            return True
+        if player_move.lower() == "": 
+            return True
+        if player_move.lower() == "move":
+            if relentless_attack_discovered == True:
+                print("Relentless Attack: " + relentless_attack_keyword + "[" + ra_shortcut + "]")
+                print("Lunge at your foe for massive damage while sacrificing safety! (+2 Damage, +1 Damage taken)")
+            if turtle_discovered == True:
+                print("Turtle: " + turtle_keyword + "[" + turtle_shortcut + "]")
+                print("Give up your next attack in order to defend yourself. (+3 Armor, no attacking)")
+            if disarm_discovered == True:
+                print("Disarm: " + disarm_keyword + "[" + disarm_shortcut + "]")
+                print("Aim for your opponent's weapon to disarm them. (-8 attack, hit disarms enemy)")
+        if player_move.lower() == relentless_attack_keyword: #------------------------------ SPECIAL MOVES
+            if relentless_attack_discovered == False:
+                relentless_attack_discovered = True
+                print("You have discovered Relentless Attack!\nSay again to use it, otherwise use a different command or press Enter to continue.")
+            else:
+                print(player_char.name + " will do a relentless attack! (+2 Damage, +1 Damage taken)")
+                return True
+        if player_move.lower() == turtle_keyword:
+            if turtle_discovered == False:
+                turtle_discovered = True
+                print("You have discovered Turtle!\nSay again to use it, otherwise use a different command or press Enter to continue.")
+            else:
+                print(player_char.name + " will turtle up this time. (+3 Armor, no attacking)")
+                return True
+        if player_move == disarm_keyword or player_move.lower() == disarm_shortcut:
+            if disarm_discovered == False:
+                disarm_discovered = True
+                print("You have discovered Disarm!\nSay again to use it, otherwise use a different command or press Enter to continue.")
+            else:
+                print(player_char.name + " will turtle up this time. (+3 Armor, no attacking)")
+                return True
 def attack(attacker, attacker_move, defender, defender_move):
     attacker_bonus = 0
     defender_bonus = 0
     defender_armor = defender.inventory["Helmet"].armor - defender.inventory["Armor"].armor
-    attack_damage = randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg) - defender_armor
+    attack_damage = randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg) + attacker.level - defender_armor
     if attacker_move.lower() == "a":
         attacker_bonus = 5
     if attacker_move.lower() == "d":
@@ -400,6 +458,8 @@ def attack(attacker, attacker_move, defender, defender_move):
         defender_bonus = -5
     if defender_move.lower() == relentless_attack_keyword:
         defender_armor -= 1
+    if defender_move.lower() == turtle_keyword:
+        defender_armor += 3
     chance_to_hit = 10 + attacker_bonus + attacker.attack + attacker.inventory["Helmet"].attack + attacker.inventory["Main Hand"].attack + attacker.inventory["Off Hand"].attack + attacker.inventory["Armor"].attack + attacker.inventory["Necklace"].attack -  defender_bonus - defender.defense - defender.inventory["Helmet"].defense - defender.inventory["Main Hand"].defense - defender.inventory["Off Hand"].defense - defender.inventory["Armor"].defense - defender.inventory["Necklace"].defense
     attack_roll = randint(1, 20)
     if attack_roll <= chance_to_hit:
@@ -407,7 +467,13 @@ def attack(attacker, attacker_move, defender, defender_move):
         print(attacker.name + " did " + str(attack_damage) + " damage")
     else: 
         print(attacker.name + " missed!")
-def death():
+def generate_spell_name():
+    syl1 = choice(["Ans", "Alt", "Ap", "Bur", "Bos", "Beal", "Cri", "Cal", "Dree", "Dou", "Fle", "Fnu", "Fot", "FF", "Grrrra", "Hesh", "Hal", "Ils", "Jyrr", "Jask", "Klaa", "Lor", "Laf", "Mie", "Mlo", "Neh", "Ny", "Naf", "Oo", "Of", "Pir", "Phon", "Qua", "Qir", "Rhy", "Rac", "Stae", "Sloo", "Thuus", "Tah", "Uuv", "Vex", "Vahl", "Wath", "Xyx", "Xor", "Xeeg", "Yym", "Yrg", "Zwo", "Zae", "Zoth"])
+    syl2 = choice(["aa", "al", "ath", "bot", "brith", "cho", "cleh", "der", "don", "dwes", "eir", "eet", "ens", "fro", "for", "fnu", "FN", "gath", "glom", "geb", "hae", "hom", "iel", "iim", "jok", "jar", "khe", "klo", "lith", "lyng", "loe", "mav", "moo", "nia", "nalt", "negh", "ol", "oagh", "oo", "prak", "phe", "quo", "rhea", "ril", "shy", "sul", "tha", "tig", "uu", "vex", "wah", "xa", "yat", "zool", "yoh", "zyz"])
+    syl3 = choice(["alg", "aer", "bel", "bah", "cer", "col", "dof", "dae", "eec", "eie", "fay", "fnu", "gab", "goo", "hef", "hau", "ilt", "ine", "joh", "jank", "ka", "kob", "leed", "lan", "mar", "molk", "murn", "nargh", "noeh", "orl", "ooth", "om", "paf", "pip", "que", "ras", "rekk", "som", "seng", "tan", "tel", "thu", "uuv", "uer", "vog", "vex", "wyh", "wee", "wel", "xo", "xed", "yl", "yoof", "zel", "zzzy", "zaelael"])
+    name = syl1 + syl2 + syl3
+    return name
+def death(): #Use sick logo here
     exit()
 def generate_room_description():
     adjective = choice(["musty", "clean", "tattered", "lumpy", "putrid", "impressive", "improper"])
@@ -483,69 +549,79 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
             found = False
             if valid_text(list[0], "in", "eq", "d", "help"):
                 if list[0].lower() == "in": #inspect command in inventory
-                    print("---------------")
-                    for x in player_char.inventory:
-                        if type(player_char.inventory[x]) == item:
-                            if list[1].lower() == player_char.inventory[x].name.lower():
-                                item_description(player_char.inventory[x])
-                                found = True
-                                break
-                    if found == False:
+                    if len(list) > 1:
+                        print("---------------")
+                        for x in player_char.inventory:
+                            if type(player_char.inventory[x]) == item:
+                                if list[1].lower() == player_char.inventory[x].name.lower():
+                                    item_description(player_char.inventory[x])
+                                    found = True
+                                    break
+                        if found == False:
+                            for i, x in enumerate(player_backpack):
+                                if list[1].lower() == player_backpack[i].name.lower():
+                                    item_description(player_backpack[i])
+                                    found = True
+                                    break
+                        if found == False and list[1] != "self":
+                            print("\"" + list[1] + "\"" + " not found.")
+                            print("---------------")
+                        if list[1].lower() == "self":
+                            print("." * len(player_char.name) + 1)
+                            print(player_char.name + ":")
+                            print("'" * len(player_char.name) + 1)
+                            print("HP      : " + str(player_char.hp))
+                            print("Speed   : " + str(player_char.speed))
+                            print("Attack  : " + str(player_char.attack))
+                            print("Defense : " + str(player_char.defense))
+                            print("Armor   : " + str(player_char.armor))
+                            print("EXP     : " + str(player_char.exp))
+                            print("Level   : " + str(player_char.level))
+                            print("---------------")
+                            found = True
+                if list[0].lower() == "eq": #equip command in inventory
+                    if len(list) > 1:
+                        found = False
+                        print("---------------")
                         for i, x in enumerate(player_backpack):
                             if list[1].lower() == player_backpack[i].name.lower():
-                                item_description(player_backpack[i])
-                                found = True
-                                break
-                    if found == False:
-                        print("\"" + list[1] + "\"" + " not found.")
-                    print("---------------")
-                    if list[1].lower() == "self":
-                        print(player_char.name + ":")
-                        print("HP      : " + str(player_char.hp))
-                        print("Speed   : " + str(player_char.speed))
-                        print("Attack  : " + str(player_char.attack))
-                        print("Defense : " + str(player_char.defense))
-                        print("Armor   : " + str(player_char.armor))
-                        found = True
-                if list[0].lower() == "eq": #equip command in inventory
-                    found = False
-                    print("---------------")
-                    for i, x in enumerate(player_backpack):
-                        if list[1].lower() == player_backpack[i].name.lower():
-                            if player_char.inventory[player_backpack[i].slot] != item_dummy:
-                                old_item = player_char.inventory[player_backpack[i].slot]
-                                new_item = player_backpack[i]
-                                player_backpack.append(old_item)
-                                player_char.inventory[new_item.slot] = new_item
-                                player_backpack.remove(new_item)
-                                found = True
-                                print("Changed " + old_item.name + " for " + new_item.name)
-                                print("---------------")
-                            else:
-                                new_item = player_backpack[i]
-                                player_char.inventory[new_item.slot] = new_item
-                                player_backpack.remove(new_item)
-                                found = True
-                                print("Equipped " + new_item.name)
-                                print("---------------")
-                if found == False:
-                    print (list[1].lower() + " not found")
-                    break
+                                if player_char.inventory[player_backpack[i].slot] != item_dummy:
+                                    old_item = player_char.inventory[player_backpack[i].slot]
+                                    new_item = player_backpack[i]
+                                    player_backpack.append(old_item)
+                                    player_char.inventory[new_item.slot] = new_item
+                                    player_backpack.remove(new_item)
+                                    found = True
+                                    print("Changed " + old_item.name + " for " + new_item.name)
+                                    print("---------------")
+                                else:
+                                    new_item = player_backpack[i]
+                                    player_char.inventory[new_item.slot] = new_item
+                                    player_backpack.remove(new_item)
+                                    found = True
+                                    print("Equipped " + new_item.name)
+                                    print("---------------")
                 if list[0].lower() == "d": #drop command in inventory
-                    found = False
-                    print("---------------")
-                    for i, x in enumerate(player_backpack):
-                        if list[1].lower() == player_backpack[i].name.lower():
-                            drop_item = player_backpack[i]
-                            player_backpack.remove(drop_item)
-                            current_room.items.append(drop_item)
-                            found = True
-                            print("Dropped the " + drop_item.name.lower())
-                            print("---------------")
-                            break
-                    if found == False:
-                        print("\"" + list[1] + "\"" + " not found.")
+                    if len(list) > 1:
+                        found = False
                         print("---------------")
+                        for i, x in enumerate(player_backpack):
+                            if list[1].lower() == player_backpack[i].name.lower():
+                                drop_item = player_backpack[i]
+                                player_backpack.remove(drop_item)
+                                current_room.items.append(drop_item)
+                                found = True
+                                print("Dropped the " + drop_item.name.lower())
+                                print("---------------")
+                                break
+                        if found == False:
+                            print("\"" + list[1] + "\"" + " not found.")
+                            print("---------------")
+                if found == False and len(list) > 1:
+                    print(list[1].lower() + " not found")
+                    break
+                elif found == False and list[0] != "help":
+                    print("Only one word found")
             else:
                 print("Invalid command")
         if mode == "ex":#---------------------------------------------------------mode set to explore
@@ -595,7 +671,7 @@ def player_setup():
     "Main Hand": item_shotgun,
     "Off Hand": item_dummy,
     "Necklace": item_dummy
-    }, "Nobody")
+    }, "Nobody", 0, 1)
     player_backpack = [item_short_sword, item_shield]
     player_xpos = 0
     player_ypos = 0
@@ -621,6 +697,13 @@ room_list = generate_world(5, 5)
 player_setup()
 current_room = room_list[0]
 combat_threshold = 20
+#Generate combat moves
+relentless_attack_keyword = "ra"
+disarm_keyword = "disarm"
+turtle_keyword = "turtle"
+ra_shortcut = "ra"
+disarm_shortcut = "d"
+turtle_shortcut = "t"
 
 #GAME START
 with open("willcore_logo.txt") as f:
