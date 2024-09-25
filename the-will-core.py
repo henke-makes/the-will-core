@@ -58,8 +58,8 @@ Combat moves
     Aimed attack X
     Defense X
     Disarm
-    Relentless attack
-    Turtle
+    Relentless attack X
+    Turtle X
 
 Rum-attribut
     Kan jag generera en lista objekt som rummet innehåller och skriva som desc?
@@ -111,7 +111,8 @@ class potion(consumable):
     def function():
         player_char.hp += 5
 class scroll(consumable):
-    def __init__(self, text):
+    def __init__(self, name, text):
+        self.name = name
         self.text = text
 class key(consumable): #fix parent class
     def __init__(self, name, lock):
@@ -165,7 +166,6 @@ turtle_discovered = False
 spell_hp_keyword = 0
 spell_speed_keyword = 0
 
-
 #FUNCTIONS
 def generate_items(how_many, *items):
     i = 0
@@ -218,7 +218,7 @@ def render_map():
             if x.items != []:
                 x.line1 = "..?.."
         if x.xpos == player_xpos and x.ypos == player_ypos:
-            x.line2 = "| o |"
+            x.line2 = "| @ |"
     
     i = 0
     j = 0
@@ -334,7 +334,7 @@ def menu(*choices):
             shortcut = parse_list[1]
             print(str(x + 1) + " " + text + " [" + shortcut + "]")
         print("---------------")
-        menu_choice= input("What do you wish to do?\n")
+        menu_choice= input("What do you wish to do?\n>>>")
         for x, choice in enumerate(choices):
             parse_list = choice.split(" ")
             text = parse_list[0]
@@ -359,7 +359,7 @@ def inventory():
         print("Your backpack contains: ")
         for x in player_backpack:
             print(x.name)
-    parse_text("Whassup? (\"help\" for command list)\n", "in")
+    parse_text("Whassup? (\"help\" for command list)\n>>>", "in")
 def explore(): #use parse_text() here to allow for looting etc
     print("...........\nExploration\n'''''''''''")
     print("..\\.............................../..")
@@ -580,25 +580,32 @@ def generate_loot():
             print(loot_item.name)
             return(loot_item)
     print("Roll: " + str(loot_roll))
-def item_description(item): #add attack/defense
-    print(item.name + ":")
-    print("Equip to: " + item.slot)
-    if item.hp != 0:
-        print("• " + str(item.hp) + " HP")
-    if item.speed > 0:
-        print("• + " + str(item.speed) + " speed")
-    elif item.speed < 0:
-        print("• " + str(item.speed) + " speed")
-    if item.attack != 0:
-        print("• + " + str(item.attack) + " attack")
-    if item.defense != 0:
-        print("• + " + str(item.defense) + " defense")
-    if item.min_dmg != 0 and item.max_dmg != 0:
-        print("• " + str(item.min_dmg) + "-" + str(item.max_dmg) + " DMG")
-    if item.armor > 0:
-        print("• + " + str(item.armor) + " armor")
-    elif item.armor < 0:
-        print("• " + str(item.armor) + " armor")
+def item_description(_item): #add attack/defense
+    if type(_item) == item:
+        print(_item.name + ":")
+        print("Equip to: " + _item.slot)
+        if _item.hp != 0:
+            print("• " + str(_item.hp) + " HP")
+        if _item.speed > 0:
+            print("• + " + str(_item.speed) + " speed")
+        elif _item.speed < 0:
+            print("• " + str(_item.speed) + " speed")
+        if _item.attack != 0:
+            print("• + " + str(_item.attack) + " attack")
+        if _item.defense != 0:
+            print("• + " + str(_item.defense) + " defense")
+        if _item.min_dmg != 0 and _item.max_dmg != 0:
+            print("• " + str(item.min_dmg) + "-" + str(item.max_dmg) + " DMG")
+        if _item.armor > 0:
+            print("• + " + str(_item.armor) + " armor")
+        elif _item.armor < 0:
+            print("• " + str(_item.armor) + " armor")
+    if type(_item) == key:
+        print(_item.name + ":")
+        print("Opens lock " + _item.lock)
+    if type(_item) == scroll:
+        print(_item.name + ":")
+        print(_item.text)
 def enemy_description(enemy):
     print(enemy.name + ":")
     if enemy.hp != 0:
@@ -660,9 +667,9 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                             print("\"" + list[1] + "\"" + " not found.")
                             print("---------------")
                         if list[1].lower() == "self":
-                            print("." * len(player_char.name) + 1)
+                            print("." * (len(player_char.name) + 1))
                             print(player_char.name + ":")
-                            print("'" * len(player_char.name) + 1)
+                            print("'" * (len(player_char.name) + 1))
                             print("HP      : " + str(player_char.hp))
                             print("Speed   : " + str(player_char.speed))
                             print("Attack  : " + str(player_char.attack))
@@ -677,7 +684,7 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                         found = False
                         print("---------------")
                         for i, x in enumerate(player_backpack):
-                            if list[1].lower() == player_backpack[i].name.lower():
+                            if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == item:
                                 if player_char.inventory[player_backpack[i].slot] != item_dummy:
                                     old_item = player_char.inventory[player_backpack[i].slot]
                                     new_item = player_backpack[i]
@@ -694,6 +701,10 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                                     found = True
                                     print("Equipped " + new_item.name)
                                     print("---------------")
+                            if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) != item:
+                                print(player_backpack[i].name + " is not equippable.")
+                                print("---------------")
+                                found = True
                 if list[0].lower() == "d": #drop command in inventory
                     if len(list) > 1:
                         found = False
@@ -731,18 +742,70 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                         enemy_description(current_room.enemy)
                         found = True
                         parse = False
-                if list[0].lower() == "t": # inspect command in exploration
+                if list[0].lower() == "t": # take command in exploration
                     found = False
                     if current_room.items != []:
+                        if list[1].lower() == "all":
+                            found = True
+                            for x in current_room.items:
+                                player_backpack.append(x)
+                                current_room.items.remove(x)
+                            print("Took all items!")
                         for x in current_room.items:
                             if list[1].lower() == x.name.lower():
                                 player_backpack.append(x)
                                 print("Took " + x.name + " from the room.")
                                 current_room.items.remove(x)
                                 found = True
-                                parse = False
                 if found == False and list[0].lower() != "help":
-                    print("\"" + list[1] + "\"" + " not found.")       
+                    print("\"" + list[1] + "\"" + " not found.")
+def spell_fanfare():
+    i = 0
+    for i in range(7):
+        if i % 2 == 0:
+            with open("willcore_spell.txt") as f:
+                print(f.read())
+            sleep(1)
+        else:
+            delete_rows(11)
+            print("\n" * 10)
+            sleep(1)
+            delete_rows(11)
+        i += 1
+def spellcasting():
+    global spell_hp_found
+    global spell_speed_found
+    global spell_armor_found
+    spell_word = input("What is the magic spell?\n")
+    if spell_word.lower() == spell_hp_keyword.lower():
+        if spell_hp_found == False:
+            spell_fanfare()
+            player_char.hp += 5 #change to max HP
+            spell_hp_found = True
+            input("You cast the magic healing spell!\nMax HP increased by 5!")
+        else:
+            input("You cast the magic healing spell!\n... But you have already gained its power.")
+    elif spell_word.lower() == spell_speed_keyword.lower():
+        if spell_speed_found == False:
+            spell_fanfare()
+            player_char.speed += 2
+            spell_speed_found = True
+            input("You cast the magic speed spell!\nSpeed increased by 2!")
+        else:
+            input("You cast the magic speed spell!\n... But you have already gained its power.")
+    elif spell_word.lower() == spell_armor_keyword.lower():
+        if spell_armor_found == False:
+            spell_fanfare()
+            player_char.armor += 2
+            spell_armor_found = True
+            input("You cast the magic armor spell!\nArmor increased by 2!")
+        else:
+            input("You cast the magic armor spell!\n... But you have already gained its power.")
+    else:
+        input("No such spell - spell failed!")
+def split_text(text):
+    str1, str2 = text[:len(text)//2], text[len(text)//2:] 
+    return [str1, str2]  
 def valid_text(text, *key):
     for x in key:
         if text.lower() == x.lower():
@@ -765,11 +828,11 @@ def player_setup():
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_short_sword, item_shield]
+    player_backpack = [item_short_sword, item_shield, item_key1]
     player_xpos = 0
     player_ypos = 0
 def main_menu():
-    menu_choice = menu("Navigate nav", "Explore ex", "Fight f", "Inventory i", "Help help", "Generate_loot_[TEST] gen", "Generate_spells[TEST] spell")
+    menu_choice = menu("Navigate nav", "Explore ex", "Fight f", "Inventory i", "Help help", "Generate_loot_[TEST] gen", "Spellcasting spell")
     if menu_choice.lower() == "f":
         combat()
     if menu_choice.lower() == "i":
@@ -783,12 +846,7 @@ def main_menu():
     if menu_choice.lower() == "gen":
         generate_loot()
     if menu_choice.lower() == "spell":
-        spell_hp_keyword = generate_spell_name()
-        print("HP spell: " + spell_hp_keyword)
-        spell_speed_keyword = generate_spell_name()
-        print("Speed spell: " + spell_speed_keyword)
-        spell_armor_keyword = generate_spell_name()
-        print("Armor spell: " + spell_armor_keyword)
+        spellcasting()
     
 
 #GAME SETUP
@@ -808,13 +866,38 @@ turtle_keyword = "turtle"
 ra_shortcut = "ra"
 disarm_shortcut = "d"
 turtle_shortcut = "t"
+
 #Generate spells
 spell_hp_keyword = generate_spell_name()
-print("HP spell: " + spell_hp_keyword)
+spell_hp_found = False
 spell_speed_keyword = generate_spell_name()
-print("Speed spell: " + spell_speed_keyword)
+spell_speed_found = False
 spell_armor_keyword = generate_spell_name()
-print("Armor spell: " + spell_armor_keyword)
+spell_armor_found = False
+
+#Generate spell scrolls
+hp_scroll1 = scroll("Scroll 1", "A torn scroll with the text:\n\"" + split_text(spell_hp_keyword)[0] + "-\"")
+hp_scroll2 = scroll("Scroll 2", "A torn scroll with the text:\n\"-" + split_text(spell_hp_keyword)[1] + "\"")
+speed_scroll1 = scroll("Scroll 3", "A torn scroll with the text:\n\"" + split_text(spell_speed_keyword)[0] + "-\"")
+speed_scroll2 = scroll("Scroll 4", "A torn scroll with the text:\n\"-" + split_text(spell_speed_keyword)[1] + "\"")
+armor_scroll1 = scroll("Scroll 5", "A torn scroll with the text:\n\"" + split_text(spell_armor_keyword)[0] + "-\"")
+armor_scroll2 = scroll("Scroll 6", "A torn scroll with the text:\n\"-" + split_text(spell_armor_keyword)[1] + "\"")
+print("HP spell: \n" + spell_hp_keyword)
+print(spell_speed_keyword)
+print(spell_armor_keyword)
+# print("Scroll 1 text: \n" + hp_scroll1.text)
+# print("Scroll 2 text: \n" + hp_scroll2.text)
+
+#Sprinkle scrolls into level
+scroll_list = [hp_scroll1, hp_scroll2, speed_scroll1, speed_scroll2, armor_scroll1, armor_scroll2]
+scroll_room_list = room_list
+for x in scroll_list:
+    scroll_room_list[0].items.append(x)
+    # random_room = randint(0, len(scroll_room_list) - 1)
+    # scroll_room_list[random_room].items.append(x)
+    # print(x.name + " is in room " + str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
+    #scroll_room_list.remove(scroll_room_list[random_room]) #varför funkar inte det här? Verkar ta bort rum ur room_list?
+
 
 #GAME START
 with open("willcore_logo.txt") as f:

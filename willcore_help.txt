@@ -27,12 +27,11 @@ Exploration
 "in"  - Inspect
         Display stats of an item
         "in self" will inspect your current stats.
-"o"   - Open                                       Fast det här är kinda bullshit tho? Tror inte jag behåller detta, containers är bara för loot tables.
-        Open a container to see what's inside
 "t"   - Take
         Takes item(s) from somewhere.
         Requires a container or enemy to loot
         Can only be done with no live enemies in room
+        "t all" takes all items in the room.
 "m"   - Return to menu
         Use in inventory or while exploring to return to menu
 
