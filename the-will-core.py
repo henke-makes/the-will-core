@@ -105,14 +105,24 @@ class item:
         self.slot = slot
         self.name = name
 class consumable:
-    def __init__(self):
-        pass
+    def __init__(self, name):
+        self.name = name
+class potion(consumable):
+    def function():
+        player_char.hp += 5
+class scroll(consumable):
+    def __init__(self, text):
+        self.text = text
+class key(consumable): #fix parent class
+    def __init__(self, name, lock):
+        self.name = name
+        self.lock = lock
 class container:
     def __init__(self, *loot_table):
         self.loot_table = loot_table
         self.items = []
 class room:
-    def __init__(self, xpos, ypos, vis, line1, line2, line3, items, desc, enemy):
+    def __init__(self, xpos, ypos, vis, line1, line2, line3, items, desc, enemy, lock, lockvis):
         self.xpos = xpos
         self.ypos = ypos
         self.vis = vis
@@ -122,8 +132,10 @@ class room:
         self.items = items
         self.desc = desc
         self.enemy = enemy
+        self.lock = lock
+        self.lockvis = lockvis
 
-#ITEMS "Helmet", "Armor", "Main Hand", "Off Hand", "Necklace"
+#INVENTORY ITEMS "Helmet", "Armor", "Main Hand", "Off Hand", "Necklace"
 # HP, SPEED, ATTACK, DEFENSE, MIN-DMG, MAX-DMG, ARMOR, SLOT, NAME
 item_dagger      = item(0, 1, 0, 0, 1, 2, 0, "Main Hand", "Dagger")
 item_short_sword = item(0, 0, 1, 0, 2, 3, 0, "Main Hand", "Short Sword")
@@ -131,6 +143,9 @@ item_shield      = item(0, 0, 0, 2, 0, 0, 1, "Off Hand", "Shield")
 item_cloak       = item(1, 2, 0, 1, 0, 0, 1, "Armor", "Cloak")
 item_dummy       = item(0, 0, 0, 0, 1, 1, 0, "None", "Nothing")
 item_shotgun     = item(0, 4, 10, 10, 5, 5, 0, "Main Hand", "SHOTGUN SON")
+
+item_key1 = key("Key A", "A")
+item_key2 = key("Key B", "B")
 
 #CONTAINERS
 #fixaaaaaa
@@ -147,6 +162,9 @@ disarm_keyword = 0
 disarm_discovered = False
 turtle_keyword = 0
 turtle_discovered = False
+spell_hp_keyword = 0
+spell_speed_keyword = 0
+
 
 #FUNCTIONS
 def generate_items(how_many, *items):
@@ -159,7 +177,7 @@ def generate_items(how_many, *items):
         incoming_item_list.remove(item)
         i += 1
     return outgoing_item_list
-def generate_enemy(hp, speed, attack, defense, armor, name, inventory, loot, exp):
+def generate_enemy(hp, speed, attack, defense, armor, name, inventory, loot, exp): #FIXA! basera lvl på j i worldgen?
     gen_enemy = enemy(hp, speed, attack, defense, armor, name, inventory, loot, exp)
     return gen_enemy
 def generate_world(xsize, ysize):
@@ -173,7 +191,7 @@ def generate_world(xsize, ysize):
     while j < ysize:
         i = 0
         while i < xsize:
-            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_dagger, item_cloak, item_shield), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [item_shield], 1))
+            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_dagger, item_key1, item_key2), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1,), choice(["", "", "", "", "", "A", "B"]), 0)
             room_n += 1
             room_list.append(new_room)
             i += 1
@@ -186,6 +204,12 @@ def render_map():
         if player_xpos == x.xpos and player_ypos == x.ypos:
             x.vis = 1
 
+    for x in room_list:
+        if x.lockvis == 1:
+            x.line1 = ".KEY."
+            x.line2 = "  " + x.lock + "  "
+            x.line3 = "'REQ'"
+    
     for x in room_list:
         if x.vis == 1:
             x.line1 = "....."
@@ -226,27 +250,80 @@ def player_navigation():
     global room_list
     global current_room
     nav = True
-    first = True
+    locked_door = 0
+    needed_key = ""
+    first = 1
+    render_map()
     while nav:
-        if first == False:
-            delete_rows(map_ysize*3 + 3)
-        first = False
-        render_map()
-        print("Navigate with WASD, exit with E")
         player_nav = str(getch(), encoding="utf-8")
         if player_nav.lower() == "d" and player_xpos < map_xsize - 1:
-            player_xpos += 1
+            if check_lock(player_xpos + 1, player_ypos):
+                player_xpos += 1
+                locked_door = 0
+            else:
+                for x in room_list:
+                    if x.xpos == player_xpos + 1 and x.ypos == player_ypos:
+                        needed_key = x.lock
+                        locked_door = 1
+                        x.lockvis = 1
         if player_nav.lower() == "a" and player_xpos > 0:
-            player_xpos -= 1
+            if check_lock(player_xpos - 1, player_ypos):
+                player_xpos -= 1
+                locked_door = 0
+            else:
+                for x in room_list:
+                    if x.xpos == player_xpos - 1 and x.ypos == player_ypos:
+                        needed_key = x.lock
+                        locked_door = 1
+                        x.lockvis = 1
         if player_nav.lower() == "s" and player_ypos < map_ysize - 1:
-            player_ypos += 1
+            if check_lock(player_xpos, player_ypos + 1):
+                player_ypos += 1
+                locked_door = 0
+            else:
+                for x in room_list:
+                    if x.xpos == player_xpos and x.ypos == player_ypos + 1:
+                        needed_key = x.lock
+                        locked_door = 1
+                        x.lockvis = 1
         if player_nav.lower() == "w" and player_ypos > 0:
-            player_ypos -= 1
+            if check_lock(player_xpos, player_ypos - 1):
+                player_ypos -= 1
+                locked_door = 0
+            else:
+                for x in room_list:
+                    if x.xpos == player_xpos and x.ypos == player_ypos - 1:
+                        needed_key = x.lock
+                        locked_door = 1
+                        x.lockvis = 1
         if player_nav.lower() == "e":
             nav = False
+            break
         for x in room_list:
             if x.xpos == player_xpos and x.ypos == player_ypos:
                 current_room = x
+        if locked_door == 0:
+            delete_rows(map_ysize*3 + 3 - first)
+            first = 0
+            render_map()
+        else:
+            delete_rows(map_ysize*3 + 3)
+            input("\n" * round((map_ysize*3/2)) + (" "*round((map_xsize*3/2)))  + "Locked! You need key " + needed_key + "\n" * round((map_ysize*3/2)))
+            delete_rows(map_ysize*3 + 2)
+            render_map()
+        print("Navigate with WASD, exit with E")
+def check_lock(xpos, ypos):
+    for x in room_list:
+        if x.xpos == xpos and x.ypos == ypos:
+            if x.lock != "":
+                lock = x.lock
+                for i in player_backpack:
+                    if type(i) == key:
+                        if i.lock == lock:
+                            return True
+                return False
+            else:
+                return True
 def menu(*choices):
     valid_choice = True
     print("---------------")
@@ -474,6 +551,8 @@ def generate_spell_name():
     name = syl1 + syl2 + syl3
     return name
 def death(): #Use sick logo here
+    with open("willcore_gameover.txt") as f:
+        print(f.read())
     exit()
 def generate_room_description():
     adjective = choice(["musty", "clean", "tattered", "lumpy", "putrid", "impressive", "improper"])
@@ -485,8 +564,22 @@ def generate_loot():
     loot_list = container_chest.loot_table
     total_chance = 0
     for x in loot_list:
-        if x != item:
+        if type(x) != item:
             total_chance += x
+    print("Total chance: " + str(total_chance))
+    loot_roll = randint(1, total_chance)
+    print("Roll: " + str(loot_roll))
+    loot_number = 0
+    loot_item = 0
+    for x in loot_list:
+        if type(x) == item:
+            loot_item = x
+        else:
+            loot_number += x
+        if loot_number >= loot_roll:
+            print(loot_item.name)
+            return(loot_item)
+    print("Roll: " + str(loot_roll))
 def item_description(item): #add attack/defense
     print(item.name + ":")
     print("Equip to: " + item.slot)
@@ -676,7 +769,7 @@ def player_setup():
     player_xpos = 0
     player_ypos = 0
 def main_menu():
-    menu_choice = menu("Navigate nav", "Explore ex", "Fight f", "Inventory i", "Help help", "Generate loot [TESTING FEATURE] gen")
+    menu_choice = menu("Navigate nav", "Explore ex", "Fight f", "Inventory i", "Help help", "Generate_loot_[TEST] gen", "Generate_spells[TEST] spell")
     if menu_choice.lower() == "f":
         combat()
     if menu_choice.lower() == "i":
@@ -689,6 +782,14 @@ def main_menu():
         help()
     if menu_choice.lower() == "gen":
         generate_loot()
+    if menu_choice.lower() == "spell":
+        spell_hp_keyword = generate_spell_name()
+        print("HP spell: " + spell_hp_keyword)
+        spell_speed_keyword = generate_spell_name()
+        print("Speed spell: " + spell_speed_keyword)
+        spell_armor_keyword = generate_spell_name()
+        print("Armor spell: " + spell_armor_keyword)
+    
 
 #GAME SETUP
 map_xsize = 0
@@ -696,26 +797,40 @@ map_ysize = 0
 room_list = generate_world(5, 5)
 player_setup()
 current_room = room_list[0]
+room_list[0].lock = ""
 combat_threshold = 20
 #Generate combat moves
+#Use dict to make an actual dictionaries i.e. "leg:fruth, belly:ababan, groin:wherif" "in the:ger pa, the heck outta:ghitik bogu thram, etc"
+#then generate sentence as keyword
 relentless_attack_keyword = "ra"
 disarm_keyword = "disarm"
 turtle_keyword = "turtle"
 ra_shortcut = "ra"
 disarm_shortcut = "d"
 turtle_shortcut = "t"
+#Generate spells
+spell_hp_keyword = generate_spell_name()
+print("HP spell: " + spell_hp_keyword)
+spell_speed_keyword = generate_spell_name()
+print("Speed spell: " + spell_speed_keyword)
+spell_armor_keyword = generate_spell_name()
+print("Armor spell: " + spell_armor_keyword)
 
 #GAME START
 with open("willcore_logo.txt") as f:
-     print(f.read())
-# start = "" #alltså det här är så fruktansvärt drygt hahaha
-# while start != "START":
-#     start = input("Type \"START\" to start game!\nType \"story\" for an introduction.")
-#     if start != "START" and start.lower() == "start":
-#         print("Put some effort in! ALL CAPS THAT MOTHERHUBBARD")
+    print(f.read())
+# start = ""
+# while start.lower() != "start":
+#     start = menu("Start start", "Story story", "Help h", "Exit x")
 #     if start.lower() == "story":
 #         with open("willcore_story.txt") as f:
 #             print(f.read())
+#     if start.lower() == "h":
+#         with open("willcore_help.txt") as f:
+#             print(f.read())
+#     if start.lower() == "x":
+#         exit()
+
 # player_char.name = input("What is thy noble knight's name? ")
 # if player_char.name == "":
 #     player_char.name = "Nobody"
