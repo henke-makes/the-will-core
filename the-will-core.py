@@ -805,7 +805,12 @@ def spellcasting():
         input("No such spell - spell failed!")
 def split_text(text):
     str1, str2 = text[:len(text)//2], text[len(text)//2:] 
-    return [str1, str2]  
+    return [str1, str2]
+def scroll_names(scrolls, adjectives):
+    for x in scrolls:
+        random = randint(0, len(adjectives) - 1)
+        x.name = adjectives[random] + " Scroll"
+        adjectives.remove(adjectives[random])
 def valid_text(text, *key):
     for x in key:
         if text.lower() == x.lower():
@@ -882,22 +887,24 @@ speed_scroll1 = scroll("Scroll 3", "A torn scroll with the text:\n\"" + split_te
 speed_scroll2 = scroll("Scroll 4", "A torn scroll with the text:\n\"-" + split_text(spell_speed_keyword)[1] + "\"")
 armor_scroll1 = scroll("Scroll 5", "A torn scroll with the text:\n\"" + split_text(spell_armor_keyword)[0] + "-\"")
 armor_scroll2 = scroll("Scroll 6", "A torn scroll with the text:\n\"-" + split_text(spell_armor_keyword)[1] + "\"")
-print("HP spell: \n" + spell_hp_keyword)
+print(spell_hp_keyword)
 print(spell_speed_keyword)
 print(spell_armor_keyword)
 # print("Scroll 1 text: \n" + hp_scroll1.text)
 # print("Scroll 2 text: \n" + hp_scroll2.text)
 
-#Sprinkle scrolls into level
 scroll_list = [hp_scroll1, hp_scroll2, speed_scroll1, speed_scroll2, armor_scroll1, armor_scroll2]
+#Rename scrolls
+scroll_adjectives = ["Dusty", "Crumpled", "Crinkled", "Weathered", "Folded", "Singed", "Old", "Torn", "Aged", "Burned", "Yellow", "Faded", "Simple"]
+scroll_names(scroll_list, scroll_adjectives)
+#Sprinkle scrolls into level
 scroll_room_list = room_list
 for x in scroll_list:
-    scroll_room_list[0].items.append(x)
+    scroll_room_list[0].items.append(x) #remove after testing
     # random_room = randint(0, len(scroll_room_list) - 1)
     # scroll_room_list[random_room].items.append(x)
     # print(x.name + " is in room " + str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
     #scroll_room_list.remove(scroll_room_list[random_room]) #varför funkar inte det här? Verkar ta bort rum ur room_list?
-
 
 #GAME START
 with open("willcore_logo.txt") as f:
