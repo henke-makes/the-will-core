@@ -191,7 +191,7 @@ def generate_world(xsize, ysize):
     while j < ysize:
         i = 0
         while i < xsize:
-            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_dagger, item_key1, item_key2), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1,), choice(["", "", "", "", "", "A", "B"]), 0)
+            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_dagger, item_short_sword, item_key2), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1,), choice(["", "", "", "", "", "A", "B"]), 0)
             room_n += 1
             room_list.append(new_room)
             i += 1
@@ -628,10 +628,6 @@ def enemy_description(enemy):
             else:
                 print("and a " + x.name.lower() + ".")
 def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
-    # Parsing rules:
-    # - One/two words
-    # - Separated by a single space
-    # - Enter mode as argument? inventory/battle/navigation etc.
     global player_backpack
     global room_list
     global current_room
@@ -743,20 +739,22 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                         found = True
                         parse = False
                 if list[0].lower() == "t": # take command in exploration
-                    found = False
-                    if current_room.items != []:
-                        if list[1].lower() == "all":
-                            found = True
-                            for x in current_room.items:
-                                player_backpack.append(x)
-                                current_room.items.remove(x)
-                            print("Took all items!")
-                        for x in current_room.items:
-                            if list[1].lower() == x.name.lower():
-                                player_backpack.append(x)
-                                print("Took " + x.name + " from the room.")
-                                current_room.items.remove(x)
+                    if current_room.enemy.hp < 0:
+                        print("Cannot take with enemy in the room!")
+                    else:
+                        found = False
+                        if current_room.items != []:
+                            if list[1].lower() == "all":
                                 found = True
+                                player_backpack = player_backpack + current_room.items
+                                current_room.items = []
+                                print("Took all items!")
+                            for x in current_room.items:
+                                if list[1].lower() == x.name.lower():
+                                    player_backpack.append(x)
+                                    print("Took " + x.name + " from the room.")
+                                    current_room.items.remove(x)
+                                    found = True
                 if found == False and list[0].lower() != "help":
                     print("\"" + list[1] + "\"" + " not found.")
 def spell_fanfare():
@@ -769,7 +767,7 @@ def spell_fanfare():
         else:
             delete_rows(11)
             print("\n" * 10)
-            sleep(1)
+            sleep(0.3)
             delete_rows(11)
         i += 1
 def spellcasting():
@@ -811,6 +809,13 @@ def scroll_names(scrolls, adjectives):
         random = randint(0, len(adjectives) - 1)
         x.name = adjectives[random] + " Scroll"
         adjectives.remove(adjectives[random])
+def sprinkle_items(item_list): #Sprinkle items into unique rooms
+    scroll_room_list = room_list.copy()
+    for x in item_list:
+        random_room = randint(0, len(scroll_room_list) - 1)
+        scroll_room_list[random_room].items.append(x)
+        print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
+        scroll_room_list.remove(scroll_room_list[random_room])
 def valid_text(text, *key):
     for x in key:
         if text.lower() == x.lower():
@@ -852,7 +857,6 @@ def main_menu():
         generate_loot()
     if menu_choice.lower() == "spell":
         spellcasting()
-    
 
 #GAME SETUP
 map_xsize = 0
@@ -863,14 +867,44 @@ current_room = room_list[0]
 room_list[0].lock = ""
 combat_threshold = 20
 #Generate combat moves
-#Use dict to make an actual dictionaries i.e. "leg:fruth, belly:ababan, groin:wherif" "in the:ger pa, the heck outta:ghitik bogu thram, etc"
-#then generate sentence as keyword
+#Split into multiple dicts
+combat_move_dict = {"head": "thrag",
+                    "throat": "girak",
+                    "leg": "chrai",
+                    "arm": "lorot",
+                    "mouth": "birn",
+                    "eyes": "pheedr",
+                    "toe": "ghell",
+                    "kick": "threb",
+                    "smash": "chorok",
+                    "maul": "raath",
+                    "pinch": "hortho",
+                    "": "",
+                    "": "",
+                    "": "",
+                    "": "",
+                    "": "",
+                    "": "",
+                    "": "",
+                    "": "",}
 relentless_attack_keyword = "ra"
 disarm_keyword = "disarm"
 turtle_keyword = "turtle"
 ra_shortcut = "ra"
 disarm_shortcut = "d"
 turtle_shortcut = "t"
+
+keys = [item_key1, item_key2]
+key_room_list = room_list.copy() #---------------YOU ARE HERE, sprinklin da keys
+for x in keys:
+    check_valid = True
+    while check_valid:
+        random_room = randint(0, len(key_room_list) - 1)
+        if key_room_list[random_room].lock != x.lock:
+            key_room_list[random_room].items.append(x)
+            print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
+            key_room_list.remove(key_room_list[random_room])
+            check_valid = False
 
 #Generate spells
 spell_hp_keyword = generate_spell_name()
@@ -897,14 +931,7 @@ scroll_list = [hp_scroll1, hp_scroll2, speed_scroll1, speed_scroll2, armor_scrol
 #Rename scrolls
 scroll_adjectives = ["Dusty", "Crumpled", "Crinkled", "Weathered", "Folded", "Singed", "Old", "Torn", "Aged", "Burned", "Yellow", "Faded", "Simple"]
 scroll_names(scroll_list, scroll_adjectives)
-#Sprinkle scrolls into level
-scroll_room_list = room_list
-for x in scroll_list:
-    scroll_room_list[0].items.append(x) #remove after testing
-    # random_room = randint(0, len(scroll_room_list) - 1)
-    # scroll_room_list[random_room].items.append(x)
-    # print(x.name + " is in room " + str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
-    #scroll_room_list.remove(scroll_room_list[random_room]) #varför funkar inte det här? Verkar ta bort rum ur room_list?
+sprinkle_items(scroll_list)
 
 #GAME START
 with open("willcore_logo.txt") as f:
