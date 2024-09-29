@@ -1,69 +1,3 @@
-"""
-Första anteckningar:
-
-Kom ihåg att göra ett choose your own adventure lolzzzz
-där du letar efter the will core som är en maguffin av rang
-
-fler programming puns?
-- The Will Core
-Bossnamn:
-- Opera Tor
-- Funk Sean
-- Basher
-    A git who lives in the Hub
-
-Autobattler?
-    input() för varje ny handling, default blank rad för att fortsätta
-        Hemliga ord som man kan ge buffar?
-        typ input("Skriv in ett hejarop till X!") där vissa inputs är kodord för att ge buffs
-            cooldown på buffs så man inte behöver spamma?
-            permanenta buffs?
-            random ord från lista, alternativt generera?
-                Loot/treasure kan vara ledtrådar till ord/stavelser
-Levels?
-    Behövs progression eller är utmaningen autobattler tactics?
-    Builds vs grind
-Loot?
-    oshit, måste göra loot tables
-    Definera i csv/excel?
-        namn, rarity där större tal => högre chans
-        Summera alla chanser, dra en randint(1, max_loot_chance)
-Damage types?
-    ARPG style; fire, cold, poison etc.
-Initiativ/speed?
-Companions?
-Dialog?
-    Speech skill?
-    Färgade ord?
-        colorama-modulen verkar inte funka
-Karta?
-    använd print(i, end = "") för att printa utan ny rad
-    Spara spelarens position
-        Använd för att avgöra vilket håll man kan gå åt
-        Typ nåt sånt här?
-    ..... ..... .....
-    | o |-|   | | ? |
-    ''''' ''''' '''''
-            |     | 
-    ..... ..... .....
-    | x |-|   |-|   |
-    ''''' ''''' '''''
-    Om rummet är upptäckt, sätt värde på sträng till väggarna, typ
-        print(f{room00}, {room01}, {room02})
-        print(f{room10}, {room11}, {room12})
-        print(f{room20}, {room21}, {room22})
-    Tre rader per rum, efter varandra i x-led
-
-Combat moves
-    Aimed attack X
-    Defense X
-    Disarm
-    Relentless attack X
-    Turtle X
-
-Rum-attribut
-    Kan jag generera en lista objekt som rummet innehåller och skriva som desc?
-"""
 from random import choice
 from random import randint
 from msvcrt import getch
@@ -111,9 +45,11 @@ class potion(consumable):
     def function():
         player_char.hp += 5
 class scroll(consumable):
-    def __init__(self, name, text):
+    def __init__(self, name, text, log_text):
         self.name = name
         self.text = text
+        self.read = False
+        self.log_text = "\n• " + log_text
 class key(consumable): #fix parent class
     def __init__(self, name, lock):
         self.name = name
@@ -148,6 +84,8 @@ item_shotgun     = item(0, 4, 10, 10, 5, 5, 0, "Main Hand", "SHOTGUN SON")
 item_key1 = key("Key A", "A")
 item_key2 = key("Key B", "B")
 
+item_logbook = scroll("Logbook", "This logbook will update if you find anything interesting on your quest.", "")
+
 #CONTAINERS
 #fixaaaaaa
 container_chest = container(item_cloak, 5, item_dagger, 10, item_shield, 10, item_short_sword, 1)
@@ -177,8 +115,8 @@ def generate_items(how_many, *items):
         incoming_item_list.remove(item)
         i += 1
     return outgoing_item_list
-def generate_enemy(hp, speed, attack, defense, armor, name, inventory, loot, exp): #FIXA! basera lvl på j i worldgen?
-    gen_enemy = enemy(hp, speed, attack, defense, armor, name, inventory, loot, exp)
+def generate_enemy(hp, speed, attack, defense, armor, name, inventory, loot, lvl): #FIXA! basera lvl på j i worldgen?
+    gen_enemy = enemy(hp, speed, attack, defense, armor, name, inventory, loot, lvl)
     return gen_enemy
 def generate_world(xsize, ysize):
     global map_xsize
@@ -191,7 +129,8 @@ def generate_world(xsize, ysize):
     while j < ysize:
         i = 0
         while i < xsize:
-            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_dagger, item_short_sword, item_key2), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1,), choice(["", "", "", "", "", "A", "B"]), 0)
+            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_shield, item_short_sword), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1,), choice(["", "", "", "", "", "A", "B"]), 0)
+            # Gobbo enemy from before: generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1,)
             room_n += 1
             room_list.append(new_room)
             i += 1
@@ -474,7 +413,7 @@ def combat_move():
     global disarm_discovered
     loop = True
     while loop:
-        player_move = input("Press enter to continue, A/D for moves, or type something to cheer " + player_char.name + " on!\n")
+        player_move = input("Press enter to continue, \"move\" for combat moves, or type something to cheer " + player_char.name + " on!\n")
         if player_move.lower() == "f":
             print("You flee the battle!")
             return False
@@ -487,28 +426,30 @@ def combat_move():
         if player_move.lower() == "": 
             return True
         if player_move.lower() == "move":
+            print("Aimed attack: [a]\n",
+                  "Focus on aiming, but expose yourself to attack. (+5 ATK, -5 DEF)")
             if relentless_attack_discovered == True:
-                print("Relentless Attack: " + relentless_attack_keyword + "[" + ra_shortcut + "]")
-                print("Lunge at your foe for massive damage while sacrificing safety! (+2 Damage, +1 Damage taken)")
+                print("Relentless Attack: \"" + relentless_attack_keyword + "\" [" + ra_shortcut + "]")
+                print("Lunge at your foe for massive damage while sacrificing safety! (+2 Damage, +1 Damage taken)") #1.5x dmg, 2x dmg taken?
             if turtle_discovered == True:
-                print("Turtle: " + turtle_keyword + "[" + turtle_shortcut + "]")
-                print("Give up your next attack in order to defend yourself. (+3 Armor, no attacking)")
+                print("Turtle: \"" + turtle_keyword + "\" [" + turtle_shortcut + "]")
+                print("Give up your next attack in order to defend yourself. (+3 Armor, no attacking)") #3x armor?
             if disarm_discovered == True:
-                print("Disarm: " + disarm_keyword + "[" + disarm_shortcut + "]")
+                print("Disarm: \"" + disarm_keyword + "\"[" + disarm_shortcut + "]")
                 print("Aim for your opponent's weapon to disarm them. (-8 attack, hit disarms enemy)")
         if player_move.lower() == relentless_attack_keyword: #------------------------------ SPECIAL MOVES
             if relentless_attack_discovered == False:
                 relentless_attack_discovered = True
                 print("You have discovered Relentless Attack!\nSay again to use it, otherwise use a different command or press Enter to continue.")
             else:
-                print(player_char.name + " will do a relentless attack! (+2 Damage, +1 Damage taken)")
+                print(player_char.name + " will do a relentless attack!")
                 return True
         if player_move.lower() == turtle_keyword:
             if turtle_discovered == False:
                 turtle_discovered = True
                 print("You have discovered Turtle!\nSay again to use it, otherwise use a different command or press Enter to continue.")
             else:
-                print(player_char.name + " will turtle up this time. (+3 Armor, no attacking)")
+                print(player_char.name + " will turtle up this time.")
                 return True
         if player_move == disarm_keyword or player_move.lower() == disarm_shortcut:
             if disarm_discovered == False:
@@ -544,13 +485,18 @@ def attack(attacker, attacker_move, defender, defender_move):
         print(attacker.name + " did " + str(attack_damage) + " damage")
     else: 
         print(attacker.name + " missed!")
-def generate_spell_name():
+def generate_word(syllables):
     syl1 = choice(["Ans", "Alt", "Ap", "Bur", "Bos", "Beal", "Cri", "Cal", "Dree", "Dou", "Fle", "Fnu", "Fot", "FF", "Grrrra", "Hesh", "Hal", "Ils", "Jyrr", "Jask", "Klaa", "Lor", "Laf", "Mie", "Mlo", "Neh", "Ny", "Naf", "Oo", "Of", "Pir", "Phon", "Qua", "Qir", "Rhy", "Rac", "Stae", "Sloo", "Thuus", "Tah", "Uuv", "Vex", "Vahl", "Wath", "Xyx", "Xor", "Xeeg", "Yym", "Yrg", "Zwo", "Zae", "Zoth"])
     syl2 = choice(["aa", "al", "ath", "bot", "brith", "cho", "cleh", "der", "don", "dwes", "eir", "eet", "ens", "fro", "for", "fnu", "FN", "gath", "glom", "geb", "hae", "hom", "iel", "iim", "jok", "jar", "khe", "klo", "lith", "lyng", "loe", "mav", "moo", "nia", "nalt", "negh", "ol", "oagh", "oo", "prak", "phe", "quo", "rhea", "ril", "shy", "sul", "tha", "tig", "uu", "vex", "wah", "xa", "yat", "zool", "yoh", "zyz"])
     syl3 = choice(["alg", "aer", "bel", "bah", "cer", "col", "dof", "dae", "eec", "eie", "fay", "fnu", "gab", "goo", "hef", "hau", "ilt", "ine", "joh", "jank", "ka", "kob", "leed", "lan", "mar", "molk", "murn", "nargh", "noeh", "orl", "ooth", "om", "paf", "pip", "que", "ras", "rekk", "som", "seng", "tan", "tel", "thu", "uuv", "uer", "vog", "vex", "wyh", "wee", "wel", "xo", "xed", "yl", "yoof", "zel", "zzzy", "zaelael"])
-    name = syl1 + syl2 + syl3
+    if syllables == 3:
+        name = syl1 + syl2 + syl3
+    if syllables == 2:
+        name = syl1.lower() + syl3
+    if syllables == 1:
+        name = syl2
     return name
-def death(): #Use sick logo here
+def death():
     with open("willcore_gameover.txt") as f:
         print(f.read())
     exit()
@@ -657,6 +603,10 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                             for i, x in enumerate(player_backpack):
                                 if list[1].lower() == player_backpack[i].name.lower():
                                     item_description(player_backpack[i])
+                                    if type(x) == scroll and x != item_logbook:
+                                        if x.read == False:
+                                            item_logbook.text += x.log_text
+                                        x.read = True
                                     found = True
                                     break
                         if found == False and list[1] != "self":
@@ -741,6 +691,7 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                 if list[0].lower() == "t": # take command in exploration
                     if current_room.enemy.hp < 0:
                         print("Cannot take with enemy in the room!")
+                        found = True
                     else:
                         found = False
                         if current_room.items != []:
@@ -812,7 +763,8 @@ def scroll_names(scrolls, adjectives):
 def sprinkle_items(item_list): #Sprinkle items into unique rooms
     scroll_room_list = room_list.copy()
     for x in item_list:
-        random_room = randint(0, len(scroll_room_list) - 1)
+        #random_room = randint(0, len(scroll_room_list) - 1)
+        random_room = 0
         scroll_room_list[random_room].items.append(x)
         print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
         scroll_room_list.remove(scroll_room_list[random_room])
@@ -834,11 +786,11 @@ def player_setup():
     player_char = player(5, 3, 1, 1, 0, {
     "Helmet": item_dummy,
     "Armor": item_dummy,
-    "Main Hand": item_shotgun,
+    "Main Hand": item_dagger,
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_short_sword, item_shield, item_key1]
+    player_backpack = [item_logbook, item_key1, item_key2]
     player_xpos = 0
     player_ypos = 0
 def main_menu():
@@ -868,34 +820,53 @@ room_list[0].lock = ""
 combat_threshold = 20
 #Generate combat moves
 #Split into multiple dicts
-combat_move_dict = {"head": "thrag",
-                    "throat": "girak",
-                    "leg": "chrai",
-                    "arm": "lorot",
-                    "mouth": "birn",
-                    "eyes": "pheedr",
-                    "toe": "ghell",
-                    "kick": "threb",
-                    "smash": "chorok",
-                    "maul": "raath",
-                    "pinch": "hortho",
-                    "": "",
-                    "": "",
-                    "": "",
-                    "": "",
-                    "": "",
-                    "": "",
-                    "": "",
-                    "": "",}
-relentless_attack_keyword = "ra"
+combat_move_dict_bodypart = {
+"head": generate_word(2),
+"throat": generate_word(2),
+"leg": generate_word(2),
+"arm": generate_word(2),
+"mouth": generate_word(2),
+"eyes": generate_word(2),
+"toe": generate_word(2),
+}
+combat_move_dict_verb = {
+"kick": generate_word(1),
+"smash": generate_word(1),
+"maul": generate_word(1),
+"knee": generate_word(1),
+"hit": generate_word(1),
+"bite": "nums",
+}
+combat_move_dict_pronouns = {
+    "them": generate_word(2),
+    "their": generate_word(2),
+    "your": generate_word(2)
+}
+combat_move_dict_action = {
+"in the": generate_word(2) + " " + generate_word(1),
+"the heck outta": generate_word(1) + " " + generate_word(2) + " " + generate_word(1),
+}
+combat_move_dict_skill = {
+    "moves": generate_word(2),
+    "skills": generate_word(2),
+    "pecs": generate_word(2),
+    "abilities": generate_word(2),
+    "feats": generate_word(2)
+}
+ra_word_1 = randint(0, len(combat_move_dict_verb) - 1)
+ra_word_2 = randint(0, len(combat_move_dict_bodypart) - 1)
+ra_keyword_syntax1 = list(combat_move_dict_verb.keys())[ra_word_1] + " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_2]
+ra_translation_syntax1 = list(combat_move_dict_verb.values())[ra_word_1] + " " + combat_move_dict_pronouns["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_2]
+relentless_attack_keyword = ra_keyword_syntax1
 disarm_keyword = "disarm"
 turtle_keyword = "turtle"
 ra_shortcut = "ra"
 disarm_shortcut = "d"
 turtle_shortcut = "t"
-
+print(relentless_attack_keyword)
+print(ra_translation_syntax1)
 keys = [item_key1, item_key2]
-key_room_list = room_list.copy() #---------------YOU ARE HERE, sprinklin da keys
+key_room_list = room_list.copy()
 for x in keys:
     check_valid = True
     while check_valid:
@@ -907,25 +878,23 @@ for x in keys:
             check_valid = False
 
 #Generate spells
-spell_hp_keyword = generate_spell_name()
+spell_hp_keyword = generate_word(3)
 spell_hp_found = False
-spell_speed_keyword = generate_spell_name()
+spell_speed_keyword = generate_word(3)
 spell_speed_found = False
-spell_armor_keyword = generate_spell_name()
+spell_armor_keyword = generate_word(3)
 spell_armor_found = False
 
 #Generate spell scrolls
-hp_scroll1 = scroll("Scroll 1", "A torn scroll with the text:\n\"" + split_text(spell_hp_keyword)[0] + "-\"")
-hp_scroll2 = scroll("Scroll 2", "A torn scroll with the text:\n\"-" + split_text(spell_hp_keyword)[1] + "\"")
-speed_scroll1 = scroll("Scroll 3", "A torn scroll with the text:\n\"" + split_text(spell_speed_keyword)[0] + "-\"")
-speed_scroll2 = scroll("Scroll 4", "A torn scroll with the text:\n\"-" + split_text(spell_speed_keyword)[1] + "\"")
-armor_scroll1 = scroll("Scroll 5", "A torn scroll with the text:\n\"" + split_text(spell_armor_keyword)[0] + "-\"")
-armor_scroll2 = scroll("Scroll 6", "A torn scroll with the text:\n\"-" + split_text(spell_armor_keyword)[1] + "\"")
-print(spell_hp_keyword)
-print(spell_speed_keyword)
-print(spell_armor_keyword)
-# print("Scroll 1 text: \n" + hp_scroll1.text)
-# print("Scroll 2 text: \n" + hp_scroll2.text)
+hp_scroll1 = scroll("Scroll 1", "A torn scroll with the text:\n\"" + split_text(spell_hp_keyword)[0] + "-\"", "You found a torn scroll: \"" + split_text(spell_hp_keyword)[0] + "-\"")
+hp_scroll2 = scroll("Scroll 2", "A torn scroll with the text:\n\"-" + split_text(spell_hp_keyword)[1] + "\"", "You found a torn scroll: \"-" + split_text(spell_hp_keyword)[1] + "\"")
+speed_scroll1 = scroll("Scroll 3", "A torn scroll with the text:\n\"" + split_text(spell_speed_keyword)[0] + "-\"", "You found a torn scroll: \"" + split_text(spell_speed_keyword)[0] + "-\"")
+speed_scroll2 = scroll("Scroll 4", "A torn scroll with the text:\n\"-" + split_text(spell_speed_keyword)[1] + "\"", "You found a torn scroll: \"-" + split_text(spell_speed_keyword)[1] + "\"")
+armor_scroll1 = scroll("Scroll 5", "A torn scroll with the text:\n\"" + split_text(spell_armor_keyword)[0] + "-\"", "You found a torn scroll: \"" + split_text(spell_armor_keyword)[0] + "-\"")
+armor_scroll2 = scroll("Scroll 6", "A torn scroll with the text:\n\"-" + split_text(spell_armor_keyword)[1] + "\"", "You found a torn scroll: \"-" + split_text(spell_armor_keyword)[1] + "\"")
+#print(spell_hp_keyword)
+#print(spell_speed_keyword)
+#print(spell_armor_keyword)
 
 scroll_list = [hp_scroll1, hp_scroll2, speed_scroll1, speed_scroll2, armor_scroll1, armor_scroll2]
 #Rename scrolls
@@ -957,3 +926,70 @@ player_char.name = "Testimus"
 
 while True:
     main_menu()
+
+"""
+Första anteckningar:
+
+Kom ihåg att göra ett choose your own adventure lolzzzz
+där du letar efter the will core som är en maguffin av rang
+
+fler programming puns?
+- The Will Core
+Bossnamn:
+- Opera Tor
+- Funk Sean
+- Basher
+    A git who lives in the Hub
+
+Autobattler?
+    input() för varje ny handling, default blank rad för att fortsätta
+        Hemliga ord som man kan ge buffar?
+        typ input("Skriv in ett hejarop till X!") där vissa inputs är kodord för att ge buffs
+            cooldown på buffs så man inte behöver spamma?
+            permanenta buffs?
+            random ord från lista, alternativt generera?
+                Loot/treasure kan vara ledtrådar till ord/stavelser
+Levels?
+    Behövs progression eller är utmaningen autobattler tactics?
+    Builds vs grind
+Loot?
+    oshit, måste göra loot tables
+    Definera i csv/excel?
+        namn, rarity där större tal => högre chans
+        Summera alla chanser, dra en randint(1, max_loot_chance)
+Damage types?
+    ARPG style; fire, cold, poison etc.
+Initiativ/speed?
+Companions?
+Dialog?
+    Speech skill?
+    Färgade ord?
+        colorama-modulen verkar inte funka
+Karta?
+    använd print(i, end = "") för att printa utan ny rad
+    Spara spelarens position
+        Använd för att avgöra vilket håll man kan gå åt
+        Typ nåt sånt här?
+    ..... ..... .....
+    | o |-|   | | ? |
+    ''''' ''''' '''''
+            |     | 
+    ..... ..... .....
+    | x |-|   |-|   |
+    ''''' ''''' '''''
+    Om rummet är upptäckt, sätt värde på sträng till väggarna, typ
+        print(f{room00}, {room01}, {room02})
+        print(f{room10}, {room11}, {room12})
+        print(f{room20}, {room21}, {room22})
+    Tre rader per rum, efter varandra i x-led
+
+Combat moves
+    Aimed attack X
+    Defense X
+    Disarm
+    Relentless attack X
+    Turtle X
+
+Rum-attribut
+    Kan jag generera en lista objekt som rummet innehåller och skriva som desc?
+"""
