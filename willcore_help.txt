@@ -24,7 +24,7 @@ Inventory
 ...........
 Exploration
 '''''''''''
-"in"  - Inspect
+"in"  - Inspect (How about not being able to inspect from ground?)
         Can only be done with no live enemies in room
         Display stats of an item.
         "in self" will inspect your current stats.
@@ -41,15 +41,16 @@ Combat
 
 "f"   - Flee
         Use to exit combat.
-"a"   - Aimed attack
-        + 5 Attack
-        - 5 Defense
-        Concentrate on hitting your enemy, opening you up to
-        enemy attacks
-"d"   - Defend
-        + 5 Defense
-        - 5 Attack
-        Focus on avoiding an incoming attack at the cost
-        of your accuracy.
 "move"- Special moves
         Show all known Special Moves
+
+Combat stats:
+Damage : How much damage your attack will inflict.
+Attack : How likely your attack is to hit.
+Defense: How likely you are to avoid an incoming attack.
+Speed  : How fast your turn timer increments.
+
+Once your turn timer reaches max, you will execute a move. If you
+press Enter without entering a value, you will perform an unmodified
+attack. If you enter a value you will do a special move. Type "move"
+when prompted for more information.

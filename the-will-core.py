@@ -42,8 +42,9 @@ class consumable:
     def __init__(self, name):
         self.name = name
 class potion(consumable):
-    def function():
-        player_char.hp += 5
+    def function(potion):
+        if potion.name == "HP Potion":
+            player_char.hp += 5
 class scroll(consumable):
     def __init__(self, name, text, log_text):
         self.name = name
@@ -72,24 +73,45 @@ class room:
         self.lock = lock
         self.lockvis = lockvis
 
-#INVENTORY ITEMS "Helmet", "Armor", "Main Hand", "Off Hand", "Necklace"
+#INVENTORY ITEMS
 # HP, SPEED, ATTACK, DEFENSE, MIN-DMG, MAX-DMG, ARMOR, SLOT, NAME
-item_dagger      = item(0, 1, 0, 0, 1, 2, 0, "Main Hand", "Dagger")
-item_short_sword = item(0, 0, 1, 0, 2, 3, 0, "Main Hand", "Short Sword")
-item_shield      = item(0, 0, 0, 2, 0, 0, 1, "Off Hand", "Shield")
-item_cloak       = item(1, 2, 0, 1, 0, 0, 1, "Armor", "Cloak")
-item_dummy       = item(0, 0, 0, 0, 1, 1, 0, "None", "Nothing")
-item_shotgun     = item(0, 0, 10, 10, 5, 5, 0, "Main Hand", "SHOTGUN SON")
-
+#Main Hand
+item_dagger        = item(0, 1, 0, 0, 1, 2, 0, "Main Hand", "Dagger")
+item_short_sword   = item(0, 0, 1, 0, 2, 3, 0, "Main Hand", "Short Sword")
+item_long_sword    = item(0, 0, 1, -1, 3, 5, 0, "Main Hand", "Long Sword")
+item_hammer        = item(0, -2, 2, -2, 5, 7, 0, "Main Hand", "Hammer")
+item_spear         = item(0, 2, 3, 0, 3, 5, 0, "Main Hand", "Spear")
+#Off Hand
+item_shield        = item(0, 0, 0, 2, 0, 0, 1, "Off Hand", "Shield")
+item_torch         = item(0, 1, 2, 0, 0, 0, 0, "Off Hand", "Torch")
+#Armor
+item_cloak         = item(1, 2, 0, 1, 0, 0, 1, "Armor", "Cloak")
+item_leather_armor = item(0, -1, 0, 0, 0, 0, 2, "Armor", "Leather Armor")
+item_robe          = item(0, 1, 0, 2, 0, 0, 0, "Armor", "Robe")
+item_platemail     = item(0, -3, 0, 0, 0, 0, 2, "Armor", "Platemail")
+#Helmet
+item_hood          = item(0, 1, 0, 2, 0, 0, 0, "Helmet", "Hood")
+item_leather_helmet= item(0, 0, 0, 0, 0, 0, 1, "Helmet", "Leather Helmet")
+item_plate_helmet  = item(0, -2, 0, 0, 0, 0, 1, "Helmet", "Plate Helmet")
+#Necklace
+item_pendant       = item(0, 2, 2, 0, 0, 0, 0, "Necklace", "Pendant")
+item_monster_tooth = item(0, 2, 3, -3, 0, 0, -2, "Necklace", "Monster Tooth")
+item_dragon_tooth  = item(0, 3, 5, -5, 0, 0, 0, "Necklace", "Dragon Tooth")
+item_icon          = item(0, 0, 0, 5, 0, 0, 2, "Necklace", "Icon")
+#Fun stuff
+item_dummy         = item(0, 0, 0, 0, 1, 1, 0, "None", "Nothing")
+item_shotgun       = item(0, 0, 10, 10, 5, 5, 0, "Main Hand", "SHOTGUN SON")
+#KEYS
 item_key1 = key("Key A", "A")
 item_key2 = key("Key B", "B")
-
+#POTIONS
+item_hp_potion     = potion("HP Potion")
 item_logbook = scroll("Logbook", "This logbook will update if you find anything interesting on your quest.", "")
 
 #CONTAINERS
 #fixaaaaaa
 container_chest = container(item_cloak, 5, item_dagger, 10, item_shield, 10, item_short_sword, 1)
-
+container_bookcase = container(item_pendant, 10, item_robe, 10)
 #HOUSEKEEPING
 CURSOR_UP_ONE = '\x1b[1A'
 ERASE_LINE = '\x1b[2K'
@@ -408,7 +430,7 @@ def combat():
                 delete_row = False
                 if player_char.hp <= 0:
                     print("lol u die")
-                    death()
+                    death(current_room.enemy.name)
             if player_turn < combat_threshold and enemy_turn < combat_threshold:
                 player_turn += player_speed
                 if player_turn > combat_threshold:
@@ -444,6 +466,8 @@ def combat_move():
         if player_move.lower() == "move":
             print("Aimed attack: [a]\n",
                   "Focus on aiming, but expose yourself to attack. (+5 ATK, -5 DEF)")
+            print("Defend: [d]\n",
+                  "Focus on avoiding the next attack, sacrificing accuracy. (+5 ATK, -5 DEF)")
             if relentless_attack_discovered == True:
                 print("Relentless Attack: \"" + relentless_attack_keyword + "\" [" + ra_shortcut + "]")
                 print("Lunge at your foe for massive damage while sacrificing safety! (+2 Damage, +1 Damage taken)") #1.5x dmg, 2x dmg taken?
@@ -527,7 +551,8 @@ def generate_word(syllables):
     if syllables == 1:
         name = syl2
     return name
-def death():
+def death(cause):
+    print("You have fallen at the hands of " + cause)
     with open("willcore_gameover.txt") as f:
         print(f.read())
         f.close()
@@ -674,6 +699,7 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                                     found = True
                                     print("Changed " + old_item.name + " for " + new_item.name)
                                     print("---------------")
+                                    break
                                 else:
                                     new_item = player_backpack[i]
                                     player_char.inventory[new_item.slot] = new_item
@@ -681,10 +707,12 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                                     found = True
                                     print("Equipped " + new_item.name)
                                     print("---------------")
+                                    break
                             if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) != item:
                                 print(player_backpack[i].name + " is not equippable.")
                                 print("---------------")
                                 found = True
+                                break
                 if list[0].lower() == "d": #drop command in inventory
                     if len(list) > 1:
                         found = False
@@ -830,7 +858,7 @@ def player_setup():
     player_xpos = 0
     player_ypos = 0
 def main_menu():
-    menu_choice = menu("Navigate nav", "Explore ex", "Fight f", "Inventory i", "Help help", "Generate_loot_[TEST] gen", "Spellcasting spell")
+    menu_choice = menu("Navigate nav", "Explore ex", "Fight f", "Inventory i", "Help help", "Potion[TEST] pot", "Spellcasting spell")
     if menu_choice.lower() == "f":
         combat()
     if menu_choice.lower() == "i":
@@ -841,8 +869,8 @@ def main_menu():
         explore()
     if menu_choice.lower() == "help":
         help()
-    if menu_choice.lower() == "gen":
-        generate_loot()
+    if menu_choice.lower() == "pot":
+        item_hp_potion.function()
     if menu_choice.lower() == "spell":
         spellcasting()
 #World setup
@@ -982,15 +1010,12 @@ scroll_list = [hp_scroll1, hp_scroll2, speed_scroll1, speed_scroll2, armor_scrol
 ra_scroll_1 = scroll("Page 1", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + list(combat_move_dict_verb.values())[ra_word_1] + "\"", "\"" + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + list(combat_move_dict_verb.values())[ra_word_1] + "\"")
 ra_scroll_2 = scroll("Page 2", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_bodypart.keys())[ra_word_2] + ": " + list(combat_move_dict_bodypart.values())[ra_word_2] + "\"", "\"" + list(combat_move_dict_bodypart.keys())[ra_word_2] + ": " + list(combat_move_dict_bodypart.values())[ra_word_2] + "\"")
 ra_scroll_3 = scroll("Page 3", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[ra_word_3] +  " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"", "\"" + list(combat_move_dict_verb.keys())[ra_word_3] + " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"")
-
 t_scroll_1 = scroll("Page 4", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_skill.keys())[t_word_1] + ": " + list(combat_move_dict_skill.values())[t_word_1] + "\"", "\"" + list(combat_move_dict_skill.keys())[t_word_1] + ": " + list(combat_move_dict_skill.values())[t_word_1] + "\"")
 t_scroll_2 = scroll("Page 5", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_praise.keys())[t_word_2] + ": " + list(combat_move_dict_praise.values())[t_word_2] + "\"", "\"" + list(combat_move_dict_praise.keys())[t_word_2] + ": " + list(combat_move_dict_praise.values())[t_word_2] + "\"")
 t_scroll_3 = scroll("Page 6", "A page from a dictionary which reads: \n\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"", "\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + "\"")
-
 d_scroll_1 = scroll("Page 7", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + list(combat_move_dict_verb.values())[d_word_1] + "\"", "\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + list(combat_move_dict_verb.values())[d_word_1] + "\"")
 d_scroll_2 = scroll("Page 8", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + list(combat_move_dict_bodypart.values())[d_word_2] + "\"", "\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + list(combat_move_dict_bodypart.values())[d_word_2] + "\"")
 d_scroll_3 = scroll("Page 9", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"", "\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"")
-
 page_list = [ra_scroll_1, ra_scroll_2, ra_scroll_3, t_scroll_1, t_scroll_2, t_scroll_3, d_scroll_1, d_scroll_2, d_scroll_3]
 
 #Rename and sprinkle scrolls and pages
