@@ -10,7 +10,7 @@ commands are available to you.
 Inventory
 '''''''''
 "in"  - Inspect
-        Display stats of an item
+        Display stats of an item or text of a scroll.
         "in self" will inspect your current stats.
 "eq"  - Equip
         Requires an item in your backpack
@@ -19,18 +19,18 @@ Inventory
         Removes item from your backpack onto the ground of the room             
         you are in.                                                            
         (explore the room to pick it back up)
-"use" - Use item
+"use" - Use item (Not implemented yet)
         Will use items such as potions in your backpack.
 ...........
 Exploration
 '''''''''''
 "in"  - Inspect
-        Display stats of an item
+        Can only be done with no live enemies in room
+        Display stats of an item.
         "in self" will inspect your current stats.
 "t"   - Take
-        Takes item(s) from somewhere.
-        Requires a container or enemy to loot
         Can only be done with no live enemies in room
+        Takes item(s) from somewhere.
         "t all" takes all items in the room.
 "m"   - Return to menu
         Use in inventory or while exploring to return to menu

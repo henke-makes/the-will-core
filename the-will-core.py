@@ -79,7 +79,7 @@ item_short_sword = item(0, 0, 1, 0, 2, 3, 0, "Main Hand", "Short Sword")
 item_shield      = item(0, 0, 0, 2, 0, 0, 1, "Off Hand", "Shield")
 item_cloak       = item(1, 2, 0, 1, 0, 0, 1, "Armor", "Cloak")
 item_dummy       = item(0, 0, 0, 0, 1, 1, 0, "None", "Nothing")
-item_shotgun     = item(0, 4, 10, 10, 5, 5, 0, "Main Hand", "SHOTGUN SON")
+item_shotgun     = item(0, 0, 10, 10, 5, 5, 0, "Main Hand", "SHOTGUN SON")
 
 item_key1 = key("Key A", "A")
 item_key2 = key("Key B", "B")
@@ -129,7 +129,7 @@ def generate_world(xsize, ysize):
     while j < ysize:
         i = 0
         while i < xsize:
-            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_shield, item_short_sword), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1,), choice(["", "", "", "", "", "A", "B"]), 0)
+            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_shield, item_short_sword), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1), choice(["", "", "", "", "", "A", "B"]), 0)
             # Gobbo enemy from before: generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1,)
             room_n += 1
             room_list.append(new_room)
@@ -351,11 +351,12 @@ def combat():
         player_turn = 0
         enemy_turn = 0
         player_speed = calculate_combat_speed(player_char)
-        print("Player speed: " + str(player_speed))
+        print("Player speed : " + str(player_speed))
         enemy_speed = calculate_combat_speed(current_room.enemy)
-        print("Enemy speed: " + str(enemy_speed))
+        print("Enemy speed  : " + str(enemy_speed))
         combat_threshold = max(player_speed, enemy_speed) * 4
-        print("Combat Threshold: " +str(combat_threshold))
+        print("Player damage: " + str(player_char.level + player_char.inventory["Main Hand"].min_dmg) + "-" + str(player_char.level + player_char.inventory["Main Hand"].max_dmg))
+        print("Enemy damage : " + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].min_dmg) + "-" + str(player_char.level + current_room.enemy.inventory["Main Hand"].max_dmg))
         player_move = ""
         enemy_move = ""
         if combat_move():
@@ -365,18 +366,19 @@ def combat():
         delete_row = False
         while player_char.hp > 0 and current_room.enemy.hp > 0: #-------------------- PLAYER TURN         
             if player_turn >= combat_threshold:
-                print(player_char.name + " takes a swing!")
-                sleep(1)
                 if player_move != turtle_keyword:
+                    print(player_char.name + " takes a swing!")
+                    sleep(1)
                     attack(player_char, player_move, current_room.enemy, enemy_move)
                 else:
-                    print("You curled up like a turtle.")
+                    print(player_char.name + " curled up like a turtle.")
                 player_move = ""
                 player_turn = 0
                 delete_row = False
                 if current_room.enemy.hp <= 0:
                     current_room.enemy.hp = 0
                     print("You have defeated " + current_room.enemy.name + "!")
+                    exp_gain(current_room.enemy.level)
                     break
                 if combat_move():
                     pass
@@ -384,11 +386,25 @@ def combat():
                     break
 
             if enemy_turn >= combat_threshold and current_room.enemy.hp > 0:
-                print(current_room.enemy.name + " takes a swing!")
-                sleep(1)
-                attack(current_room.enemy, enemy_move, player_char, player_move)
+                if enemy_move != turtle_keyword:
+                    print(current_room.enemy.name + " takes a swing!")
+                    sleep(1)
+                    attack(current_room.enemy, enemy_move, player_char, player_move)
+                else:
+                    print(current_room.enemy.name + " turtled up this time.")
                 enemy_move = ""
                 enemy_turn = 0
+                en_move_random = randint(1, 10)
+                if en_move_random == 1:
+                    print("\nYou hear a voice booming through the dungeon:")
+                    print("\"" + ra_translation.upper() + "!\"")
+                    input("The enemy is inspired to do a Relentless Attack!")
+                    enemy_move = relentless_attack_keyword
+                elif en_move_random == 2:
+                    print("\nYou hear a voice booming through the dungeon:")
+                    print("\"" + t_translation.upper() + "!\"")
+                    input("The enemy is inspired to do a Turtle move!")
+                    enemy_move = turtle_keyword
                 delete_row = False
                 if player_char.hp <= 0:
                     print("lol u die")
@@ -462,7 +478,7 @@ def attack(attacker, attacker_move, defender, defender_move):
     attacker_bonus = 0
     defender_bonus = 0
     defender_armor = defender.inventory["Helmet"].armor - defender.inventory["Armor"].armor
-    attack_damage = randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg) + attacker.level - defender_armor
+    attack_damage = attacker.level + randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg) - defender_armor
     if attacker_move.lower() == "a":
         attacker_bonus = 5
     if attacker_move.lower() == "d":
@@ -483,8 +499,23 @@ def attack(attacker, attacker_move, defender, defender_move):
     if attack_roll <= chance_to_hit:
         defender.hp -= attack_damage 
         print(attacker.name + " did " + str(attack_damage) + " damage")
-    else: 
+    else:
         print(attacker.name + " missed!")
+def exp_gain(exp):
+    player_char.exp += exp
+
+    while player_char.exp >= player_char.level:
+        player_char.exp -= player_char.level
+        player_char.level += 1
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("You have LEVELED UP! You are now level", str(player_char.level) + ".")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        player_char.hp += player_char.level
+        player_char.attack += 1
+        player_char.defense += 1
+        player_char.speed += 1
+        level_up = False
+        input("You have gained +1 to Attack, Defense and Speed, as well as " + str(player_char.level) + " HP.")
 def generate_word(syllables):
     syl1 = choice(["Ans", "Alt", "Ap", "Bur", "Bos", "Beal", "Cri", "Cal", "Dree", "Dou", "Fle", "Fnu", "Fot", "FF", "Grrrra", "Hesh", "Hal", "Ils", "Jyrr", "Jask", "Klaa", "Lor", "Laf", "Mie", "Mlo", "Neh", "Ny", "Naf", "Oo", "Of", "Pir", "Phon", "Qua", "Qir", "Rhy", "Rac", "Stae", "Sloo", "Thuus", "Tah", "Uuv", "Vex", "Vahl", "Wath", "Xyx", "Xor", "Xeeg", "Yym", "Yrg", "Zwo", "Zae", "Zoth"])
     syl2 = choice(["aa", "al", "ath", "bot", "brith", "cho", "cleh", "der", "don", "dwes", "eir", "eet", "ens", "fro", "for", "fnu", "FN", "gath", "glom", "geb", "hae", "hom", "iel", "iim", "jok", "jar", "khe", "klo", "lith", "lyng", "loe", "mav", "moo", "nia", "nalt", "negh", "ol", "oagh", "oo", "prak", "phe", "quo", "rhea", "ril", "shy", "sul", "tha", "tig", "uu", "vex", "wah", "xa", "yat", "zool", "yoh", "zyz"])
@@ -499,6 +530,7 @@ def generate_word(syllables):
 def death():
     with open("willcore_gameover.txt") as f:
         print(f.read())
+        f.close()
     exit()
 def generate_room_description():
     adjective = choice(["musty", "clean", "tattered", "lumpy", "putrid", "impressive", "improper"])
@@ -541,7 +573,7 @@ def item_description(_item): #add attack/defense
         if _item.defense != 0:
             print("• + " + str(_item.defense) + " defense")
         if _item.min_dmg != 0 and _item.max_dmg != 0:
-            print("• " + str(item.min_dmg) + "-" + str(item.max_dmg) + " DMG")
+            print("• " + str(_item.min_dmg) + "-" + str(_item.max_dmg) + " DMG")
         if _item.armor > 0:
             print("• + " + str(_item.armor) + " armor")
         elif _item.armor < 0:
@@ -560,6 +592,7 @@ def enemy_description(enemy):
         print("• " + str(enemy.attack) + " attack")
         print("• " + str(enemy.defense) + " defense")
         print("• " + str(enemy.armor) + " armor")
+        print("• Level " + str(enemy.level))
         print("• Wielding: " + enemy.inventory["Main Hand"].name + " (" + str(enemy.inventory["Main Hand"].min_dmg) + "-" + str(enemy.inventory["Main Hand"].max_dmg) + " dmg)")
     else:
         print("• 0 HP. 'E's dead, Milord!")
@@ -587,6 +620,7 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
         if list[0].lower() == "help": #display help file
                 with open("willcore_help.txt") as f:
                     print(f.read())
+                    f.close()
         if mode == "in": #---------------------------------------------------------------mode set to inventory
             found = False
             if valid_text(list[0], "in", "eq", "d", "help"):
@@ -621,7 +655,7 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                             print("Attack  : " + str(player_char.attack))
                             print("Defense : " + str(player_char.defense))
                             print("Armor   : " + str(player_char.armor))
-                            print("EXP     : " + str(player_char.exp))
+                            print("EXP     : " + str(player_char.exp) + " (" + str(player_char.level - player_char.exp) + " left to next level)")
                             print("Level   : " + str(player_char.level))
                             print("---------------")
                             found = True
@@ -689,7 +723,7 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                         found = True
                         parse = False
                 if list[0].lower() == "t": # take command in exploration
-                    if current_room.enemy.hp < 0:
+                    if current_room.enemy.hp > 0:
                         print("Cannot take with enemy in the room!")
                         found = True
                     else:
@@ -721,6 +755,7 @@ def spell_fanfare():
             sleep(0.3)
             delete_rows(11)
         i += 1
+    f.close()
 def spellcasting():
     global spell_hp_found
     global spell_speed_found
@@ -755,18 +790,18 @@ def spellcasting():
 def split_text(text):
     str1, str2 = text[:len(text)//2], text[len(text)//2:] 
     return [str1, str2]
-def scroll_names(scrolls, adjectives):
+def scroll_names(scrolls, adjectives, name):
+    adj = adjectives.copy()
     for x in scrolls:
-        random = randint(0, len(adjectives) - 1)
-        x.name = adjectives[random] + " Scroll"
-        adjectives.remove(adjectives[random])
+        random = randint(0, len(adj) - 1)
+        x.name = adj[random] + " " + name
+        adj.remove(adj[random])
 def sprinkle_items(item_list): #Sprinkle items into unique rooms
     scroll_room_list = room_list.copy()
     for x in item_list:
-        #random_room = randint(0, len(scroll_room_list) - 1)
-        random_room = 0
+        random_room = randint(0, len(scroll_room_list) - 1)
         scroll_room_list[random_room].items.append(x)
-        print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
+        #print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
         scroll_room_list.remove(scroll_room_list[random_room])
 def valid_text(text, *key):
     for x in key:
@@ -777,6 +812,7 @@ def help():
     print("---------------")
     with open("willcore_help.txt") as f:
             print(f.read())
+            f.close()
     print("---------------")
 def player_setup():
     global player_char
@@ -790,7 +826,7 @@ def player_setup():
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_logbook, item_key1, item_key2]
+    player_backpack = [item_logbook]
     player_xpos = 0
     player_ypos = 0
 def main_menu():
@@ -809,15 +845,10 @@ def main_menu():
         generate_loot()
     if menu_choice.lower() == "spell":
         spellcasting()
-
-#GAME SETUP
+#World setup
 map_xsize = 0
 map_ysize = 0
 room_list = generate_world(5, 5)
-player_setup()
-current_room = room_list[0]
-room_list[0].lock = ""
-combat_threshold = 20
 #Generate combat moves
 #Split into multiple dicts
 combat_move_dict_bodypart = {
@@ -825,7 +856,7 @@ combat_move_dict_bodypart = {
 "throat": generate_word(2),
 "leg": generate_word(2),
 "arm": generate_word(2),
-"mouth": generate_word(2),
+"nose": generate_word(2),
 "eyes": generate_word(2),
 "toe": generate_word(2),
 }
@@ -837,10 +868,11 @@ combat_move_dict_verb = {
 "hit": generate_word(1),
 "bite": "nums",
 }
-combat_move_dict_pronouns = {
+combat_move_dict_grammar = {
     "them": generate_word(2),
     "their": generate_word(2),
-    "your": generate_word(2)
+    "your": generate_word(2),
+    "are": generate_word(1)
 }
 combat_move_dict_action = {
 "in the": generate_word(2) + " " + generate_word(1),
@@ -853,27 +885,80 @@ combat_move_dict_skill = {
     "abilities": generate_word(2),
     "feats": generate_word(2)
 }
+combat_move_dict_praise = {
+    "impeccable": generate_word(2),
+    "amazing": generate_word(2),
+    "unmatched": generate_word(2),
+    "pretty okay": generate_word(2),
+    "superlative": generate_word(2)
+}
+#Generate Relentless Attack
 ra_word_1 = randint(0, len(combat_move_dict_verb) - 1)
 ra_word_2 = randint(0, len(combat_move_dict_bodypart) - 1)
-ra_keyword_syntax1 = list(combat_move_dict_verb.keys())[ra_word_1] + " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_2]
-ra_translation_syntax1 = list(combat_move_dict_verb.values())[ra_word_1] + " " + combat_move_dict_pronouns["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_2]
-relentless_attack_keyword = ra_keyword_syntax1
-disarm_keyword = "disarm"
-turtle_keyword = "turtle"
+ra_word_3 = ""
+ra_word_4 = ""
+while ra_word_3 == "":
+    ra_word_3 = randint(0, len(combat_move_dict_verb) - 1)
+    if ra_word_3 == ra_word_1:
+        ra_word_3 = ""
+while ra_word_4 == "":
+    ra_word_4 = randint(0, len(combat_move_dict_verb) - 1)
+    if ra_word_4 == ra_word_2:
+        ra_word_4 = ""
+ra_gen_keyword = list(combat_move_dict_verb.keys())[ra_word_1] + " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_2]
+ra_translation = list(combat_move_dict_verb.values())[ra_word_1] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_2]
+#Generate Turtle
+t_word_1 = randint(0, len(combat_move_dict_skill) - 1)
+t_word_2 = randint(0, len(combat_move_dict_praise) - 1)
+t_word_3 = ""
+t_word_4 = ""
+while t_word_3 == "":
+    t_word_3 = randint(0, len(combat_move_dict_skill) - 1)
+    if t_word_3 == t_word_1:
+        t_word_3 = ""
+while t_word_4 == "":
+    t_word_4 = randint(0, len(combat_move_dict_praise) - 1)
+    if t_word_4 == t_word_2:
+        t_word_4 = ""
+t_gen_keyword = "your " + list(combat_move_dict_skill.keys())[t_word_1] + " are " + list(combat_move_dict_praise.keys())[t_word_2]
+t_translation = combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_1] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_2]
+#Generate Disarm
+d_word_1 = randint(0, len(combat_move_dict_verb) - 1)
+d_word_2 = randint(0, len(combat_move_dict_bodypart) - 1)
+d_word_3 = ""
+d_word_4 = ""
+while d_word_3 == "":
+    d_word_3 = randint(0, len(combat_move_dict_verb) - 1)
+    if d_word_3 == d_word_1:
+        d_word_3 = ""
+while d_word_4 == "":
+    d_word_4 = randint(0, len(combat_move_dict_bodypart) - 1)
+    if d_word_4 == d_word_2:
+        d_word_4 = ""
+d_gen_keyword = list(combat_move_dict_verb.keys())[d_word_1] + " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_2]
+d_translation = list(combat_move_dict_verb.values())[ra_word_1] + " " + combat_move_dict_action["the heck outta"] + " " + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_2]
+relentless_attack_keyword = ra_gen_keyword
+disarm_keyword = d_gen_keyword
+turtle_keyword = t_gen_keyword
 ra_shortcut = "ra"
 disarm_shortcut = "d"
 turtle_shortcut = "t"
-print(relentless_attack_keyword)
-print(ra_translation_syntax1)
+# print("RA:", relentless_attack_keyword)
+# print(ra_translation)
+# print("Turtle:", turtle_keyword)
+# print(t_translation)
+# print("RA:", disarm_keyword)
+# print(d_translation)
 keys = [item_key1, item_key2]
 key_room_list = room_list.copy()
+#Sprinkle them keys
 for x in keys:
     check_valid = True
     while check_valid:
         random_room = randint(0, len(key_room_list) - 1)
         if key_room_list[random_room].lock != x.lock:
             key_room_list[random_room].items.append(x)
-            print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
+            #print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
             key_room_list.remove(key_room_list[random_room])
             check_valid = False
 
@@ -892,28 +977,50 @@ speed_scroll1 = scroll("Scroll 3", "A torn scroll with the text:\n\"" + split_te
 speed_scroll2 = scroll("Scroll 4", "A torn scroll with the text:\n\"-" + split_text(spell_speed_keyword)[1] + "\"", "You found a torn scroll: \"-" + split_text(spell_speed_keyword)[1] + "\"")
 armor_scroll1 = scroll("Scroll 5", "A torn scroll with the text:\n\"" + split_text(spell_armor_keyword)[0] + "-\"", "You found a torn scroll: \"" + split_text(spell_armor_keyword)[0] + "-\"")
 armor_scroll2 = scroll("Scroll 6", "A torn scroll with the text:\n\"-" + split_text(spell_armor_keyword)[1] + "\"", "You found a torn scroll: \"-" + split_text(spell_armor_keyword)[1] + "\"")
-#print(spell_hp_keyword)
-#print(spell_speed_keyword)
-#print(spell_armor_keyword)
-
 scroll_list = [hp_scroll1, hp_scroll2, speed_scroll1, speed_scroll2, armor_scroll1, armor_scroll2]
-#Rename scrolls
+#Generate combat move dictionary scrolls
+ra_scroll_1 = scroll("Page 1", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + list(combat_move_dict_verb.values())[ra_word_1] + "\"", "\"" + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + list(combat_move_dict_verb.values())[ra_word_1] + "\"")
+ra_scroll_2 = scroll("Page 2", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_bodypart.keys())[ra_word_2] + ": " + list(combat_move_dict_bodypart.values())[ra_word_2] + "\"", "\"" + list(combat_move_dict_bodypart.keys())[ra_word_2] + ": " + list(combat_move_dict_bodypart.values())[ra_word_2] + "\"")
+ra_scroll_3 = scroll("Page 3", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[ra_word_3] +  " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"", "\"" + list(combat_move_dict_verb.keys())[ra_word_3] + " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"")
+
+t_scroll_1 = scroll("Page 4", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_skill.keys())[t_word_1] + ": " + list(combat_move_dict_skill.values())[t_word_1] + "\"", "\"" + list(combat_move_dict_skill.keys())[t_word_1] + ": " + list(combat_move_dict_skill.values())[t_word_1] + "\"")
+t_scroll_2 = scroll("Page 5", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_praise.keys())[t_word_2] + ": " + list(combat_move_dict_praise.values())[t_word_2] + "\"", "\"" + list(combat_move_dict_praise.keys())[t_word_2] + ": " + list(combat_move_dict_praise.values())[t_word_2] + "\"")
+t_scroll_3 = scroll("Page 6", "A page from a dictionary which reads: \n\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"", "\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + "\"")
+
+d_scroll_1 = scroll("Page 7", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + list(combat_move_dict_verb.values())[d_word_1] + "\"", "\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + list(combat_move_dict_verb.values())[d_word_1] + "\"")
+d_scroll_2 = scroll("Page 8", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + list(combat_move_dict_bodypart.values())[d_word_2] + "\"", "\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + list(combat_move_dict_bodypart.values())[d_word_2] + "\"")
+d_scroll_3 = scroll("Page 9", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"", "\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"")
+
+page_list = [ra_scroll_1, ra_scroll_2, ra_scroll_3, t_scroll_1, t_scroll_2, t_scroll_3, d_scroll_1, d_scroll_2, d_scroll_3]
+
+#Rename and sprinkle scrolls and pages
 scroll_adjectives = ["Dusty", "Crumpled", "Crinkled", "Weathered", "Folded", "Singed", "Old", "Torn", "Aged", "Burned", "Yellow", "Faded", "Simple"]
-scroll_names(scroll_list, scroll_adjectives)
+scroll_names(scroll_list, scroll_adjectives, "Scroll")
 sprinkle_items(scroll_list)
+scroll_names(page_list, scroll_adjectives, "Page")
+sprinkle_items(page_list)
+
+#GAME SETUP
+player_setup()
+current_room = room_list[0]
+room_list[0].lock = ""
+combat_threshold = 20
 
 #GAME START
 with open("willcore_logo.txt") as f:
     print(f.read())
+    f.close()
 # start = ""
 # while start.lower() != "start":
 #     start = menu("Start start", "Story story", "Help h", "Exit x")
 #     if start.lower() == "story":
 #         with open("willcore_story.txt") as f:
 #             print(f.read())
+#             f.close()
 #     if start.lower() == "h":
 #         with open("willcore_help.txt") as f:
 #             print(f.read())
+#             f.close()
 #     if start.lower() == "x":
 #         exit()
   
@@ -922,7 +1029,7 @@ with open("willcore_logo.txt") as f:
 #     player_char.name = "Nobody"
 # print("Thy name is " + player_char.name)
 # input("Enter to continue")
-player_char.name = "Testimus"
+player_char.name = "Testimus" #Remove after testing
 
 while True:
     main_menu()
