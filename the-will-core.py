@@ -8,6 +8,7 @@ from time import sleep
 class player:
     def __init__(self, hp, speed, attack, defense, armor, inventory, name, exp, level):
         self.hp = hp
+        self.max_hp = hp
         self.speed = speed
         self.attack = attack
         self.defense = defense
@@ -29,7 +30,7 @@ class enemy:
         self.level = level
 class item:
     def __init__(self, hp, speed, attack, defense, min_dmg, max_dmg, armor, slot, name):
-        self.hp = hp
+        self.max_hp = hp
         self.speed = speed
         self.attack = attack
         self.defense = defense
@@ -39,12 +40,20 @@ class item:
         self.slot = slot
         self.name = name
 class consumable:
-    def __init__(self, name):
+    def __init__(self, name, text):
         self.name = name
+        self.text = text
 class potion(consumable):
     def function(potion):
-        if potion.name == "HP Potion":
-            player_char.hp += 5
+        if potion.name.lower() == "hp potion":
+            hp_gain(3)
+            print("Used HP potion to heal 3 HP.")
+        if potion.name.lower() == "max hp potion":
+            player_char.max_hp += 2
+            print("Used Max HP potion for +2 max HP!")
+        if potion.name.lower() == "swift potion":
+            player_char.speed += 1
+            print("Used Swift Potion for +1 Speed!")
 class scroll(consumable):
     def __init__(self, name, text, log_text):
         self.name = name
@@ -56,17 +65,19 @@ class key(consumable): #fix parent class
         self.name = name
         self.lock = lock
 class container:
-    def __init__(self, *loot_table):
+    def __init__(self, name, *loot_table):
         self.loot_table = loot_table
+        self.name = name
         self.items = []
 class room:
-    def __init__(self, xpos, ypos, vis, line1, line2, line3, items, desc, enemy, lock, lockvis):
+    def __init__(self, xpos, ypos, vis, line1, line2, line3, container, items, desc, enemy, lock, lockvis):
         self.xpos = xpos
         self.ypos = ypos
         self.vis = vis
         self.line1 = line1
         self.line2 = line2
         self.line3 = line3
+        self.container = container
         self.items = items
         self.desc = desc
         self.enemy = enemy
@@ -74,7 +85,7 @@ class room:
         self.lockvis = lockvis
 
 #INVENTORY ITEMS
-# HP, SPEED, ATTACK, DEFENSE, MIN-DMG, MAX-DMG, ARMOR, SLOT, NAME
+# MAX_HP, SPEED, ATTACK, DEFENSE, MIN-DMG, MAX-DMG, ARMOR, SLOT, NAME
 #Main Hand
 item_dagger        = item(0, 1, 0, 0, 1, 2, 0, "Main Hand", "Dagger")
 item_short_sword   = item(0, 0, 1, 0, 2, 3, 0, "Main Hand", "Short Sword")
@@ -105,13 +116,17 @@ item_shotgun       = item(0, 0, 10, 10, 5, 5, 0, "Main Hand", "SHOTGUN SON")
 item_key1 = key("Key A", "A")
 item_key2 = key("Key B", "B")
 #POTIONS
-item_hp_potion     = potion("HP Potion")
+item_hp_potion     = potion("HP Potion", "Heal for 3 HP")
+item_max_hp_potion = potion("Max HP Potion", "Grants +2 Max HP!")
+item_speed_potion  = potion("Swift potion", "Grants +1 Speed!")
+
 item_logbook = scroll("Logbook", "This logbook will update if you find anything interesting on your quest.", "")
 
 #CONTAINERS
 #fixaaaaaa
-container_chest = container(item_cloak, 5, item_dagger, 10, item_shield, 10, item_short_sword, 1)
-container_bookcase = container(item_pendant, 10, item_robe, 10)
+container_chest = container("Chest", item_cloak, 5, item_shield, 10, item_short_sword, 10, item_leather_helmet, 5)
+container_bookcase = container("Book Case", item_pendant, 10, item_robe, 10)
+container_potion = container("Potion rack", item_hp_potion, 40, item_max_hp_potion, 5, item_speed_potion, 5)
 #HOUSEKEEPING
 CURSOR_UP_ONE = '\x1b[1A'
 ERASE_LINE = '\x1b[2K'
@@ -151,7 +166,8 @@ def generate_world(xsize, ysize):
     while j < ysize:
         i = 0
         while i < xsize:
-            new_room = room(i, j, 0, "     ", "     ", "     ", generate_items(randint(0,2), item_shield, item_short_sword), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1), choice(["", "", "", "", "", "A", "B"]), 0)
+            container = choice([container_bookcase, container_chest, container_potion])
+            new_room = room(i, j, 0, "     ", "     ", "     ", container, generate_loot(container), generate_room_description(), generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1), choice(["", "", "", "", "", "A", "B"]), 0)
             # Gobbo enemy from before: generate_enemy(3, 2, 1, 1, 0, "Gobbo", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 1,)
             room_n += 1
             room_list.append(new_room)
@@ -340,7 +356,7 @@ def explore(): #use parse_text() here to allow for looting etc
     if type(current_room.enemy) == enemy:
         print("There is a " + current_room.enemy.name + " in the room. Ew.")
     if current_room.items != []:
-        print("The room contains: ", end = "")
+        print(f"The room contains a {current_room.container.name.lower()} with: ", end = "")
         list_len = len(current_room.items)
         for i, x in enumerate(current_room.items):
             if i < list_len - 1:
@@ -534,12 +550,17 @@ def exp_gain(exp):
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("You have LEVELED UP! You are now level", str(player_char.level) + ".")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        player_char.hp += player_char.level
+        player_char.max_hp += player_char.level
+        hp_gain(player_char.level)
         player_char.attack += 1
         player_char.defense += 1
         player_char.speed += 1
         level_up = False
         input("You have gained +1 to Attack, Defense and Speed, as well as " + str(player_char.level) + " HP.")
+def hp_gain(hp_gain):
+    player_char.hp += hp_gain
+    if player_char.hp > player_char.max_hp:
+        player_char.hp = player_char.max_hp
 def generate_word(syllables):
     syl1 = choice(["Ans", "Alt", "Ap", "Bur", "Bos", "Beal", "Cri", "Cal", "Dree", "Dou", "Fle", "Fnu", "Fot", "FF", "Grrrra", "Hesh", "Hal", "Ils", "Jyrr", "Jask", "Klaa", "Lor", "Laf", "Mie", "Mlo", "Neh", "Ny", "Naf", "Oo", "Of", "Pir", "Phon", "Qua", "Qir", "Rhy", "Rac", "Stae", "Sloo", "Thuus", "Tah", "Uuv", "Vex", "Vahl", "Wath", "Xyx", "Xor", "Xeeg", "Yym", "Yrg", "Zwo", "Zae", "Zoth"])
     syl2 = choice(["aa", "al", "ath", "bot", "brith", "cho", "cleh", "der", "don", "dwes", "eir", "eet", "ens", "fro", "for", "fnu", "FN", "gath", "glom", "geb", "hae", "hom", "iel", "iim", "jok", "jar", "khe", "klo", "lith", "lyng", "loe", "mav", "moo", "nia", "nalt", "negh", "ol", "oagh", "oo", "prak", "phe", "quo", "rhea", "ril", "shy", "sul", "tha", "tig", "uu", "vex", "wah", "xa", "yat", "zool", "yoh", "zyz"])
@@ -552,7 +573,7 @@ def generate_word(syllables):
         name = syl2
     return name
 def death(cause):
-    print("You have fallen at the hands of " + cause)
+    print("You have fallen at the hands of " + cause + "!")
     with open("willcore_gameover.txt") as f:
         print(f.read())
         f.close()
@@ -563,32 +584,28 @@ def generate_room_description():
     center = choice(["table", "man. A man screaming forever", "a minidisc player", "nothing", "something", "THE VOID"])
     string = ("The room is " + adjective + " and the walls are the color of " + color + ".\nIn the center of the room there is " + center + ".")
     return string
-def generate_loot():
-    loot_list = container_chest.loot_table
+def generate_loot(container):
+    loot_list = container.loot_table
     total_chance = 0
     for x in loot_list:
-        if type(x) != item:
+        if type(x) != item and type(x) != potion:
             total_chance += x
-    print("Total chance: " + str(total_chance))
     loot_roll = randint(1, total_chance)
-    print("Roll: " + str(loot_roll))
     loot_number = 0
     loot_item = 0
     for x in loot_list:
-        if type(x) == item:
+        if type(x) == item or type(x) == potion:
             loot_item = x
         else:
             loot_number += x
         if loot_number >= loot_roll:
-            print(loot_item.name)
-            return(loot_item)
-    print("Roll: " + str(loot_roll))
+            return[loot_item]
 def item_description(_item): #add attack/defense
     if type(_item) == item:
         print(_item.name + ":")
         print("Equip to: " + _item.slot)
-        if _item.hp != 0:
-            print("• " + str(_item.hp) + " HP")
+        if _item.max_hp != 0:
+            print("• " + str(_item.max_hp) + " HP")
         if _item.speed > 0:
             print("• + " + str(_item.speed) + " speed")
         elif _item.speed < 0:
@@ -607,6 +624,9 @@ def item_description(_item): #add attack/defense
         print(_item.name + ":")
         print("Opens lock " + _item.lock)
     if type(_item) == scroll:
+        print(_item.name + ":")
+        print(_item.text)
+    if type(_item) == potion:
         print(_item.name + ":")
         print(_item.text)
 def enemy_description(enemy):
@@ -631,7 +651,7 @@ def enemy_description(enemy):
                 print("a " + x.name.lower() + ".")
             else:
                 print("and a " + x.name.lower() + ".")
-def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
+def parse_text(prompt, mode): #go over ALL this shihhhhhh and add continue instead of break omg
     global player_backpack
     global room_list
     global current_room
@@ -648,7 +668,7 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                     f.close()
         if mode == "in": #---------------------------------------------------------------mode set to inventory
             found = False
-            if valid_text(list[0], "in", "eq", "d", "help"):
+            if valid_text(list[0], "in", "eq", "use", "d", "help"):
                 if list[0].lower() == "in": #inspect command in inventory
                     if len(list) > 1:
                         print("---------------")
@@ -656,12 +676,14 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                             if type(player_char.inventory[x]) == item:
                                 if list[1].lower() == player_char.inventory[x].name.lower():
                                     item_description(player_char.inventory[x])
+                                    print("---------------")
                                     found = True
                                     break
                         if found == False:
                             for i, x in enumerate(player_backpack):
                                 if list[1].lower() == player_backpack[i].name.lower():
                                     item_description(player_backpack[i])
+                                    print("---------------")
                                     if type(x) == scroll and x != item_logbook:
                                         if x.read == False:
                                             item_logbook.text += x.log_text
@@ -675,7 +697,7 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                             print("." * (len(player_char.name) + 1))
                             print(player_char.name + ":")
                             print("'" * (len(player_char.name) + 1))
-                            print("HP      : " + str(player_char.hp))
+                            print("HP      : " + str(player_char.hp) + "/" + str(player_char.max_hp))
                             print("Speed   : " + str(player_char.speed))
                             print("Attack  : " + str(player_char.attack))
                             print("Defense : " + str(player_char.defense))
@@ -713,6 +735,18 @@ def parse_text(prompt, mode): #mode: "in" for inventory, "ex" for exploration
                                 print("---------------")
                                 found = True
                                 break
+                if list[0].lower() == "use": #use command in inventory
+                    found = False
+                    print("---------------")
+                    for i, x in enumerate(player_backpack):
+                        if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == potion:
+                            player_backpack[i].function()
+                            found = True
+                            print("---------------")
+                    if found == False:
+                        print(list[1].lower() + " is not usable.")
+                        print("---------------")
+                        break
                 if list[0].lower() == "d": #drop command in inventory
                     if len(list) > 1:
                         found = False
@@ -854,7 +888,7 @@ def player_setup():
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_logbook]
+    player_backpack = [item_logbook, item_hp_potion]
     player_xpos = 0
     player_ypos = 0
 def main_menu():
@@ -1035,6 +1069,7 @@ combat_threshold = 20
 with open("willcore_logo.txt") as f:
     print(f.read())
     f.close()
+
 # start = ""
 # while start.lower() != "start":
 #     start = menu("Start start", "Story story", "Help h", "Exit x")
@@ -1058,7 +1093,6 @@ player_char.name = "Testimus" #Remove after testing
 
 while True:
     main_menu()
-
 """
 Första anteckningar:
 
