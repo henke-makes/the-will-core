@@ -1,9 +1,10 @@
 ---------------------------------------------------------------------
 The mysterious artefact known as the Will Core has gone missing
 from the college of Mages in Coderia. The dastardly villains
-Opera Tor and Funk Sean are behind this rotten deed! You are
-a knight of the realm, and you have been tasked by the King to
-retrieve this holy object to its rightful, i.e. most recent, owner.
+Opera Tor and Funk Sean are behind this rotten deed! A Knight of
+the realm has been tasked by the King of Coderia, the mighty Lord 
+Hengun, to retrieve this holy object to its rightful,
+i.e. most recent, owner.
 
 The journey to the lair of the musical villains is long and perilous.
 We won't be playing that part though, don't worry.

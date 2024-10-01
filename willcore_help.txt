@@ -28,6 +28,7 @@ Exploration
         Can only be done with no live enemies in room
         Display stats of an item.
         "in self" will inspect your current stats.
+        "in enemy" or "in [name]" will inspect the enemy's stats.
 "t"   - Take
         Can only be done with no live enemies in room
         Takes item(s) from somewhere.
@@ -39,7 +40,7 @@ Exploration
 Combat
 ''''''
 
-"f"   - Flee
+"e"   - Escape
         Use to exit combat.
 "move"- Special moves
         Show all known Special Moves
