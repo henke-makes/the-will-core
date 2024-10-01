@@ -235,9 +235,22 @@ def render_map():
             print("")
             i += 1
         j += 1
-    for x in room_list:
-        if player_xpos == x.xpos and player_ypos == x.ypos:
-            print(x.desc)
+    if current_room.enemy.hp > 0:
+        print("The room is guarded by a " + current_room.enemy.name + " LVL " + str(current_room.enemy.level))
+    else:
+        print("There is a dead " + current_room.enemy.name + " in the room.")
+    if current_room.items != []:
+        print(f"The room contains a {current_room.container.name.lower()} with: ", end = "")
+        list_len = len(current_room.items)
+        for i, x in enumerate(current_room.items):
+            if i < list_len - 1:
+                print("a " + x.name.lower(), end = ", ")
+            elif list_len - 1 == 0:
+                print("a " + x.name.lower() + ".")
+            else:
+                print("and a " + x.name.lower() + ".")
+    else:
+        print("No items in the room.")
 def delete_rows(rows):
     i = 0
     while i < rows:
@@ -249,11 +262,13 @@ def player_navigation():
     global player_ypos
     global room_list
     global current_room
+    global menu_force
     nav = True
     locked_door = 0
     needed_key = ""
-    first = 1
+    first = 0 #relic from the past, don't dare delete
     render_map()
+    print("Navigate with WASD, exit with E")
     while nav:
         player_nav = str(getch(), encoding="utf-8")
         if player_nav.lower() == "d" and player_xpos < map_xsize - 1:
@@ -298,6 +313,7 @@ def player_navigation():
                         x.lockvis = 1
         if player_nav.lower() == "e":
             nav = False
+            menu_force = "ex"
             break
         for x in room_list:
             if x.xpos == player_xpos and x.ypos == player_ypos:
@@ -326,14 +342,12 @@ def check_lock(xpos, ypos):
                 return True
 def menu(*choices):
     valid_choice = True
-    print("---------------")
     while valid_choice:
         for x, choice in enumerate(choices):
             parse_list = choice.split(" ")
             text = parse_list[0]
             shortcut = parse_list[1]
             print(str(x + 1) + " " + text + " [" + shortcut + "]")
-        print("---------------")
         menu_choice= input("What do you wish to do?\n>>>")
         for x, choice in enumerate(choices):
             parse_list = choice.split(" ")
@@ -394,8 +408,8 @@ def explore():
     print(".../.............................\\...")
     print("../...............................\\..")
     print(current_room.desc)
-    if type(current_room.enemy) == enemy:
-        print("There is a " + current_room.enemy.name + " in the room. Ew.")
+    if current_room.enemy != []:
+        print("There is a " + current_room.enemy.name + " in the room.")
     if current_room.items != []:
         print(f"The room contains a {current_room.container.name.lower()} with: ", end = "")
         list_len = len(current_room.items)
@@ -861,6 +875,9 @@ def spellcasting():
     global spell_hp_found
     global spell_speed_found
     global spell_armor_found
+    print("............")
+    print("SPELLCASTING")
+    print("''''''''''''")
     spell_word = input("What is the magic spell?\n")
     if spell_word.lower() == spell_hp_keyword.lower():
         if spell_hp_found == False:
@@ -930,7 +947,7 @@ def player_setup():#Remove keys after testing
     player_backpack = [item_logbook, item_key1, item_key2, item_shield]
     player_xpos = 0
     player_ypos = 0
-def main_menu():
+def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
     global menu_force
     if menu_force == "":
         menu_choice = menu("Navigate nav", "Explore ex", "Inventory i", "Fight f", "Spellcasting spell", "Help help")
