@@ -3,16 +3,21 @@ from random import randint
 from msvcrt import getch
 from sys import stdout
 from time import sleep
-
+from colorama import Fore, Back, Style
 #CLASSES
 class player:
     def __init__(self, hp, speed, attack, defense, armor, inventory, name, exp, level):
         self.hp = hp
         self.max_hp = hp
+        self.base_hp = hp
         self.speed = speed
+        self.base_speed = speed
         self.attack = attack
+        self.base_attack = attack
         self.defense = defense
+        self.base_defense = defense
         self.armor = armor
+        self.base_armor = armor
         self.inventory = inventory
         self.name = name
         self.exp = exp
@@ -218,7 +223,7 @@ def render_map():
             if x.items != []:
                 x.line1 = "..?.."
         if x.xpos == player_xpos and x.ypos == player_ypos:
-            x.line2 = "| @ |"
+            x.line2 = "| "+ Fore.CYAN + "█" + Fore.RESET + " |"
     
     i = 0
     j = 0
@@ -372,7 +377,13 @@ def inventory():
     else:
         print("Your backpack contains: ")
         for x in player_backpack:
-            print(x.name)
+            if type(x) == scroll:
+                if x.read == True:
+                    print(Fore.BLUE + x.name + Fore.RESET)
+                else:
+                    print(Fore.CYAN + x.name + Fore.RESET)
+            else:
+                print(x.name)
     parse_text("Whassup? (\"help\" for command list)\n>>>", "in")
 def equip(item):
     if player_char.inventory[item.slot] != item_dummy:
@@ -383,6 +394,7 @@ def equip(item):
         player_backpack.remove(new_item)
         print("Changed " + old_item.name + " for " + new_item.name)
         print("---------------")
+        update_stats()
         return True
     else:
         new_item = item
@@ -391,7 +403,14 @@ def equip(item):
 
         print("Equipped " + new_item.name)
         print("---------------")
+        update_stats()
         return True
+def update_stats():
+    player_char.max_hp = player_char.base_hp + player_char.inventory["Main Hand"].max_hp + player_char.inventory["Off Hand"].max_hp + player_char.inventory["Helmet"].max_hp + player_char.inventory["Armor"].max_hp + player_char.inventory["Necklace"].max_hp
+    player_char.speed = player_char.base_speed + player_char.inventory["Main Hand"].speed + player_char.inventory["Off Hand"].speed + player_char.inventory["Helmet"].speed + player_char.inventory["Armor"].speed + player_char.inventory["Necklace"].speed
+    player_char.attack = player_char.base_attack + player_char.inventory["Main Hand"].attack + player_char.inventory["Off Hand"].attack + player_char.inventory["Helmet"].attack + player_char.inventory["Armor"].attack + player_char.inventory["Necklace"].attack
+    player_char.defense = player_char.base_defense + player_char.inventory["Main Hand"].defense + player_char.inventory["Off Hand"].defense + player_char.inventory["Helmet"].defense + player_char.inventory["Armor"].defense + player_char.inventory["Necklace"].defense
+    player_char.armor = player_char.base_armor + player_char.inventory["Main Hand"].armor + player_char.inventory["Off Hand"].armor + player_char.inventory["Helmet"].armor + player_char.inventory["Armor"].armor + player_char.inventory["Necklace"].armor
 def explore():
     print("...........\nExploration\n'''''''''''")
     print("..\\.............................../..")
@@ -409,7 +428,7 @@ def explore():
     print("../...............................\\..")
     print(current_room.desc)
     if current_room.enemy != []:
-        print("There is a " + current_room.enemy.name + " in the room.")
+        print("There is a " + Fore.RED + current_room.enemy.name + Style.RESET_ALL + " in the room.")
     if current_room.items != []:
         print(f"The room contains a {current_room.container.name.lower()} with: ", end = "")
         list_len = len(current_room.items)
@@ -511,13 +530,12 @@ def combat():
                 if delete_row:
                     delete_rows(2)
                 delete_row = True
-                #Might do this as a rounded percentage? (in base 12)
                 player_combat_percentage = round((player_turn/combat_threshold) * 10)
                 enemy_combat_percentage = round((enemy_turn/combat_threshold) * 10)
                 #print(player_combat_percentage)
                 #print(enemy_combat_percentage)
-                print("Player: " + "█" * player_combat_percentage + "-" * (10 - player_combat_percentage) + " " + str(player_char.hp) + "/" + str(player_char.max_hp) + " HP")
-                print("Enemy : " + "█" * enemy_combat_percentage + "-" * (10 - enemy_combat_percentage) + " " + str(current_room.enemy.hp) + " HP")
+                print("Player: " + Fore.CYAN + "█" * player_combat_percentage + Fore.RESET + "-" * (10 - player_combat_percentage) + " " + str(player_char.hp) + "/" + str(player_char.max_hp) + " HP")
+                print("Enemy : " + Fore.RED + "█" * enemy_combat_percentage + Fore.RESET + "-" * (10 - enemy_combat_percentage) + " " + str(current_room.enemy.hp) + " HP")
                 sleep(.5)
         combat = False
 def combat_move():
@@ -582,6 +600,8 @@ def attack(attacker, attacker_move, defender, defender_move):
     defender_bonus = 0
     defender_armor = defender.inventory["Helmet"].armor - defender.inventory["Armor"].armor
     attack_damage = attacker.level + randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg) - defender_armor
+    if attack_damage < 0:
+        attack_damage = 0
     if attacker_move.lower() == "a":
         attacker_bonus = 5
     if attacker_move.lower() == "d":
@@ -611,14 +631,15 @@ def exp_gain(exp):
         player_char.exp -= player_char.level
         player_char.level += 1
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("You have LEVELED UP! You are now level", str(player_char.level) + ".")
+        print("You have " + Fore.YELLOW + "LEVELED UP! " + Fore.RESET + "You are now " + Fore.YELLOW + "level", str(player_char.level) + Fore.RESET + ".")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         player_char.max_hp += player_char.level
+        player_char.base_hp += player_char.level
         hp_gain(player_char.level)
-        player_char.attack += 1
-        player_char.defense += 1
-        player_char.speed += 1
-        level_up = False
+        player_char.base_attack += 1
+        player_char.base_defense += 1
+        player_char.base_speed += 1
+        update_stats()
         input("You have gained +1 to Attack, Defense and Speed, as well as " + str(player_char.level) + " HP.")
 def hp_gain(hp_gain):
     player_char.hp += hp_gain
@@ -940,7 +961,7 @@ def player_setup():#Remove keys after testing
     player_char = player(5, 3, 1, 1, 0, {
     "Helmet": item_dummy,
     "Armor": item_dummy,
-    "Main Hand": item_dagger,
+    "Main Hand": item_shotgun,
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
@@ -1125,6 +1146,7 @@ current_room = room_list[0]
 room_list[0].lock = ""
 combat_threshold = 20
 menu_force = ""
+update_stats()
 #GAME START
 with open("willcore_logo.txt") as f:
     print(f.read())
