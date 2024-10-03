@@ -72,9 +72,10 @@ class scroll(consumable):
         self.read = False
         self.log_text = "\n• " + log_text
 class key(consumable): #fix parent class
-    def __init__(self, name, lock):
+    def __init__(self, name, lock, text):
         self.name = name
         self.lock = lock
+        self.text = text
 class container:
     def __init__(self, name, *loot_table):
         self.loot_table = loot_table
@@ -103,6 +104,9 @@ item_short_sword   = item(0, 0, 1, 0, 2, 3, 0, "Main Hand", "Short Sword")
 item_long_sword    = item(0, 0, 1, -1, 3, 5, 0, "Main Hand", "Long Sword")
 item_hammer        = item(0, -2, 2, -2, 5, 7, 0, "Main Hand", "Hammer")
 item_spear         = item(0, 2, 3, 0, 3, 5, 0, "Main Hand", "Spear")
+item_flail         = item(0, 1, 3, 1, 4, 6, -1, "Main Hand", "Flail")
+item_whip          = item(0, 3, 5, -2, 2, 5, -1, "Main Hand", "Whip")
+item_broadsword    = item(0, -2, 3, 0, 5, 8, 1, "Main Hand", "Broadsword")
 #Off Hand
 item_shield        = item(0, 0, 0, 2, 0, 0, 1, "Off Hand", "Shield")
 item_torch         = item(0, 1, 2, 0, 0, 0, 0, "Off Hand", "Torch")
@@ -124,8 +128,8 @@ item_icon          = item(0, 0, 0, 5, 0, 0, 2, "Necklace", "Icon")
 item_dummy         = item(0, 0, 0, 0, 1, 1, 0, "None", "Nothing")
 item_shotgun       = item(0, 0, 10, 10, 5, 5, 0, "Main Hand", "SHOTGUN SON")
 #KEYS
-item_key1 = key("Key A", "A")
-item_key2 = key("Key B", "B")
+item_key1 = key("Key A", "A", "A key used to open doors with lock A.")
+item_key2 = key("Key B", "B", "A key used to open doors with lock B.")
 #POTIONS
 item_fish          = potion("Fish", "Heal for 1 HP")
 item_meat          = potion("Meat", "Heal for 3 HP")
@@ -140,23 +144,28 @@ item_logbook = scroll("Logbook", "This logbook will update if you find anything 
 container_chest = container("Chest", item_cloak, 5, item_shield, 10, item_short_sword, 10, item_leather_helmet, 5)
 container_pantry = container("Pantry", item_fish, 3, item_meat, 2)
 container_bookcase = container("Book Case", item_pendant, 10, item_robe, 10)
-container_potion_rack = container("Potion rack", item_hp_potion, 40, item_max_hp_potion, 5, item_speed_potion, 5)
+container_potion_rack = container("Potion Rack", item_hp_potion, 40, item_max_hp_potion, 5, item_speed_potion, 5)
+container_armor_rack = container("Armor Rack", item_shield, 30, item_leather_armor, 20, item_leather_helmet, 20, item_plate_helmet, 10, item_platemail, 5)
+container_weapon_rack = container("Weapon Rack", item_long_sword, 10, item_short_sword, 30, item_spear, 10, item_hammer, 5, item_monster_tooth, 10)
+container_jewel_case = container("Jewel Case", item_pendant, 20, item_icon, 20, item_monster_tooth, 20, item_dragon_tooth, 10)
 #container_bookcase if lore books ever become a thing
 container_list = [container_chest, container_bookcase, container_potion_rack]
+
 #HOUSEKEEPING
 CURSOR_UP_ONE = '\x1b[1A'
 ERASE_LINE = '\x1b[2K'
 menu_force = ""
 
-#SPELL KEYWORDS
+#COMBAT MOVES
 relentless_attack_keyword = 0
 relentless_attack_discovered = False
+relentless_attack_heard = False
 disarm_keyword = 0
 disarm_discovered = False
+disarm_heard = False
 turtle_keyword = 0
 turtle_discovered = False
-spell_hp_keyword = 0
-spell_speed_keyword = 0
+turtle_heard = False
 
 #FUNCTIONS
 def generate_items(how_many, *items):
@@ -181,7 +190,17 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
         name_list = ["Cyclops", "Terrible Knight", "Manticore", "Huge Man"]
     else:
         name_list = ["Giant", "Giant GIANT Rat", "Necromancer", "THE Man"]
-    gen_enemy = enemy(int(2 + (lvl*(lvl+1)/2)), lvl * 2, lvl, lvl, int(lvl/2), choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_hammer, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
+    gen_enemy = enemy(lvl*5 + lvl*2, lvl * 2, lvl*2, lvl*2, lvl, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
+    if lvl == 1:
+        gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_short_sword])
+    elif lvl == 2:
+        gen_enemy.inventory["Main Hand"] = choice([item_long_sword, item_short_sword])
+    elif lvl == 3:
+        gen_enemy.inventory["Main Hand"] = choice([item_spear, item_long_sword, item_whip])
+    elif lvl == 4:
+        gen_enemy.inventory["Main Hand"] = choice([item_hammer, item_flail])
+    else:
+        gen_enemy.inventory["Main Hand"] = choice([item_hammer, item_flail, item_broadsword])
     return gen_enemy
 def generate_world(xsize, ysize):
     global map_xsize
@@ -458,6 +477,9 @@ def combat():
     global disarm_keyword
     global disarm_discovered
     global player_move
+    global turtle_heard
+    global relentless_attack_heard
+    global disarm_heard
     combat = True
     while combat:
         player_turn = 0
@@ -490,6 +512,10 @@ def combat():
                 if current_room.enemy.hp <= 0:
                     current_room.enemy.hp = 0
                     print("You have defeated " + current_room.enemy.name + "!")
+                    if current_room.enemy.inventory["Main Hand"] != item_dummy:
+                        print(current_room.enemy.name + " dropped their " + current_room.enemy.inventory["Main Hand"].name + " on the ground.")
+                        current_room.items.append(current_room.enemy.inventory["Main Hand"])
+                        current_room.enemy.inventory["Main Hand"] = item_dummy
                     exp_gain(current_room.enemy.level)
                     break
                 if combat_move():
@@ -510,16 +536,25 @@ def combat():
                 if en_move_random == 1:
                     print("\nYou hear a voice booming through the dungeon:")
                     print("\"" + ra_translation.upper() + "!\"")
+                    if relentless_attack_heard == False:
+                        relentless_attack_heard = True
+                        item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + ra_translation.upper() + "!\""
                     input("The enemy is inspired to do a Relentless Attack!")
                     enemy_move = relentless_attack_keyword
                 elif en_move_random == 2:
                     print("\nYou hear a voice booming through the dungeon:")
                     print("\"" + t_translation.upper() + "!\"")
+                    if turtle_heard == False:
+                        turtle_heard = True
+                        item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + t_translation.upper() + "!\""
                     input("The enemy is inspired to do a Turtle move!")
                     enemy_move = turtle_keyword
                 elif en_move_random == 3:
                     print("\nYou hear a voice booming through the dungeon:")
                     print("\"" + d_translation.upper() + "!\"")
+                    if disarm_heard == False:
+                        disarm_heard = True
+                        item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + d_translation.upper() + "!\""
                     input("The enemy is inspired to do a Disarm move!")
                     enemy_move = disarm_keyword
                 delete_row = False
@@ -726,9 +761,6 @@ def item_description(_item): #add attack/defense
             print("• + " + str(_item.armor) + " armor")
         elif _item.armor < 0:
             print("• " + str(_item.armor) + " armor")
-    if type(_item) == key:
-        print(_item.name + ":")
-        print("Opens lock " + _item.lock)
     if isinstance(_item, consumable):
         print(_item.name + ":")
         print(_item.text)
@@ -829,6 +861,7 @@ def parse_text(prompt, mode):#Go over breaks
                     for i, x in enumerate(player_backpack):
                         if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == potion:
                             player_backpack[i].function()
+                            player_backpack.remove(player_backpack[i])
                             found = True
                             print("---------------")
                     if found == False:
@@ -928,6 +961,7 @@ def spellcasting():
             player_char.hp += 5 #change to max HP
             spell_hp_found = True
             input("You cast the magic healing spell!\nMax HP increased by 5!")
+            item_logbook.text += "\n- You have cast the Healing Spell \"" + spell_hp_keyword + "\" for +5 Max HP!"
         else:
             input("You cast the magic healing spell!\n... But you have already gained its power.")
     elif spell_word.lower() == spell_speed_keyword.lower():
@@ -936,6 +970,7 @@ def spellcasting():
             player_char.speed += 2
             spell_speed_found = True
             input("You cast the magic speed spell!\nSpeed increased by 2!")
+            item_logbook.text += "\n- You have cast the Speed Spell \"" + spell_speed_keyword + "\" for +2 Speed!"
         else:
             input("You cast the magic speed spell!\n... But you have already gained its power.")
     elif spell_word.lower() == spell_armor_keyword.lower():
@@ -944,6 +979,7 @@ def spellcasting():
             player_char.armor += 2
             spell_armor_found = True
             input("You cast the magic armor spell!\nArmor increased by 2!")
+            item_logbook.text += "\n- You have cast the Armor Spell \"" + spell_armor_keyword + "\" for +2 Armor!"
         else:
             input("You cast the magic armor spell!\n... But you have already gained its power.")
     else:
@@ -983,11 +1019,11 @@ def player_setup():#Remove keys after testing
     player_char = player(5, 3, 1, 1, 0, {
     "Helmet": item_dummy,
     "Armor": item_dummy,
-    "Main Hand": item_shotgun,
+    "Main Hand": item_dagger,
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_logbook, item_key1, item_key2, item_shield]
+    player_backpack = [item_logbook, item_key1, item_key2, item_hp_potion, item_max_hp_potion]
     player_xpos = 0
     player_ypos = 0
 def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
