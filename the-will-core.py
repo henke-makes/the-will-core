@@ -181,7 +181,7 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
         name_list = ["Cyclops", "Terrible Knight", "Manticore", "Huge Man"]
     else:
         name_list = ["Giant", "Giant GIANT Rat", "Necromancer", "THE Man"]
-    gen_enemy = enemy(int(2 + (lvl*(lvl+1)/2)), lvl * 2, lvl, lvl, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
+    gen_enemy = enemy(int(2 + (lvl*(lvl+1)/2)), lvl * 2, lvl, lvl, int(lvl/2), choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_hammer, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
     return gen_enemy
 def generate_world(xsize, ysize):
     global map_xsize
@@ -428,7 +428,7 @@ def explore():
     print("../...............................\\..")
     print(current_room.desc)
     if current_room.enemy != []:
-        print("There is a " + Fore.RED + current_room.enemy.name + Style.RESET_ALL + " in the room.")
+        print("There is a " + Fore.RED + current_room.enemy.name + Fore.RESET + " in the room.")
     if current_room.items != []:
         print(f"The room contains a {current_room.container.name.lower()} with: ", end = "")
         list_len = len(current_room.items)
@@ -506,7 +506,7 @@ def combat():
                     print(current_room.enemy.name + " turtled up this time.")
                 enemy_move = ""
                 enemy_turn = 0
-                en_move_random = randint(1, 10)
+                en_move_random = randint(1, 6)
                 if en_move_random == 1:
                     print("\nYou hear a voice booming through the dungeon:")
                     print("\"" + ra_translation.upper() + "!\"")
@@ -517,6 +517,11 @@ def combat():
                     print("\"" + t_translation.upper() + "!\"")
                     input("The enemy is inspired to do a Turtle move!")
                     enemy_move = turtle_keyword
+                elif en_move_random == 3:
+                    print("\nYou hear a voice booming through the dungeon:")
+                    print("\"" + d_translation.upper() + "!\"")
+                    input("The enemy is inspired to do a Disarm move!")
+                    enemy_move = disarm_keyword
                 delete_row = False
                 if player_char.hp <= 0:
                     death(current_room.enemy.name)
@@ -539,6 +544,7 @@ def combat():
                 sleep(.5)
         combat = False
 def combat_move():
+    global player_move
     global turtle_discovered
     global relentless_attack_discovered
     global disarm_discovered
@@ -574,31 +580,34 @@ def combat_move():
                 if disarm_discovered == True:
                     print("Disarm: \"" + disarm_keyword + "\"[" + disarm_shortcut + "]")
                     print("Aim for your opponent's weapon to disarm them. (-8 attack, hit disarms enemy)")
-        if player_move.lower() == relentless_attack_keyword: #------------------------------ SPECIAL MOVES
-            if relentless_attack_discovered == False:
+        if player_move.lower() == relentless_attack_keyword or player_move.lower() == ra_shortcut: #------------------------------ SPECIAL MOVES
+            if relentless_attack_discovered == True:
+                print(player_char.name + " will do a relentless attack!")
+                player_move = relentless_attack_keyword
+                return True
+            elif player_move.lower() == relentless_attack_keyword:
                 relentless_attack_discovered = True
                 print("You have discovered Relentless Attack!\nSay again to use it, otherwise use a different command or press Enter to continue.")
-            else:
-                print(player_char.name + " will do a relentless attack!")
+        if player_move.lower() == turtle_keyword or player_move.lower() == turtle_shortcut:
+            if turtle_discovered == True:
+                print(player_char.name + " will turtle up this time. (+3 Armor, no attacking)")
+                player_move = turtle_keyword
                 return True
-        if player_move.lower() == turtle_keyword:
-            if turtle_discovered == False:
+            elif player_move.lower() == turtle_keyword:
                 turtle_discovered = True
                 print("You have discovered Turtle!\nSay again to use it, otherwise use a different command or press Enter to continue.")
-            else:
-                print(player_char.name + " will turtle up this time.")
-                return True
         if player_move == disarm_keyword or player_move.lower() == disarm_shortcut:
-            if disarm_discovered == False:
+            if disarm_discovered == True:
+                print(player_char.name + " will attempt to disarm their opponent!")
+                player_move = disarm_keyword
+                return True
+            elif player_move.lower() == disarm_keyword:
                 disarm_discovered = True
                 print("You have discovered Disarm!\nSay again to use it, otherwise use a different command or press Enter to continue.")
-            else:
-                print(player_char.name + " will turtle up this time. (+3 Armor, no attacking)")
-                return True
 def attack(attacker, attacker_move, defender, defender_move):
     attacker_bonus = 0
     defender_bonus = 0
-    defender_armor = defender.inventory["Helmet"].armor - defender.inventory["Armor"].armor
+    defender_armor = defender.inventory["Helmet"].armor - defender.inventory["Armor"].armor + defender.armor
     attack_damage = attacker.level + randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg) - defender_armor
     if attack_damage < 0:
         attack_damage = 0
@@ -608,6 +617,8 @@ def attack(attacker, attacker_move, defender, defender_move):
         attacker_bonus = -5
     if attacker_move.lower() == relentless_attack_keyword:
         attack_damage += 2
+    if attacker_move.lower() == disarm_keyword:
+        attacker_bonus += 10 #FIX AFTER TEST
     
     if defender_move.lower() == "d":
         defender_bonus = 5
@@ -620,8 +631,19 @@ def attack(attacker, attacker_move, defender, defender_move):
     chance_to_hit = 10 + attacker_bonus + attacker.attack + attacker.inventory["Helmet"].attack + attacker.inventory["Main Hand"].attack + attacker.inventory["Off Hand"].attack + attacker.inventory["Armor"].attack + attacker.inventory["Necklace"].attack -  defender_bonus - defender.defense - defender.inventory["Helmet"].defense - defender.inventory["Main Hand"].defense - defender.inventory["Off Hand"].defense - defender.inventory["Armor"].defense - defender.inventory["Necklace"].defense
     attack_roll = randint(1, 20)
     if attack_roll <= chance_to_hit:
-        defender.hp -= attack_damage 
-        print(attacker.name + " did " + str(attack_damage) + " damage")
+        if attacker_move != disarm_keyword:
+            defender.hp -= attack_damage
+            print(attacker.name + " did " + str(attack_damage) + " damage")
+            print("Attacker move: " + attacker_move)
+            print("Attacker Bonus: " + str(attacker_bonus))
+            print("Defender move: " + defender_move)
+            print("Defense Bonus: " + str(defender_bonus))
+            print("Attack roll: " + str(attack_roll))
+            print("Damage: " + str(attacker.level + randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg)) + "-" + str(defender_armor))
+        else:
+            print(attacker.name + " has knocked the " + defender.inventory["Main Hand"].name + " out of " + defender.name + "'s hand!")
+            current_room.items.append(defender.inventory["Main Hand"])
+            defender.inventory["Main Hand"] = item_dummy
     else:
         print(attacker.name + " missed!")
 def exp_gain(exp):
@@ -1084,7 +1106,7 @@ relentless_attack_keyword = ra_gen_keyword
 disarm_keyword = d_gen_keyword
 turtle_keyword = t_gen_keyword
 ra_shortcut = "ra"
-disarm_shortcut = "d"
+disarm_shortcut = "dis"
 turtle_shortcut = "t"
 # print("RA:", relentless_attack_keyword)
 # print(ra_translation)
