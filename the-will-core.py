@@ -117,17 +117,19 @@ item_leather_armor = item(0, -1, 0, 0, 0, 0, 2, "Armor", "Leather Armor")
 item_robe          = item(0, 1, 0, 2, 0, 0, 0, "Armor", "Robe")
 item_platemail     = item(0, -3, 0, 0, 0, 0, 2, "Armor", "Platemail")
 #Helmet
-item_hood          = item(0, 1, 0, 2, 0, 0, 0, "Helmet", "Hood")
-item_leather_helmet= item(0, 0, 0, 0, 0, 0, 1, "Helmet", "Leather Helmet")
-item_plate_helmet  = item(0, -2, 0, 0, 0, 0, 1, "Helmet", "Plate Helmet")
+item_hood          = item(0, 1, -2, 2, 0, 0, 0, "Helmet", "Hood")
+item_leather_helmet= item(0, 0, 0, 2, 0, 0, 1, "Helmet", "Leather Helmet")
+item_plate_helmet  = item(0, -1, 0, 0, 0, 0, 2, "Helmet", "Plate Helmet")
 #Necklace
-item_pendant       = item(0, 2, 2, 0, 0, 0, 0, "Necklace", "Pendant")
-item_monster_tooth = item(0, 2, 3, -3, 0, 0, -2, "Necklace", "Monster Tooth")
-item_dragon_tooth  = item(0, 3, 5, -5, 0, 0, 0, "Necklace", "Dragon Tooth")
-item_icon          = item(0, 0, 0, 5, 0, 0, 2, "Necklace", "Icon")
+item_pendant       = item(0, 1, 0, 0, 0, 0, 0, "Necklace", "Pendant")
+item_monster_tooth = item(0, 1, 2, -2, 0, 0, -2, "Necklace", "Monster Tooth")
+item_dragon_tooth  = item(0, 3, 5, -5, 0, 0, -4, "Necklace", "Dragon Tooth")
+item_icon          = item(0, 0, 0, 5, 0, 0, 0, "Necklace", "Icon")
 #Fun stuff
 item_dummy         = item(0, 0, 0, 0, 1, 1, 0, "None", "Nothing")
-item_shotgun       = item(0, 0, 10, 10, 5, 5, 0, "Main Hand", "SHOTGUN SON")
+item_shotgun       = item(0, 0, 10, 10, 10, 10, 0, "Main Hand", "SHOTGUN SON")
+#QUEST ITEMS
+item_maguffin1     =scroll("Funky Guitar", "The guitar of the Might Funk Sean, taken from his still tapping hand after death.", "You have found Funk Sean's guitar. The Will Core resonates in the strings!")
 #KEYS
 item_key1 = key("Key A", "A", "A key used to open doors with lock A.")
 item_key2 = key("Key B", "B", "A key used to open doors with lock B.")
@@ -150,6 +152,7 @@ container_armor_rack = container("Armor Rack", item_shield, 30, item_leather_arm
 container_weapon_rack = container("Weapon Rack", item_long_sword, 10, item_short_sword, 30, item_spear, 10, item_hammer, 5, item_monster_tooth, 10)
 container_jewel_case = container("Jewel Case", item_pendant, 20, item_icon, 20, item_monster_tooth, 20, item_dragon_tooth, 10)
 container_container = container("DUMMY CONTAINER", container_chest, 10, container_clothes_rack, 10, container_potion_rack, 5, container_pantry, 20, container_armor_rack, 5, container_weapon_rack, 10, container_jewel_case, 10)
+container_funk = container("Throne of Funk", item_maguffin1, 1)
 #container_bookcase if lore books ever become a thing
 container_list = [container_chest, container_clothes_rack, container_potion_rack, container_pantry, container_armor_rack, container_weapon_rack, container_jewel_case]
 
@@ -173,25 +176,30 @@ turtle_heard = False
 def attack(attacker, attacker_move, defender, defender_move):
     attacker_bonus = 0
     defender_bonus = 0
+    attack_damage = 0
     defender_armor = defender.inventory["Helmet"].armor - defender.inventory["Armor"].armor + defender.armor
     if attacker_move.lower() == "a":
-        attacker_bonus = 3
+        attacker_bonus = 5
     if attacker_move.lower() == "d":
         attacker_bonus = -5
     if attacker_move.lower() == relentless_attack_keyword:
-        attack_damage += 2
+        ra_mult = 2
+    else:
+        ra_mult = 1
     if attacker_move.lower() == disarm_keyword:
-        attacker_bonus -= 5 #FIX AFTER TEST
+        attacker_bonus -= 8
     
     if defender_move.lower() == "d":
         defender_bonus = 5
     if defender_move.lower() == "a":
         defender_bonus = -5
     if defender_move.lower() == relentless_attack_keyword:
-        defender_armor -= 1
+        def_ra_mult = 2
+    else:
+        def_ra_mult = 1
     if defender_move.lower() == turtle_keyword:
         defender_armor += 3
-    attack_damage = attacker.level + randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg) - defender_armor
+    attack_damage = (attacker.level + randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg))*ra_mult*def_ra_mult - defender_armor
     if attack_damage < 0:
         attack_damage = 0
     chance_to_hit = 10 + attacker_bonus + attacker.attack + attacker.inventory["Helmet"].attack + attacker.inventory["Main Hand"].attack + attacker.inventory["Off Hand"].attack + attacker.inventory["Armor"].attack + attacker.inventory["Necklace"].attack -  defender_bonus - defender.defense - defender.inventory["Helmet"].defense - defender.inventory["Main Hand"].defense - defender.inventory["Off Hand"].defense - defender.inventory["Armor"].defense - defender.inventory["Necklace"].defense
@@ -344,10 +352,37 @@ def combat():
                 delete_row = True
                 player_combat_percentage = round((player_turn/combat_threshold) * 10)
                 enemy_combat_percentage = round((enemy_turn/combat_threshold) * 10)
-                #print(player_combat_percentage)
+                if player_move == "":
+                    player_move_text = "do a normal attack."
+                elif player_move.lower() == "a":
+                    player_move_text = "do an Aimed attack."
+                elif player_move.lower() == "d":
+                    player_move_text = "Defend."
+                elif player_move.lower() == "e":
+                    player_move_text = "escape!"
+                elif player_move.lower() == relentless_attack_keyword or ra_shortcut:
+                    player_move_text = "do a Relentless Attack!"
+                elif player_move.lower() == turtle_keyword or turtle_shortcut:
+                    player_move_text = "Turtle up!"
+                elif player_move.lower() == disarm_keyword or disarm_shortcut:
+                    player_move_text = "attempt to Disarm!"
+                if enemy_move == "":
+                    enemy_move_text = "do a normal attack."
+                elif enemy_move.lower() == "a":
+                    enemy_move_text = "do an Aimed attack."
+                elif enemy_move.lower() == "d":
+                    enemy_move_text = "Defend."
+                elif enemy_move.lower() == "e":
+                    enemy_move_text = "escape!"
+                elif enemy_move.lower() == relentless_attack_keyword or ra_shortcut:
+                    enemy_move_text = "do a Relentless Attack!"
+                elif enemy_move.lower() == turtle_keyword or turtle_shortcut:
+                    enemy_move_text = "Turtle up!"
+                elif enemy_move.lower() == disarm_keyword or disarm_shortcut:
+                    enemy_move_text = "attempt to Disarm!"
                 #print(enemy_combat_percentage)
-                print("Player: " + Fore.CYAN + "█" * player_combat_percentage + Fore.RESET + "-" * (10 - player_combat_percentage) + " " + str(player_char.hp) + "/" + str(player_char.max_hp) + " HP")
-                print("Enemy : " + Fore.RED + "█" * enemy_combat_percentage + Fore.RESET + "-" * (10 - enemy_combat_percentage) + " " + str(current_room.enemy.hp) + " HP")
+                print("Player: " + Fore.CYAN + "█" * player_combat_percentage + Fore.RESET + "-" * (10 - player_combat_percentage) + " " + str(player_char.hp) + "/" + str(player_char.max_hp) + " HP | Going to " + player_move_text)
+                print("Enemy : " + Fore.RED + "█" * enemy_combat_percentage + Fore.RESET + "-" * (10 - enemy_combat_percentage) + " " + str(current_room.enemy.hp) + " HP | Going to " + enemy_move_text)
                 sleep(.5)
         combat = False
 def combat_move():
@@ -362,7 +397,7 @@ def combat_move():
             print("You will attempt to escape the battle!")
             return True
         if player_move.lower() == "a": 
-            print(player_char.name + " will do an aimed attack (+3 ATK, -5 DEF)")
+            print(player_char.name + " will do an aimed attack (+5 ATK, -5 DEF)")
             return True
         if player_move.lower() == "d": 
             print(player_char.name + " will defend (+5 DEF, -5 ATK)")
@@ -380,7 +415,7 @@ def combat_move():
                 print("SPECIAL MOVES:")
                 if relentless_attack_discovered == True:
                     print("Relentless Attack: \"" + relentless_attack_keyword + "\" [" + ra_shortcut + "]")
-                    print("Lunge at your foe for massive damage while sacrificing safety! (+2 Damage, +1 Damage taken)") #1.5x dmg, 2x dmg taken?
+                    print("Lunge at your foe for massive damage while sacrificing safety! (2x Damage, 2x Damage taken)") #1.5x dmg, 2x dmg taken?
                 if turtle_discovered == True:
                     print("Turtle: \"" + turtle_keyword + "\" [" + turtle_shortcut + "]")
                     print("Give up your next attack in order to defend yourself. (+3 Armor, no attacking)") #3x armor?
@@ -525,7 +560,7 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
         name_list = ["Cyclops", "Terrible Knight", "Manticore", "Huge Man"]
     else:
         name_list = ["Giant", "Giant GIANT Rat", "Necromancer", "THE Man"]
-    gen_enemy = enemy(lvl*5 + lvl*2, lvl*2, lvl*2, lvl*2, lvl, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
+    gen_enemy = enemy(lvl*4, lvl*2, lvl*2, lvl*2, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
     if lvl == 1:
         gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_short_sword])
     elif lvl == 2:
@@ -599,6 +634,26 @@ def generate_world(xsize, ysize):
         j += 1
     map_xsize = xsize
     map_ysize = ysize
+    #Making questrooms
+    random_room = randint(1, len(room_list) - 1)
+    random_xpos = room_list[random_room].xpos
+    random_ypos = room_list[random_room].ypos
+    room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_funk, generate_loot(container_funk, 1), "This is the Palace of Funk!\nBeware ye who enter, for Funk Sean shall take your skull!", enemy(20, 10, 5, 5, 4, "Funk Sean", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_flail, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 5), "B", 0)
+    room_list[random_room].questroom = True
+    #Lock rooms by quadrant
+    global q1_xsize
+    global q1_ysize
+    q1_xsize = round(map_xsize/2)
+    q1_ysize = round(map_ysize/2)
+    for x in room_list:
+        if x.xpos < q1_xsize and x.ypos < q1_ysize:
+            x.lock = ""
+        elif x.xpos >= q1_xsize and x.ypos < q1_ysize:
+            x.lock = "A"
+        elif x.xpos < q1_xsize and x.ypos >= q1_ysize:
+            x.lock = "B"
+        else:
+            x.lock = "C"
     return room_list
 def generate_word(syllables):
     syl1 = choice(["Ans", "Alt", "Ap", "Bur", "Bos", "Beal", "Cri", "Cal", "Dree", "Dou", "Fle", "Fnu", "Fot", "FF", "Grrrra", "Hesh", "Hal", "Ils", "Jyrr", "Jask", "Klaa", "Lor", "Laf", "Mie", "Mlo", "Neh", "Ny", "Naf", "Oo", "Of", "Pir", "Phon", "Qua", "Qir", "Rhy", "Rac", "Stae", "Sloo", "Thuus", "Tah", "Uuv", "Vex", "Vahl", "Wath", "Xyx", "Xor", "Xeeg", "Yym", "Yrg", "Zwo", "Zae", "Zoth"])
@@ -807,25 +862,28 @@ def parse_text(prompt, mode):#Go over breaks
                         enemy_description(current_room.enemy)
                         found = True
                         parse = False
-                if list[0].lower() == "t": # take command in exploration
-                    if current_room.enemy.hp > 0:
-                        print("Cannot take with enemy in the room!")
-                        found = True
-                    else:
-                        found = False
-                        if current_room.items != []:
-                            if list[1].lower() == "all":
-                                found = True
-                                player_backpack = player_backpack + current_room.items
-                                current_room.items = []
-                                print("Took all items!")
-                            for x in current_room.items:
-                                if list[1].lower() == x.name.lower():
-                                    player_backpack.append(x)
-                                    print("Took " + x.name + " from the room.")
-                                    current_room.items.remove(x)
+                if list[0].lower() == "t":
+                    if len(list) > 1: # take command in exploration
+                        if current_room.enemy.hp > 0:
+                            print("Cannot take with enemy in the room!")
+                            found = True
+                        else:
+                            found = False
+                            if current_room.items != []:
+                                if list[1].lower() == "all":
                                     found = True
-                if found == False and list[0].lower() != "help":
+                                    player_backpack = player_backpack + current_room.items
+                                    current_room.items = []
+                                    print("Took all items!")
+                                for x in current_room.items:
+                                    if list[1].lower() == x.name.lower():
+                                        player_backpack.append(x)
+                                        print("Took " + x.name + " from the room.")
+                                        current_room.items.remove(x)
+                                        found = True
+                    else:
+                        print("Need something to take!")
+                if found == False and list[0].lower() != "help" and len(list) > 1:
                     print("\"" + list[1] + "\"" + " not found.")
             elif valid_text(list[0], "nav", "ex", "i", "f", "spell"):
                 menu_force = list[0]
@@ -921,21 +979,34 @@ def render_map():
             x.line3 = "'''''"
             if x.items != []:
                 x.line1 = "..?.."
+
         if x.xpos == player_xpos and x.ypos == player_ypos:
-            x.line2 = "| "+ Fore.CYAN + "█" + Fore.RESET + " |"
+            if x.questroom == True:
+                x.line2 = "| "+ Fore.CYAN + "█" + Fore.BLUE + " |" + Fore.RESET
+            else:
+                x.line2 = "| "+ Fore.CYAN + "█" + Fore.RESET + " |"
     
     i = 0
     j = 0
     while j < map_ysize:
         while i < map_xsize:
             for x in room_list[i*map_xsize:i*map_xsize + map_xsize]:
-                print(x.line1, end = " ")
+                if x.questroom == True:
+                    print(Fore.BLUE + x.line1 + Fore.RESET, end = " ")
+                else:
+                    print(x.line1, end = " ")
             print("")
             for x in room_list[i*map_xsize:i*map_xsize + map_xsize]:
-                print(x.line2, end = " ")
+                if x.questroom == True:
+                    print(Fore.BLUE + x.line2 + Fore.RESET, end = " ")
+                else:
+                    print(x.line2, end = " ")
             print("")
             for x in room_list[i*map_xsize:i*map_xsize + map_xsize]:
-                print(x.line3, end = " ")
+                if x.questroom == True:
+                    print(Fore.BLUE + x.line3 + Fore.RESET, end = " ")
+                else:
+                    print(x.line3, end = " ")
             print("")
             i += 1
         j += 1
@@ -949,12 +1020,12 @@ def render_map():
         for i, x in enumerate(current_room.items):
             if i < list_len - 1:
                 print("a " + x.name.lower(), end = ", ")
-            elif list_len - 1 == 0:
+            elif list_len == 1:
                 print("a " + x.name.lower() + ".")
             else:
                 print("and a " + x.name.lower() + ".")
     else:
-        print("No items in the room.")
+        print("There is an empty " + current_room.container.name + " in the room.")
 def scroll_names(scrolls, adjectives, name):
     adj = adjectives.copy()
     for x in scrolls:
@@ -1048,7 +1119,7 @@ def player_setup():#Remove keys after testing
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_logbook, item_key1, item_key2, item_hp_potion, item_max_hp_potion]
+    player_backpack = [item_logbook, item_hp_potion, item_max_hp_potion]
     player_xpos = 0
     player_ypos = 0
 def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
@@ -1178,16 +1249,41 @@ turtle_shortcut = "t"
 # print(d_translation)
 keys = [item_key1, item_key2]
 key_room_list = room_list.copy()
-#Sprinkle them keys
-for x in keys:
-    check_valid = True
-    while check_valid:
-        random_room = randint(0, len(key_room_list) - 1)
-        if key_room_list[random_room].lock != x.lock:
-            key_room_list[random_room].items.append(x)
-            #print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
-            key_room_list.remove(key_room_list[random_room])
-            check_valid = False
+#Sprinkle them keys in quadrants
+for i, x in enumerate(keys):
+    random_room = randint(0, len(room_list) - 1)
+    if i == 0:
+        valid = True
+        while valid:
+            if room_list[random_room].lock == "":
+                room_list[random_room].items.append(x)
+                valid = False
+            else:
+                random_room = randint(0, len(room_list) - 1)
+    if i == 1:
+        valid = True
+        while valid:
+            if room_list[random_room].lock == "A":
+                room_list[random_room].items.append(x)
+                valid = False
+            else:
+                random_room = randint(0, len(room_list) - 1)
+    if i == 2:
+        valid = True
+        while valid:
+            if room_list[random_room].lock == "B":
+                room_list[random_room].items.append(x)
+                valid = False
+            else:
+                random_room = randint(0, len(room_list) - 1)
+    if i == 3:
+        valid = True
+        while valid:
+            if room_list[random_room].lock == "C":
+                room_list[random_room].items.append(x)
+                valid = False
+            else:
+                random_room = randint(0, len(room_list) - 1)
 
 #Generate spells
 spell_hp_keyword = generate_word(3)
@@ -1318,7 +1414,7 @@ Karta?
 Combat moves
     Aimed attack X
     Defense X
-    Disarm
+    Disarm X
     Relentless attack X
     Turtle X
 
