@@ -76,7 +76,7 @@ class key(consumable): #fix parent class
         self.name = name
         self.lock = lock
         self.text = text
-class container:
+class container(item):
     def __init__(self, name, *loot_table):
         self.loot_table = list(loot_table)
         self.name = name
@@ -95,6 +95,7 @@ class room:
         self.enemy = enemy
         self.lock = lock
         self.lockvis = lockvis
+        self.questroom = False
 
 #INVENTORY ITEMS
 # MAX_HP, SPEED, ATTACK, DEFENSE, MIN-DMG, MAX-DMG, ARMOR, SLOT, NAME
@@ -148,6 +149,7 @@ container_potion_rack = container("Potion Rack", item_hp_potion, 40, item_max_hp
 container_armor_rack = container("Armor Rack", item_shield, 30, item_leather_armor, 20, item_leather_helmet, 20, item_plate_helmet, 10, item_platemail, 5)
 container_weapon_rack = container("Weapon Rack", item_long_sword, 10, item_short_sword, 30, item_spear, 10, item_hammer, 5, item_monster_tooth, 10)
 container_jewel_case = container("Jewel Case", item_pendant, 20, item_icon, 20, item_monster_tooth, 20, item_dragon_tooth, 10)
+container_container = container("DUMMY CONTAINER", container_chest, 10, container_clothes_rack, 10, container_potion_rack, 5, container_pantry, 20, container_armor_rack, 5, container_weapon_rack, 10, container_jewel_case, 10)
 #container_bookcase if lore books ever become a thing
 container_list = [container_chest, container_clothes_rack, container_potion_rack, container_pantry, container_armor_rack, container_weapon_rack, container_jewel_case]
 
@@ -172,9 +174,6 @@ def attack(attacker, attacker_move, defender, defender_move):
     attacker_bonus = 0
     defender_bonus = 0
     defender_armor = defender.inventory["Helmet"].armor - defender.inventory["Armor"].armor + defender.armor
-    attack_damage = attacker.level + randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg) - defender_armor
-    if attack_damage < 0:
-        attack_damage = 0
     if attacker_move.lower() == "a":
         attacker_bonus = 3
     if attacker_move.lower() == "d":
@@ -192,18 +191,20 @@ def attack(attacker, attacker_move, defender, defender_move):
         defender_armor -= 1
     if defender_move.lower() == turtle_keyword:
         defender_armor += 3
+    attack_damage = attacker.level + randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg) - defender_armor
+    if attack_damage < 0:
+        attack_damage = 0
     chance_to_hit = 10 + attacker_bonus + attacker.attack + attacker.inventory["Helmet"].attack + attacker.inventory["Main Hand"].attack + attacker.inventory["Off Hand"].attack + attacker.inventory["Armor"].attack + attacker.inventory["Necklace"].attack -  defender_bonus - defender.defense - defender.inventory["Helmet"].defense - defender.inventory["Main Hand"].defense - defender.inventory["Off Hand"].defense - defender.inventory["Armor"].defense - defender.inventory["Necklace"].defense
     attack_roll = randint(1, 20)
     if attack_roll <= chance_to_hit:
         if attacker_move != disarm_keyword:
             defender.hp -= attack_damage
             print(attacker.name + " did " + str(attack_damage) + " damage")
-            print("Attacker move: " + attacker_move)
-            print("Attacker Bonus: " + str(attacker_bonus))
-            print("Defender move: " + defender_move)
-            print("Defense Bonus: " + str(defender_bonus))
-            print("Attack roll: " + str(attack_roll))
-            print("Damage: " + str(attacker.level + randint(attacker.inventory["Main Hand"].min_dmg, attacker.inventory["Main Hand"].max_dmg)) + "-" + str(defender_armor))
+            #print("Attacker move: " + attacker_move)
+            #print("Attacker Bonus: " + str(attacker_bonus))
+            #print("Defender move: " + defender_move)
+            #print("Defense Bonus: " + str(defender_bonus))
+            #print("Attack roll: " + str(attack_roll))
         else:
             print(attacker.name + " has knocked the " + defender.inventory["Main Hand"].name + " out of " + defender.name + "'s hand!")
             current_room.items.append(defender.inventory["Main Hand"])
@@ -591,7 +592,7 @@ def generate_world(xsize, ysize):
         i = 0
         while i < xsize:
             container = choice(container_list)
-            new_room = room(i, j, 0, "     ", "     ", "     ", container, generate_loot(container, 2), generate_room_description(), generate_enemy(j + 1), choice(["", "", "", "", "", "A", "B"]), 0)
+            new_room = room(i, j, 0, "     ", "     ", "     ", container, generate_loot(container, randint(0, 2)), generate_room_description(), generate_enemy(j + 1), choice(["", "", "", "", "", "A", "B"]), 0)
             room_n += 1
             room_list.append(new_room)
             i += 1
@@ -1024,6 +1025,8 @@ def sprinkle_items(item_list): #Sprinkle items into unique rooms
 def update_stats():
     player_char.max_hp = player_char.base_hp + player_char.inventory["Main Hand"].max_hp + player_char.inventory["Off Hand"].max_hp + player_char.inventory["Helmet"].max_hp + player_char.inventory["Armor"].max_hp + player_char.inventory["Necklace"].max_hp
     player_char.speed = player_char.base_speed + player_char.inventory["Main Hand"].speed + player_char.inventory["Off Hand"].speed + player_char.inventory["Helmet"].speed + player_char.inventory["Armor"].speed + player_char.inventory["Necklace"].speed
+    if player_char.speed < 1:
+        player_char.speed = 1
     player_char.attack = player_char.base_attack + player_char.inventory["Main Hand"].attack + player_char.inventory["Off Hand"].attack + player_char.inventory["Helmet"].attack + player_char.inventory["Armor"].attack + player_char.inventory["Necklace"].attack
     player_char.defense = player_char.base_defense + player_char.inventory["Main Hand"].defense + player_char.inventory["Off Hand"].defense + player_char.inventory["Helmet"].defense + player_char.inventory["Armor"].defense + player_char.inventory["Necklace"].defense
     player_char.armor = player_char.base_armor + player_char.inventory["Main Hand"].armor + player_char.inventory["Off Hand"].armor + player_char.inventory["Helmet"].armor + player_char.inventory["Armor"].armor + player_char.inventory["Necklace"].armor
