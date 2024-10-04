@@ -78,7 +78,7 @@ class key(consumable): #fix parent class
         self.text = text
 class container:
     def __init__(self, name, *loot_table):
-        self.loot_table = loot_table
+        self.loot_table = list(loot_table)
         self.name = name
         self.items = []
 class room:
@@ -143,13 +143,13 @@ item_logbook = scroll("Logbook", "This logbook will update if you find anything 
 #fixaaaaaa
 container_chest = container("Chest", item_cloak, 5, item_shield, 10, item_short_sword, 10, item_leather_helmet, 5)
 container_pantry = container("Pantry", item_fish, 3, item_meat, 2)
-container_bookcase = container("Book Case", item_pendant, 10, item_robe, 10)
+container_clothes_rack = container("Clothes Rack", item_pendant, 10, item_robe, 10, item_cloak, 10, item_hood, 10)
 container_potion_rack = container("Potion Rack", item_hp_potion, 40, item_max_hp_potion, 5, item_speed_potion, 5)
 container_armor_rack = container("Armor Rack", item_shield, 30, item_leather_armor, 20, item_leather_helmet, 20, item_plate_helmet, 10, item_platemail, 5)
 container_weapon_rack = container("Weapon Rack", item_long_sword, 10, item_short_sword, 30, item_spear, 10, item_hammer, 5, item_monster_tooth, 10)
 container_jewel_case = container("Jewel Case", item_pendant, 20, item_icon, 20, item_monster_tooth, 20, item_dragon_tooth, 10)
 #container_bookcase if lore books ever become a thing
-container_list = [container_chest, container_bookcase, container_potion_rack]
+container_list = [container_chest, container_clothes_rack, container_potion_rack, container_pantry, container_armor_rack, container_weapon_rack, container_jewel_case]
 
 #HOUSEKEEPING
 CURSOR_UP_ONE = '\x1b[1A'
@@ -176,13 +176,13 @@ def attack(attacker, attacker_move, defender, defender_move):
     if attack_damage < 0:
         attack_damage = 0
     if attacker_move.lower() == "a":
-        attacker_bonus = 5
+        attacker_bonus = 3
     if attacker_move.lower() == "d":
         attacker_bonus = -5
     if attacker_move.lower() == relentless_attack_keyword:
         attack_damage += 2
     if attacker_move.lower() == disarm_keyword:
-        attacker_bonus += 10 #FIX AFTER TEST
+        attacker_bonus -= 5 #FIX AFTER TEST
     
     if defender_move.lower() == "d":
         defender_bonus = 5
@@ -229,7 +229,6 @@ def check_lock(xpos, ypos):
             else:
                 return True
 def combat():
-    print("Prepare to fight a mighty " + current_room.enemy.name + "!")
     global player_char
     global relentless_attack_keyword
     global relentless_attack_discovered
@@ -241,7 +240,15 @@ def combat():
     global turtle_heard
     global relentless_attack_heard
     global disarm_heard
-    combat = True
+    if current_room.enemy != [] and current_room.enemy.hp > 0:
+        combat = True
+        print("Prepare to fight a mighty " + current_room.enemy.name + "!")
+    elif current_room.enemy == []:
+        print("No enemy to fight!")
+        combat = False
+    elif current_room.enemy.hp <= 0:
+        print("Can only combat live opponents!")
+        combat = False
     while combat:
         player_turn = 0
         enemy_turn = 0
@@ -261,6 +268,9 @@ def combat():
         delete_row = False
         while player_char.hp > 0 and current_room.enemy.hp > 0: #-------------------- PLAYER TURN         
             if player_turn >= combat_threshold:
+                if player_move.lower() == "e":
+                    print("You escape the battle!")
+                    break
                 if player_move != turtle_keyword:
                     print(player_char.name + " takes a swing!")
                     sleep(1)
@@ -348,10 +358,10 @@ def combat_move():
     while loop:
         player_move = input("Press enter to continue, \"move\" for combat moves, or type something to cheer " + player_char.name + " on!\n")
         if player_move.lower() == "e":
-            print("You escape the battle!")
-            return False
+            print("You will attempt to escape the battle!")
+            return True
         if player_move.lower() == "a": 
-            print(player_char.name + " will do an aimed attack (+5 ATK, -5 DEF)")
+            print(player_char.name + " will do an aimed attack (+3 ATK, -5 DEF)")
             return True
         if player_move.lower() == "d": 
             print(player_char.name + " will defend (+5 DEF, -5 ATK)")
@@ -457,8 +467,8 @@ def equip(item):
 def exp_gain(exp):
     player_char.exp += exp
 
-    while player_char.exp >= player_char.level:
-        player_char.exp -= player_char.level
+    while player_char.exp >= player_char.level + 2:
+        player_char.exp -= player_char.level + 2
         player_char.level += 1
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("You have " + Fore.YELLOW + "LEVELED UP! " + Fore.RESET + "You are now " + Fore.YELLOW + "level", str(player_char.level) + Fore.RESET + ".")
@@ -514,7 +524,7 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
         name_list = ["Cyclops", "Terrible Knight", "Manticore", "Huge Man"]
     else:
         name_list = ["Giant", "Giant GIANT Rat", "Necromancer", "THE Man"]
-    gen_enemy = enemy(lvl*5 + lvl*2, lvl * 2, lvl*2, lvl*2, lvl, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
+    gen_enemy = enemy(lvl*5 + lvl*2, lvl*2, lvl*2, lvl*2, lvl, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
     if lvl == 1:
         gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_short_sword])
     elif lvl == 2:
@@ -526,7 +536,7 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
     else:
         gen_enemy.inventory["Main Hand"] = choice([item_hammer, item_flail, item_broadsword])
     return gen_enemy
-def generate_items(how_many, *items):
+def generate_items(how_many, *items): #Mostly (completetly?) obsolete, replace with generate_loot
     i = 0
     incoming_item_list = list(items)
     outgoing_item_list = []
@@ -536,22 +546,33 @@ def generate_items(how_many, *items):
         incoming_item_list.remove(item)
         i += 1
     return outgoing_item_list
-def generate_loot(container):
-    loot_list = container.loot_table
-    total_chance = 0
-    for x in loot_list:
-        if isinstance(x, item) == False:
-            total_chance += x
-    loot_roll = randint(1, total_chance)
-    loot_number = 0
-    loot_item = 0
-    for x in loot_list:
-        if isinstance(x, item):
-            loot_item = x
-        else:
-            loot_number += x
-        if loot_number >= loot_roll:
-            return[loot_item]
+def generate_loot(container, how_many):
+    i = 0
+    loot_list = container.loot_table.copy()
+    outgoing_item_list = []
+    if how_many > len(loot_list):
+        how_many = len(loot_list)
+    while i < how_many:
+        total_chance = 0
+        for x in loot_list:
+            if isinstance(x, item) == False:
+                total_chance += x
+        loot_roll = randint(1, total_chance)
+        loot_number = 0
+        loot_item = 0
+        for x in loot_list:
+            if isinstance(x, item):
+                loot_item = x
+            else:
+                loot_number += x
+            if loot_number >= loot_roll:
+                outgoing_item_list.append(loot_item)
+                ind = loot_list.index(loot_item)
+                loot_list.pop(ind)
+                loot_list.pop(ind)
+                i += 1
+                break
+    return outgoing_item_list
 def generate_room_description():
     adjective = choice(["musty", "clean", "tattered", "lumpy", "putrid", "impressive", "improper"])
     color = choice(["mold", "a unicorn", "off meat", "confetti", "sludge", "sludge that's blue", "a red house", "you know, whatever"])
@@ -570,7 +591,7 @@ def generate_world(xsize, ysize):
         i = 0
         while i < xsize:
             container = choice(container_list)
-            new_room = room(i, j, 0, "     ", "     ", "     ", container, generate_loot(container), generate_room_description(), generate_enemy(j + 1), choice(["", "", "", "", "", "A", "B"]), 0)
+            new_room = room(i, j, 0, "     ", "     ", "     ", container, generate_loot(container, 2), generate_room_description(), generate_enemy(j + 1), choice(["", "", "", "", "", "A", "B"]), 0)
             room_n += 1
             room_list.append(new_room)
             i += 1
@@ -620,7 +641,7 @@ def inventory():
             else:
                 print(x.name)
     parse_text("Whassup? (\"help\" for command list)\n>>>", "in")
-def item_description(_item): #add attack/defense
+def item_description(_item):
     if type(_item) == item:
         print(_item.name + ":")
         print("Equip to: " + _item.slot)
@@ -713,7 +734,7 @@ def parse_text(prompt, mode):#Go over breaks
                             print("Attack  : " + str(player_char.attack))
                             print("Defense : " + str(player_char.defense))
                             print("Armor   : " + str(player_char.armor))
-                            print("EXP     : " + str(player_char.exp) + " (" + str(player_char.level - player_char.exp) + " left to next level)")
+                            print("EXP     : " + str(player_char.exp) + " (" + str((player_char.level + 2) - player_char.exp) + " left to next level)")
                             print("Level   : " + str(player_char.level))
                             print("---------------")
                             found = True
@@ -735,11 +756,12 @@ def parse_text(prompt, mode):#Go over breaks
                     found = False
                     print("---------------")
                     for i, x in enumerate(player_backpack):
-                        if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == potion:
-                            player_backpack[i].function()
-                            player_backpack.remove(player_backpack[i])
-                            found = True
-                            print("---------------")
+                        if found == False:
+                            if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == potion:
+                                player_backpack[i].function()
+                                player_backpack.remove(player_backpack[i])
+                                found = True
+                                print("---------------")
                     if found == False:
                         print(list[1].lower() + " is not usable.")
                         print("---------------")
