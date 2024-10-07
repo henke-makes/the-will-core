@@ -47,9 +47,11 @@ Combat
 
 Combat stats:
 Damage : How much damage your attack will inflict.
+HP     : How much damage you can take before falling in battle.
+Speed  : How fast your turn timer increments.
 Attack : How likely your attack is to hit.
 Defense: How likely you are to avoid an incoming attack.
-Speed  : How fast your turn timer increments.
+Armor  : How much incoming damage you block.
 
 Once your turn timer reaches max, you will execute a move. If you
 press Enter without entering a value, you will perform an unmodified

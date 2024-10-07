@@ -1,5 +1,5 @@
-from random import choice
-from random import randint
+from random import choice, shuffle, randint
+from math import ceil
 from msvcrt import getch
 from sys import stdout
 from time import sleep
@@ -129,10 +129,12 @@ item_icon          = item(0, 0, 0, 5, 0, 0, 0, "Necklace", "Icon")
 item_dummy         = item(0, 0, 0, 0, 1, 1, 0, "None", "Nothing")
 item_shotgun       = item(0, 0, 10, 10, 10, 10, 0, "Main Hand", "SHOTGUN SON")
 #QUEST ITEMS
-item_maguffin1     =scroll("Funky Guitar", "The guitar of the Might Funk Sean, taken from his still tapping hand after death.", "You have found Funk Sean's guitar. The Will Core resonates in the strings!")
+item_maguffin1     =scroll("Funky Guitar", "The guitar of the Mighty Funk Sean, taken from his still tapping hand after death.", "You have found Funk Sean's guitar. The Will Core resonates in the strings!")
+item_maguffin2     =scroll("Dramatic Helmet", "The helmet of the Opulent Opera Tor, taken from his open mouthed head after death.", "You have found Opera Tor's helmet. The Will Core resonates in the horns!")
 #KEYS
 item_key1 = key("Key A", "A", "A key used to open doors with lock A.")
 item_key2 = key("Key B", "B", "A key used to open doors with lock B.")
+item_key3 = key("Key C", "C", "A key used to open doors with lock C.")
 #POTIONS
 item_fish          = potion("Fish", "Heal for 1 HP")
 item_meat          = potion("Meat", "Heal for 3 HP")
@@ -153,6 +155,7 @@ container_weapon_rack = container("Weapon Rack", item_long_sword, 10, item_short
 container_jewel_case = container("Jewel Case", item_pendant, 20, item_icon, 20, item_monster_tooth, 20, item_dragon_tooth, 10)
 container_container = container("DUMMY CONTAINER", container_chest, 10, container_clothes_rack, 10, container_potion_rack, 5, container_pantry, 20, container_armor_rack, 5, container_weapon_rack, 10, container_jewel_case, 10)
 container_funk = container("Throne of Funk", item_maguffin1, 1)
+container_opera = container("Throne of Opera", item_maguffin2, 1)
 #container_bookcase if lore books ever become a thing
 container_list = [container_chest, container_clothes_rack, container_potion_rack, container_pantry, container_armor_rack, container_weapon_rack, container_jewel_case]
 
@@ -551,15 +554,27 @@ def explore():
 def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika fiender?
     name_list = []
     if lvl == 1:
-        name_list = ["Gobbo", "Giant Rat", "Wormy Boi", "Meek Man"]
+        name_list = ["Thief", "Ordinary Rat", "Wormy Boi", "Puny Man"]
     elif lvl == 2:
-        name_list = ["Bandit", "Strong Fish", "Weak Knight", "Average Man"]
+        name_list = ["Burglar", "Above Average Rat", "Two Worms", "Meek Man"]
     elif lvl == 3:
-        name_list = ["Raider", "Evil Knight", "Lion", "Strong Man"]
+        name_list = ["Bandit", "Impressive Rat", "Rot Pile", "Average Man"]
     elif lvl == 4:
-        name_list = ["Cyclops", "Terrible Knight", "Manticore", "Huge Man"]
+        name_list = ["Raider", "Worrying Rat", "Skull (resting)", "Strong Man"]
+    elif lvl == 5:
+        name_list = ["Marauder", "Swole Rat", "Skull (floating)", "Huge Man"]
+    elif lvl == 6:
+        name_list = ["Tax Criminal", "Giant Rat", "Skeleton Warrior", "THE Man"]
+    elif lvl == 7:
+        name_list = ["Weak Knight", "Giant GIANT Rat", "Skeleton Wazazard", "Ninja"]
+    elif lvl == 8:
+        name_list = ["Evil Knight", "Fish", "Skeleton Hulk", "Samurai"]
+    elif lvl == 9:
+        name_list = ["Terrible Knight", "Strong Fish", "Necromancer", "Weeb"]
     else:
-        name_list = ["Giant", "Giant GIANT Rat", "Necromancer", "THE Man"]
+        name_list = ["Terrible Knight", "Strong Fish", "Necromancer", "Weeb"]
+        for x in range(4):
+            name_list[x] += " +" + str(lvl-9)
     gen_enemy = enemy(lvl*4, lvl*2, lvl*2, lvl*2, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
     if lvl == 1:
         gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_short_sword])
@@ -620,6 +635,14 @@ def generate_world(xsize, ysize):
     global map_ysize
     global relentless_attack_keyword
     global disarm_keyword
+    if xsize <= 1:
+        xsize = 2
+    if ysize <= 1:
+        ysize = 2
+    if xsize >= 10:
+        xsize = 10
+    if ysize >= 10:
+        ysize = 10
     room_list = []
     room_n = 0
     j = 0
@@ -627,33 +650,103 @@ def generate_world(xsize, ysize):
         i = 0
         while i < xsize:
             container = choice(container_list)
-            new_room = room(i, j, 0, "     ", "     ", "     ", container, generate_loot(container, randint(0, 2)), generate_room_description(), generate_enemy(j + 1), choice(["", "", "", "", "", "A", "B"]), 0)
+            new_room = room(i, j, 0, "     ", "     ", "     ", container, generate_loot(container, randint(0, 2)), generate_room_description(), [], choice(["", "", "", "", "", "A", "B"]), 0)
             room_n += 1
             room_list.append(new_room)
             i += 1
         j += 1
     map_xsize = xsize
     map_ysize = ysize
-    #Making questrooms
-    random_room = randint(1, len(room_list) - 1)
-    random_xpos = room_list[random_room].xpos
-    random_ypos = room_list[random_room].ypos
-    room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_funk, generate_loot(container_funk, 1), "This is the Palace of Funk!\nBeware ye who enter, for Funk Sean shall take your skull!", enemy(20, 10, 5, 5, 4, "Funk Sean", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_flail, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 5), "B", 0)
-    room_list[random_room].questroom = True
     #Lock rooms by quadrant
     global q1_xsize
     global q1_ysize
     q1_xsize = round(map_xsize/2)
     q1_ysize = round(map_ysize/2)
+    q1 = []
+    q2 = []
+    q3 = []
+    q4 = []
     for x in room_list:
         if x.xpos < q1_xsize and x.ypos < q1_ysize:
             x.lock = ""
+            q1.append(x)
         elif x.xpos >= q1_xsize and x.ypos < q1_ysize:
             x.lock = "A"
+            q2.append(x)
         elif x.xpos < q1_xsize and x.ypos >= q1_ysize:
             x.lock = "B"
+            q3.append(x)
         else:
             x.lock = "C"
+            q4.append(x)
+    #Generate enemies
+    shuffle(q1)
+    shuffle(q2)
+    shuffle(q3)
+    shuffle(q4)
+    i = 1
+    i_max = ceil(len(q1)/3)
+    lv = 1
+    for x in q1:
+        print("Q1 lvl " + str(lv))
+        x.enemy = generate_enemy(lv)
+        i += 1
+        if i > i_max:
+            i = 1
+            lv += 1
+    i = 1
+    for x in q2:
+        print("Q2 lvl " + str(lv))
+        x.enemy = generate_enemy(lv)
+        i += 1
+        if i > i_max:
+            i = 1
+            lv += 1
+    i = 1
+    for x in q3:
+        x.enemy = generate_enemy(lv)
+        print("Q3 lvl " + str(lv))
+        i += 1
+        if i > i_max:
+            i = 1
+            lv += 1
+    i = 1
+    for x in q4:
+        x.enemy = generate_enemy(lv)
+        print("Q4 lvl " + str(lv))
+        i += 1
+        if i > i_max:
+            i = 1
+            lv += 1
+    #Making questrooms
+    valid = True
+    while valid:
+        random_room = randint(1, len(room_list) - 1)
+        random_xpos = room_list[random_room].xpos
+        random_ypos = room_list[random_room].ypos
+        if room_list[random_room] in q2:
+            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_funk, generate_loot(container_funk, 1), "This is the Palace of Funk!\nBeware ye who enter, for Funk Sean shall take your skull!", enemy(20, 10, 5, 5, 4, "Funk Sean", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_spear, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 5), "A", 0)
+            room_list[random_room].questroom = True
+            valid = False
+    valid = True
+    while valid:
+        random_room = randint(1, len(room_list) - 1)
+        random_xpos = room_list[random_room].xpos
+        random_ypos = room_list[random_room].ypos
+        if room_list[random_room] in q3:
+            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_opera, generate_loot(container_opera, 1), "This is the Opera!\nBeware ye who enter, for Opera Tor shall have your beans!", enemy(35, 17, 10, 10, 6, "Opera Tor", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_flail, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 8), "B", 0)
+            room_list[random_room].questroom = True
+            valid = False
+    valid = True
+    while valid:
+        random_room = randint(1, len(room_list) - 1)
+        random_xpos = room_list[random_room].xpos
+        random_ypos = room_list[random_room].ypos
+        if room_list[random_room] in q4:
+            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_funk, generate_loot(container_funk, 1), "This is the Palace of Funk!\nBeware ye who enter, for Funk Sean shall take your skull!", enemy(20, 10, 5, 5, 4, "Funk Sean", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_flail, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 5), "C", 0)
+            room_list[random_room].questroom = True
+            valid = False
+    #DONE
     return room_list
 def generate_word(syllables):
     syl1 = choice(["Ans", "Alt", "Ap", "Bur", "Bos", "Beal", "Cri", "Cal", "Dree", "Dou", "Fle", "Fnu", "Fot", "FF", "Grrrra", "Hesh", "Hal", "Ils", "Jyrr", "Jask", "Klaa", "Lor", "Laf", "Mie", "Mlo", "Neh", "Ny", "Naf", "Oo", "Of", "Pir", "Phon", "Qua", "Qir", "Rhy", "Rac", "Stae", "Sloo", "Thuus", "Tah", "Uuv", "Vex", "Vahl", "Wath", "Xyx", "Xor", "Xeeg", "Yym", "Yrg", "Zwo", "Zae", "Zoth"])
@@ -1119,7 +1212,7 @@ def player_setup():#Remove keys after testing
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_logbook, item_hp_potion, item_max_hp_potion]
+    player_backpack = [item_logbook, item_hp_potion, item_max_hp_potion, item_key1, item_key2, item_key3]
     player_xpos = 0
     player_ypos = 0
 def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
