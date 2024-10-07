@@ -388,7 +388,7 @@ def combat():
                 elif player_move.lower() == "a":
                     player_move_text = "do an Aimed attack."
                 elif player_move.lower() == "d":
-                    player_move_text = "Defend."
+                    player_move_text = "Defensive attack."
                 elif player_move.lower() == "e":
                     player_move_text = "escape!"
                 elif player_move.lower() == relentless_attack_keyword or ra_shortcut:
@@ -402,14 +402,14 @@ def combat():
                 elif enemy_move.lower() == "a":
                     enemy_move_text = "do an Aimed attack."
                 elif enemy_move.lower() == "d":
-                    enemy_move_text = "Defend."
+                    enemy_move_text = "Defensive attack."
                 elif enemy_move.lower() == "e":
                     enemy_move_text = "escape!"
-                elif enemy_move.lower() == relentless_attack_keyword or ra_shortcut:
+                elif enemy_move.lower() == relentless_attack_keyword or enemy_move.lower() == ra_shortcut:
                     enemy_move_text = "do a Relentless Attack!"
-                elif enemy_move.lower() == turtle_keyword or turtle_shortcut:
+                elif enemy_move.lower() == turtle_keyword or enemy_move.lower() == turtle_shortcut:
                     enemy_move_text = "Turtle up!"
-                elif enemy_move.lower() == disarm_keyword or disarm_shortcut:
+                elif enemy_move.lower() == disarm_keyword or enemy_move.lower() == disarm_shortcut:
                     enemy_move_text = "attempt to Disarm!"
                 print("Player: " + Fore.CYAN + "█" * player_combat_percentage + Fore.RESET + "-" * (10 - player_combat_percentage) + " " + str(player_char.hp) + "/" + str(player_char.max_hp) + " HP | Going to " + player_move_text)
                 print("Enemy : " + Fore.RED + "█" * enemy_combat_percentage + Fore.RESET + "-" * (10 - enemy_combat_percentage) + " " + str(current_room.enemy.hp) + " HP | Going to " + enemy_move_text)
@@ -478,7 +478,6 @@ def combat():
             pass
     elif current_room.enemy.name.lower() == "the keeper" and current_room.enemy.hp <= 0:
         print("The Keeper will no longer stand in your way.\n")
-
 def combat_move():
     global player_move
     global turtle_discovered

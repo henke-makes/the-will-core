@@ -19,7 +19,7 @@ Inventory
         Removes item from your backpack onto the ground of the room             
         you are in.                                                            
         (explore the room to pick it back up)
-"use" - Use item (Not implemented yet)
+"use" - Use item
         Will use items such as potions in your backpack.
 ...........
 Exploration
