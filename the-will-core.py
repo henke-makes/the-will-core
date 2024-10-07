@@ -53,6 +53,9 @@ class potion(consumable):
         if potion.name.lower() == "fish":
             hp_gain(1)
             print("Used Fish to heal 1 HP.")
+        if potion.name.lower() == "fish":
+            hp_gain(2)
+            print("Used Tomato to heal 2 HP.")
         if potion.name.lower() == "bread":
             hp_gain(3)
             print("Used Bread to heal 3 HP.")
@@ -69,6 +72,16 @@ class potion(consumable):
             print("Used Swift Potion for +1 Speed!")
         if potion.name.lower() == "the will core":
             print("YOU WIN!! heja heja")
+            #Achievements:
+            # - Winner!                 : Won the game!
+            # - True Ending?            : Outfoxed the Keeper
+            # - Magic User              : Cast all the spells 
+            # - Combatant               : Unlocked every combat move
+            # - Hardcore                : Won the game at character level [whatever is hard but doable] or lower
+            # - Twister Fire Starter    : Burned every scroll and page before reading it (?)
+            # - HARDCORE Hardcore       : Unlocked "Hardcore" and "Twister Fire Starter" on the same run (?)
+            # - Bookworm                : Translated all the lore text (?)
+            # - Hail to the King, Baby  : Found the secret weapon
             exit()
 class scroll(consumable):
     def __init__(self, name, text, log_text):
@@ -117,22 +130,25 @@ item_broadsword    = item(0, -2, 3, 0, 5, 8, 1, "Main Hand", "Broadsword")
 item_shield        = item(0, 0, 0, 2, 0, 0, 1, "Off Hand", "Shield")
 item_torch         = item(0, 1, 2, 0, 0, 0, 0, "Off Hand", "Torch")
 #Armor
-item_cloak         = item(1, 2, 0, 1, 0, 0, 1, "Armor", "Cloak")
+item_cloak         = item(1, 1, 0, 1, 0, 0, 0, "Armor", "Cloak")
 item_leather_armor = item(0, -1, 0, 0, 0, 0, 2, "Armor", "Leather Armor")
 item_robe          = item(0, 1, 0, 2, 0, 0, 0, "Armor", "Robe")
 item_platemail     = item(0, -3, 0, 0, 0, 0, 2, "Armor", "Platemail")
 #Helmet
+item_hat           = item(0, 0, 2, 0, 0, 0, 0, "Helmet", "Hat")
+item_tophat        = item(1, 1, 0, 0, 0, 0, 2, "Helmet", "Rasmus' Tophat")
+item_goggles       = item(0, 1, 1, 0, 0, 0, 0, "Helmet", "Goggles")
 item_hood          = item(0, 1, -2, 2, 0, 0, 0, "Helmet", "Hood")
-item_leather_helmet= item(0, 0, 0, 2, 0, 0, 1, "Helmet", "Leather Helmet")
+item_leather_helmet= item(0, 0, 0, 0, 0, 0, 1, "Helmet", "Leather Helmet")
 item_plate_helmet  = item(0, -1, 0, 0, 0, 0, 2, "Helmet", "Plate Helmet")
 #Necklace
 item_pendant       = item(0, 1, 0, 0, 0, 0, 0, "Necklace", "Pendant")
 item_monster_tooth = item(0, 1, 2, -2, 0, 0, -2, "Necklace", "Monster Tooth")
-item_dragon_tooth  = item(0, 3, 5, -5, 0, 0, -4, "Necklace", "Dragon Tooth")
-item_icon          = item(0, 0, 0, 5, 0, 0, 0, "Necklace", "Icon")
+item_dragon_tooth  = item(0, 2, 5, -5, 0, 0, -4, "Necklace", "Dragon Tooth")
+item_icon          = item(3, 0, 0, 5, 0, 0, 0, "Necklace", "Icon")
 #Fun stuff
 item_dummy         = item(0, 0, 0, 0, 1, 1, 0, "None", "Nothing")
-item_shotgun       = item(0, 0, 10, 10, 10, 10, 0, "Main Hand", "SHOTGUN SON")
+item_shotgun       = item(0, 20, 20, 20, 50, 50, 0, "Main Hand", "SHOTGUN SON")
 #QUEST ITEMS
 item_maguffin1     = scroll("Funky Guitar", "The guitar of the Mighty Funk Sean, taken from his still tapping hand after death.", "You have found Funk Sean's guitar. The Will Core resonates in the strings!")
 item_maguffin2     = scroll("Dramatic Helmet", "The helmet of the Opulent Opera Tor, taken from his open mouthed head after death.", "You have found Opera Tor's helmet. The Will Core resonates in the horns!")
@@ -145,6 +161,7 @@ item_key4 = key("FunKEY", "FUNKY", "Key used to open the door to the Palace of F
 item_key5 = key("Opera Key", "OPERA", "Key used to open the door to the Opera.")
 #POTIONS
 item_fish          = potion("Fish", "Heal for 1 HP")
+item_tomato        = potion("Tomato", "Heal for 2 HP.\nBrought to you by Tilli's Trash Tomatoes®")
 item_meat          = potion("Meat", "Heal for 3 HP")
 item_hp_potion     = potion("HP Potion", "Heal for 5 HP")
 item_max_hp_potion = potion("Max HP Potion", "Grants +2 Max HP!")
@@ -155,15 +172,15 @@ item_logbook = scroll("Logbook", "This logbook will update if you find anything 
 #CONTAINERS
 #fixaaaaaa
 container_chest = container("Chest", item_cloak, 5, item_shield, 10, item_short_sword, 10, item_leather_helmet, 5)
-container_pantry = container("Pantry", item_fish, 3, item_meat, 2)
+container_pantry = container("Pantry", item_fish, 3, item_meat, 2, item_tomato, 5)
 container_clothes_rack = container("Clothes Rack", item_pendant, 10, item_robe, 10, item_cloak, 10, item_hood, 10)
 container_potion_rack = container("Potion Rack", item_hp_potion, 40, item_max_hp_potion, 5, item_speed_potion, 5)
 container_armor_rack = container("Armor Rack", item_shield, 30, item_leather_armor, 20, item_leather_helmet, 20, item_plate_helmet, 10, item_platemail, 5)
-container_weapon_rack = container("Weapon Rack", item_long_sword, 10, item_short_sword, 30, item_spear, 10, item_hammer, 5, item_monster_tooth, 10)
+container_weapon_rack = container("Weapon Rack", item_long_sword, 100, item_short_sword, 300, item_spear, 100, item_hammer, 50, item_monster_tooth, 100, item_shotgun, 1)
 container_jewel_case = container("Jewel Case", item_pendant, 20, item_icon, 20, item_monster_tooth, 20, item_dragon_tooth, 10)
 container_container = container("DUMMY CONTAINER", container_chest, 10, container_clothes_rack, 10, container_potion_rack, 5, container_pantry, 20, container_armor_rack, 5, container_weapon_rack, 10, container_jewel_case, 10)
 container_funk = container("Throne of Funk", item_maguffin1, 1)
-container_opera = container("Throne of Opera", item_maguffin2, 1)
+container_opera = container("Operatic Plinth", item_maguffin2, 1)
 container_core = container("Core Pedestal", item_maguffin3, 1)
 #container_bookcase if lore books ever become a thing
 container_list = [container_chest, container_clothes_rack, container_potion_rack, container_pantry, container_armor_rack, container_weapon_rack, container_jewel_case]
@@ -240,7 +257,10 @@ def calculate_combat_speed(instance):
 def check_lock(xpos, ypos):
     for x in room_list:
         if x.xpos == xpos and x.ypos == ypos:
-            if x.lock != "":
+            if x.lock == "special":
+                if item_maguffin1 in player_backpack and item_maguffin2 in player_backpack:
+                    return True
+            elif x.lock != "":
                 lock = x.lock
                 for i in player_backpack:
                     if type(i) == key:
@@ -261,11 +281,10 @@ def combat():
     global turtle_heard
     global relentless_attack_heard
     global disarm_heard
-    if current_room.enemy != [] and current_room.enemy.hp > 0:
+    if current_room.enemy != [] and current_room.enemy.hp > 0 and current_room.enemy.name.lower() != "the keeper":
         combat = True
         print("Prepare to fight a mighty " + current_room.enemy.name + "!")
-    elif current_room.enemy == []:
-        print("No enemy to fight!")
+    elif current_room.enemy.name.lower() == "the keeper":
         combat = False
     elif current_room.enemy.hp <= 0:
         print("Can only combat live opponents!")
@@ -392,11 +411,74 @@ def combat():
                     enemy_move_text = "Turtle up!"
                 elif enemy_move.lower() == disarm_keyword or disarm_shortcut:
                     enemy_move_text = "attempt to Disarm!"
-                #print(enemy_combat_percentage)
                 print("Player: " + Fore.CYAN + "█" * player_combat_percentage + Fore.RESET + "-" * (10 - player_combat_percentage) + " " + str(player_char.hp) + "/" + str(player_char.max_hp) + " HP | Going to " + player_move_text)
                 print("Enemy : " + Fore.RED + "█" * enemy_combat_percentage + Fore.RESET + "-" * (10 - enemy_combat_percentage) + " " + str(current_room.enemy.hp) + " HP | Going to " + enemy_move_text)
                 sleep(.5)
         combat = False
+    if current_room.enemy.name.lower() == "the keeper" and player_char.inventory["Main Hand"] != item_shotgun and current_room.enemy.hp > 0:
+        idiot = 0
+        on_notice = False
+        input("The eternal Keeper of the Will Core stands before the Knight. As they approach, the Keeper's robes sway gently.\nThis battle will be fought between minds.")
+        print("The Keeper: \"Keep your wits about you, mortal. I am here to make sure that the Will Core is only\ntaken by a Knight of pure heart and good intention.\"\n")
+        response = menu("\"What is this sorcery?\" a", "\"Step aside, Keeper! My quest and my honor requires me to deliver the Will Core to the King.\" s")
+        if response == "a":
+            print("The Keeper's pale lips pull into a wry smile, revealing prismatic teeth.")
+            print("There is no sorcery, Knight. I materialized together with the Will Core aeons ago to act as a steward of its powers.\nI was always here, just as I am everywhere.\n")
+            response = menu("\"No matter! My duty is to the King\" s")
+        if response == "s":
+            print("The Keeper shrugs their shoulders and extend their arms in an inviting motion.\n\"If you must. Take it.\"\n")
+        response = menu("\"Wait a minute. Surely, this must be a trick.\" a", "\"Finally!\" *GRAB THE WILL CORE* s", "\"Keeper, why do you guard the Will Core?\" d")
+        if response == "s":
+            print("Before the Knight's arm can react to their intention to grab the Will Core, the whole universe seems to stutter and stop.\nThe Keeper's voice is low and heavy with import. \"No.\"")
+            print(Fore.RED + "You are officially on notice." + Fore.RESET)
+            on_notice = True
+            response = menu("\"I'll be good, promise.\" a")
+        if response == "d":
+            print("Again, the Keeper shrugs. \"Why does water flow? Why do trees grow, why does hurt linger? It was always so.\"\n")
+            response = menu("\"As it is in your nature to guard the Will Core, so it is in mine to hunt it.\" a", "\"...What? I'm not following\" s")
+            if response == "s":
+                idiot += 1
+                print("Though their face is hidden by the cowl of their robes, you can feel the Keeper rolling their eyes.\n\"Right, so...\" The keeper seems to be struggling to find the words.\n\"Right. How do I-- So imagine the Will Core is this really cool club, and I'm like the bouncer who makes sure that only really cool people get inside. Yeah?\"\n")
+                response = menu("\"Oh, OK, you wanna make sure I'm cool enough to take the thing?\" a")
+        if response == "a":
+            print("\"Perhaps there is hope for you yet, Knight.\" The Keeper nods slowly.\n")
+        response = menu("\"You talk of pure heart and nobility, yet the Will Core ended up here, with these two?\" a", "\"Who are the League of Musical Villainy?\" s", "\"This is starting to weird me out. I think I might head out.\" d")
+        if response == "d":
+            print("The Keeper's robes billow, and for a split second eyes can be seen under their cowl. Myriad, gleaming, mesmerizing, terrifying.\n\"We are not done with your judgement, Knight.\" The Knight's feet are suddenly rooted to the ground.\n")
+            response = menu("\"Look, I defeated those two musical madmen! Surely that's more than enough?\" a", "\"*THE KNIGHT LOSES THEIR BALANCE*\" s", "\"Hey, I'll go if I want to! You can't make me, you walking dishrag!\" d")
+            if response == "d":
+                if on_notice == True:
+                    print("The Keeper has had it with your shit.")
+                    death("the Keeper, for being too weird about it")
+                else:
+                    print("\"You stay until the judgement is done. One more false move and it will be as if you never were.\"")
+                    print(Fore.RED + "You are officially on notice." + Fore.RESET)
+                    on_notice = True
+                    response = menu("\"Was it this bad with these two other guys as well?\" a")
+            print("The Knight's feet are freed from their bonds.")
+            if response == "s":
+                idiot += 1
+                print("\"This is getting awkward. Let's just move on with the judgement.\"")
+                response = menu("\"Was it this bad with these two other guys as well?\" a")
+        if response == "s":
+            print("\"Such trivialities are beneath my ken. Who are the dirt particles under your shoe? With that said, uh...\" The Keeper scratches their arm awkwardly.")
+            response = "a"
+        if response == "a":
+            print("\"... I will admit, standards have been lower lately. It's a budget thing, out of my hands.\" You get the impression the Keeper will not elaborate.")
+        print(Fore.RED + "WORK IN PROGRESS" + Fore.RESET)
+        print("This is as far as I've gotten, so if you got this far, good job! The Will Core is yours!")
+        current_room.enemy.hp = 0
+    elif current_room.enemy.name.lower() == "the keeper" and player_char.inventory["Main Hand"] == item_shotgun and current_room.enemy.hp > 0:
+        print("The eternal Keeper of the Will Core stands before the Knight. As they approach, the Keeper's robes sway gently.\n")
+        response = menu("Just shoot the damn Keeper a", "If you lay down your arms and come back, this could have a different resolution b")
+        if response == "a":
+            print("You just fukn kill the Keeper with your shotgun, no muss no fuss. Get the Will Core!\n")
+            current_room.enemy.hp = 0
+        if response == "b":
+            pass
+    elif current_room.enemy.name.lower() == "the keeper" and current_room.enemy.hp <= 0:
+        print("The Keeper will no longer stand in your way.\n")
+
 def combat_move():
     global player_move
     global turtle_discovered
@@ -459,7 +541,7 @@ def combat_move():
                 disarm_discovered = True
                 print("You have discovered Disarm!\nSay again to use it, otherwise use a different command or press Enter to continue.")
 def death(cause):
-    print("You have fallen at the hands of " + cause + "!")
+    print("You have fallen at the hands of " + cause + ".")
     with open("willcore_gameover.txt") as f:
         print(f.read())
         f.close()
@@ -749,9 +831,10 @@ def generate_world(xsize, ysize):
         random_xpos = room_list[random_room].xpos
         random_ypos = room_list[random_room].ypos
         if room_list[random_room] in q4:
-            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_funk, generate_loot(container_funk, 1), "This is the Palace of Funk!\nBeware ye who enter, for Funk Sean shall take your skull!", enemy(20, 10, 5, 5, 4, "Funk Sean", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_flail, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 5), "special", 0)
+            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_core, generate_loot(container_core, 1), "This is the Chapel of the Will Core.\nBefore you lies your ultimate prize, and the journey is over.", enemy(20, 10, 5, 5, 4, "The Keeper", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 99), "special", 0)
             room_list[random_room].questroom = True
             valid = False
+    
     #DONE
     return room_list
 def generate_word(syllables):
@@ -795,7 +878,7 @@ def inventory():
                     print(Fore.CYAN + x.name + Fore.RESET)
             else:
                 print(x.name)
-    parse_text("Whassup? (\"help\" for command list)\n>>>", "in")
+    parse_text(Fore.YELLOW + "What is thy wish?" + Fore.RESET + " (\"help\" for command list)\n>>>", "in")
 def item_description(_item):
     if type(_item) == item:
         print(_item.name + ":")
@@ -827,13 +910,13 @@ def menu(*choices):
     valid_choice = True
     while valid_choice:
         for x, choice in enumerate(choices):
-            parse_list = choice.split(" ")
+            parse_list = choice.rsplit(" ", 1)
             text = parse_list[0]
             shortcut = parse_list[1]
             print(str(x + 1) + " " + text + " [" + shortcut + "]")
-        menu_choice= input("What do you wish to do?\n>>>")
+        menu_choice= input(Fore.YELLOW + "What do you wish to do?\n" + Fore.RESET + ">>>")
         for x, choice in enumerate(choices):
-            parse_list = choice.split(" ")
+            parse_list = choice.rsplit(" ", 1)
             text = parse_list[0]
             shortcut = parse_list[1]
             if menu_choice.lower() == text.lower() or menu_choice.lower() == shortcut.lower() or menu_choice.lower() == str(x + 1).lower():
@@ -1240,13 +1323,13 @@ def player_setup():#Remove keys after testing
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_logbook, item_hp_potion, item_max_hp_potion, item_key1, item_key2, item_key3]
+    player_backpack = [item_logbook] #item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2, item_tomato
     player_xpos = 0
     player_ypos = 0
 def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
     global menu_force
     if menu_force == "":
-        menu_choice = menu("Navigate nav", "Explore ex", "Inventory i", "Fight f", "Spellcasting spell", "Help help")
+        menu_choice = menu("Navigate nav", "Explore ex", "Inventory i", "Fight f", "Spell casting spell", "Help help")
     else:
         menu_choice = menu_force
     menu_force = ""
@@ -1384,7 +1467,7 @@ for i, x in enumerate(keys):
     if i == 1:
         valid = True
         while valid:
-            if room_list[random_room].lock == "A":
+            if room_list[random_room].lock == "A" and room_list[random_room].questroom == False:
                 room_list[random_room].items.append(x)
                 valid = False
             else:
@@ -1392,7 +1475,7 @@ for i, x in enumerate(keys):
     if i == 2:
         valid = True
         while valid:
-            if room_list[random_room].lock == "B":
+            if room_list[random_room].lock == "B" and room_list[random_room].questroom == False:
                 room_list[random_room].items.append(x)
                 valid = False
             else:
@@ -1400,8 +1483,24 @@ for i, x in enumerate(keys):
     if i == 3:
         valid = True
         while valid:
-            if room_list[random_room].lock == "C":
+            if room_list[random_room].lock == "C" and room_list[random_room].questroom == False:
                 room_list[random_room].items.append(x)
+                valid = False
+            else:
+                random_room = randint(0, len(room_list) - 1)
+    random_room = randint(0, len(room_list) - 1)
+    valid = True
+    while valid:
+            if room_list[random_room].lock == "A" and room_list[random_room].questroom == False:
+                room_list[random_room].items.append(item_key4)
+                valid = False
+            else:
+                random_room = randint(0, len(room_list) - 1)
+    random_room = randint(0, len(room_list) - 1)
+    valid = True
+    while valid:
+            if room_list[random_room].lock == "B" and room_list[random_room].questroom == False:
+                room_list[random_room].items.append(item_key5)
                 valid = False
             else:
                 random_room = randint(0, len(room_list) - 1)
@@ -1453,25 +1552,25 @@ with open("willcore_logo.txt") as f:
     print(f.read())
     f.close()
 
-# start = ""
-# while start.lower() != "start":
-#     start = menu("Start start", "Story story", "Help h", "Exit x")
-#     if start.lower() == "story":
-#         with open("willcore_story.txt") as f:
-#             print(f.read())
-#             f.close()
-#     if start.lower() == "h":
-#         with open("willcore_help.txt") as f:
-#             print(f.read())
-#             f.close()
-#     if start.lower() == "x":
-#         exit()
+start = ""
+while start.lower() != "start":
+    start = menu("Start start", "Story story", "Help h", "Exit x")
+    if start.lower() == "story":
+        with open("willcore_story.txt") as f:
+            print(f.read())
+            f.close()
+    if start.lower() == "h":
+        with open("willcore_help.txt") as f:
+            print(f.read())
+            f.close()
+    if start.lower() == "x":
+        exit()
   
-# player_char.name = input("What is the noble Knight's name? ")
-# if player_char.name == "":
-#     player_char.name = "Nobody"
-# print("The Knight's name is " + player_char.name)
-# input("Enter to continue")
+player_char.name = input("What is the noble Knight's name? ")
+if player_char.name == "":
+    player_char.name = "Nobody"
+print("The Knight's name is " + player_char.name)
+input("Enter to continue")
 player_char.name = "Testimus" #Remove after testing
 
 while True:
