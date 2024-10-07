@@ -136,7 +136,7 @@ item_shotgun       = item(0, 0, 10, 10, 10, 10, 0, "Main Hand", "SHOTGUN SON")
 #QUEST ITEMS
 item_maguffin1     = scroll("Funky Guitar", "The guitar of the Mighty Funk Sean, taken from his still tapping hand after death.", "You have found Funk Sean's guitar. The Will Core resonates in the strings!")
 item_maguffin2     = scroll("Dramatic Helmet", "The helmet of the Opulent Opera Tor, taken from his open mouthed head after death.", "You have found Opera Tor's helmet. The Will Core resonates in the horns!")
-item_maguffin3     = potion("The Will Core", "The elusive Will Core! The goal of your Quest is near!", "The will core is finally yours! Congratulations!")
+item_maguffin3     = potion("The Will Core", "The elusive Will Core! Once it is activated your Quest will be complete!")
 #KEYS
 item_key1 = key("Key A", "A", "A key used to open doors with lock A.")
 item_key2 = key("Key B", "B", "A key used to open doors with lock B.")
