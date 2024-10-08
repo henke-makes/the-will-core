@@ -1,11 +1,11 @@
 class keeper:
     def judgement(knights):
         for knight in knights:
-            judgement = False
-            while judgement = False
+            judging = True
+            while judging:
                 time = knight.level
                 if worthy(knight):
-                    judgement = True
+                    judging = False
                     sleep(time * 31556926)
                 else:
                     destroy(knight)

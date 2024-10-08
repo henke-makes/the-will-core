@@ -502,17 +502,17 @@ def combat():
             print("\"You will now face my final challenge.\" The Keeper moves to stand between you and the Will Core.\n\"The challenge is simple. If you are worthy, command me to give you the Will Core.\"")
             sleep(2)
             print("The Keeper raises their arms above their head...")
+            sleep(3)
         string = open("willcore_function.txt") #This is OK thematically but DAMN is it on the nose and cringe
         lines = string.readlines()
         for x in lines:
                 print(x, end = "")
                 sleep(.1)
         print("")
-        sleep(.5)
+        sleep(1)
         string.close()
         delete_rows(11)
-        print("" * 10)
-        print("")
+        print("\n" * 11)
         sleep(1)
         response = menu("\"I am worthy! Give me the Will Core, Keeper!\" a", "*SNEAK IN AND GRAB THE WILL CORE* s", "\"Hold on... What was that?\" d")
         if response == "s":
@@ -588,6 +588,7 @@ def combat():
                         sleep(.5)
                         delete_rows(12)
                         j += 1
+                    string.close()
                     sleep(1)
                     print("class keeper:")
                     sleep(.3)
@@ -1534,7 +1535,7 @@ def player_setup():#Remove keys after testing
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_logbook, d_scroll_3, armor_scroll1, item_maguffin2, item_maguffin1] #item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2, item_tomato
+    player_backpack = [item_logbook, d_scroll_3, armor_scroll1, item_maguffin2, item_maguffin1, item_key2, item_key3] #item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2, item_tomato
     player_xpos = 0
     player_ypos = 0
 def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
