@@ -74,18 +74,19 @@ class potion(consumable):
         if potion.name.lower() == "the will core":
             print("YOU WIN!! heja heja")
             #Achievements:
-            # - Winner!                 : Won the game!
-            # - Idiot Savant            : Won by pissing the Keeper off
-            # - True Ending?            : Outsmart the Keeper
-            # - Magic User              : Cast all the spells 
-            # - Combatant               : Unlocked every combat move
-            # - Hardcore                : Won the game at character level [whatever is hard but doable] or lower
-            # - Twister Fire Starter    : Burned every scroll and page before reading it (?)
-            # - HARDCORE Hardcore       : Unlocked "Hardcore" and "Twister Fire Starter" on the same run (?)
-            # - Bookworm                : Translated all the lore text (?)
-            # - Hail to the King, Baby  : Found the secret weapon
-            # - Merciless               : Killed every monster
-            # - Any%                    : Sequence break to the end (?)
+            # - Winner!                     : Won the game!
+            # - Idiot Savant                : Won by pissing the Keeper off
+            # - True Ending?                : Outsmart the Keeper
+            # - Magic User                  : Cast all the spells 
+            # - Combatant                   : Unlocked every combat move
+            # - Hardcore                    : Won the game at character level [whatever is hard but doable] or lower
+            # - Fire Starter                : Burned every scroll and page
+            # - Twister Fire Starter        : Burned every scroll and page before reading it
+            # - HARDCORE Hardcore           : Unlocked "Hardcore" and "Twister Fire Starter" on the same run (?)
+            # - Bookworm                    : Translated all the lore text (?)
+            # - Hail to the King, Baby      : Found the secret weapon
+            # - Merciless                   : Killed every monster
+            # - Tripped on the Finish Line  : Burned the Will Core (?)
 
             exit()
 class scroll(consumable):
@@ -1092,7 +1093,7 @@ def parse_text(prompt, mode):#Go over breaks
                     f.close()
         if mode == "in": #---------------------------------------------------------------mode set to inventory
             found = False
-            if valid_text(list[0], "in", "eq", "uneq", "use", "d", "help"):
+            if valid_text(list[0], "in", "eq", "uneq", "use", "d", "burn", "help"):
                 if list[0].lower() == "in": #inspect command in inventory
                     if len(list) > 1:
                         print("---------------")
@@ -1157,7 +1158,6 @@ def parse_text(prompt, mode):#Go over breaks
                                 player_char.inventory[x] = item_dummy
                                 found = True
                                 break
-
                 if list[0].lower() == "use": #use command in inventory
                     found = False
                     print("---------------")
@@ -1172,6 +1172,37 @@ def parse_text(prompt, mode):#Go over breaks
                         print(list[1].lower() + " is not usable.")
                         print("---------------")
                         break
+                if list[0].lower() == "burn": #burn command in inventory
+                    if len(list) > 1:
+                        found = False
+                        print("---------------")
+                        if list[1].lower() == "all":
+                            valid = True
+                            while valid:
+                                burn = input("WARNING! You may have unread scrolls and pages in your inventory.\nAre you sure you want to burn? (Y/N)\n")
+                                if burn.lower() == "y":
+                                    found = True
+                                    burn_list = player_backpack.copy()
+                                    for x in burn_list:
+                                        if type(x) == scroll and x != item_logbook and x != item_maguffin1 and x != item_maguffin2:
+                                            player_backpack.remove(x)
+                                    print(Fore.RED + "Burned all scrolls and pages!" + Fore.RESET)
+                                    break
+                                elif burn.lower() == "n":
+                                    found = True
+                                    break
+                        else:
+                            for i, x in enumerate(player_backpack):
+                                if found == False:
+                                    if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == scroll and x != item_maguffin1 and x != item_maguffin2 and x != item_logbook:
+                                        print("Burned " + player_backpack[i].name)
+                                        print("---------------")
+                                        player_backpack.remove(player_backpack[i])
+                                        found = True
+                        if found == False:
+                            print(list[1].lower() + " is not flammable.")
+                            print("---------------")
+                            break
                 if list[0].lower() == "d": #drop command in inventory
                     if len(list) > 1:
                         found = False
@@ -1199,19 +1230,22 @@ def parse_text(prompt, mode):#Go over breaks
             else:
                 print("Invalid command")
         if mode == "ex":#---------------------------------------------------------mode set to explore
-            if valid_text(list[0], "in", "t", "help"):
+            if valid_text(list[0], "in", "t", "burn", "help"):
                 found = False
                 if list[0].lower() == "in": # inspect command in exploration
-                    if current_room.items != []:
-                        for x in current_room.items:
-                            if list[1].lower() == x.name.lower():
-                                item_description(x)
-                                found = True
-                                parse = False
-                    if list[1].lower() == current_room.enemy.name.lower() or list[1].lower() == "enemy":
-                        enemy_description(current_room.enemy)
-                        found = True
-                        parse = False
+                    if len(list) > 1:
+                        if current_room.items != []:
+                            for x in current_room.items:
+                                if list[1].lower() == x.name.lower():
+                                    item_description(x)
+                                    found = True
+                                    parse = False
+                        if list[1].lower() == current_room.enemy.name.lower() or list[1].lower() == "enemy":
+                            enemy_description(current_room.enemy)
+                            found = True
+                            parse = False
+                    else:
+                        print("Need something to inspect!")
                 if list[0].lower() == "t":
                     if len(list) > 1: # take command in exploration
                         if current_room.enemy.hp > 0:
@@ -1233,6 +1267,19 @@ def parse_text(prompt, mode):#Go over breaks
                                         found = True
                     else:
                         print("Need something to take!")
+                if list[0].lower() == "burn":
+                    if current_room.enemy.hp <= 0:
+                        valid = True
+                        while valid:
+                            burn = input("Do you wish to burn all the items on the ground? (Y/N)")
+                            if burn.lower() == "y":
+                                current_room.items = []
+                                print(Fore.RED + "Burned all item on the ground!" + Fore.RESET)
+                                break
+                            elif burn.lower() == "n":
+                                break
+                    else:
+                        print("Cannot burn with enemy in the room!")
                 if found == False and list[0].lower() != "help" and len(list) > 1:
                     print("\"" + list[1] + "\"" + " not found.")
             elif valid_text(list[0], "nav", "ex", "i", "f", "spell"):
@@ -1487,7 +1534,7 @@ def player_setup():#Remove keys after testing
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_logbook] #item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2, item_tomato
+    player_backpack = [item_logbook, d_scroll_3, armor_scroll1, item_maguffin2, item_maguffin1] #item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2, item_tomato
     player_xpos = 0
     player_ypos = 0
 def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?

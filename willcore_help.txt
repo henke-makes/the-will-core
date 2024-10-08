@@ -23,6 +23,9 @@ Inventory
         (explore the room to pick it back up)
 "use" - Use item
         Will use items such as potions in your backpack.
+"burn"- Burn readables
+        Can be used to declutter your inventory from scrolls and pages.
+        "burn all" will burn all scrolls and pages in inventory, save your logbook.
 ...........
 Exploration
 '''''''''''
@@ -35,6 +38,9 @@ Exploration
         Can only be done with no live enemies in room
         Takes item(s) from somewhere.
         "t all" takes all items in the room.
+"burn"- Burn items
+        Can be used to declutter the ground of a room and get rid
+        of items you don't want. Use with caution!
 "m"   - Return to menu
         Use in inventory or while exploring to return to menu
 
