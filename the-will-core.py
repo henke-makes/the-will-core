@@ -75,6 +75,7 @@ class potion(consumable):
             print("YOU WIN!! heja heja")
             #Achievements:
             # - Winner!                 : Won the game!
+            # - Idiot Savant            : Won by pissing the Keeper off
             # - True Ending?            : Outsmart the Keeper
             # - Magic User              : Cast all the spells 
             # - Combatant               : Unlocked every combat move
@@ -313,10 +314,10 @@ def combat():
             print(Fore.YELLOW + "Attack advantage: " + str(attack_adv))
             print("50% to hit" + Fore.RESET)
         defense_adv = current_room.enemy.attack - player_char.defense
-        if defense_adv > 0:
+        if defense_adv < 0:
             print(Fore.RED + "Defense disadvantage: " + str(attack_adv))
             print(str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
-        elif defense_adv < 0:
+        elif defense_adv > 0:
             print(Fore.GREEN + "Defense advantage: " + str(abs(attack_adv)))
             print(str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
         else:
@@ -444,7 +445,7 @@ def combat():
         idiot = 0
         on_notice = False
         input("The eternal Keeper of the Will Core stands before the Knight. As they approach, the Keeper's robes sway gently.\nThis battle will be fought between minds.")
-        print("The Keeper: \"Keep your wits about you, mortal. I am here to make sure that the Will Core is only\ntaken by a Knight of pure heart and good intention. My sleep has been interrupted, another cycle has begun and the judgement will now commence.\"\n")
+        print("The Keeper: \"Keep your wits about you, mortal. I am here to make sure that the Will Core is only\ntaken by a Knight of pure heart and good intention. My slumber has ended, another cycle has begun and the judgement will now commence.\"\n")
         response = menu("\"What is this sorcery?\" a", "\"Step aside, Keeper! My quest and my honor requires me to deliver the Will Core to the King.\" s")
         if response == "a":
             print("The Keeper's pale lips pull into a wry smile, revealing prismatic teeth.")
@@ -509,9 +510,10 @@ def combat():
         sleep(.5)
         string.close()
         delete_rows(11)
-        print("...\n" * 11)
+        print("" * 10)
+        print("")
         sleep(1)
-        response = menu("\"I am worthy! Give me the Will Core, Keeper!\" a", "*SNEAK AND GRAB THE WILL CORE* s", "\"Hold on... What was that?\" d")
+        response = menu("\"I am worthy! Give me the Will Core, Keeper!\" a", "*SNEAK IN AND GRAB THE WILL CORE* s", "\"Hold on... What was that?\" d")
         if response == "s":
             if on_notice == True:
                 print("The Keeper's hands drop to their side. \"Are you se-- OK, you know what -\"")
@@ -521,7 +523,7 @@ def combat():
                 print("The Keeper's hands drop to their side. \"Are you se-- OK, you know what, fine. FINE. I'm sick of your shit,\njust take the Will Core and get out before I lose my temper.\" The Keeper lays down on the ground, sick of your shit.")
                 current_room.enemy.hp = 0
             else:
-                print("The Keeper is exasperated by you, but you seem to have gotten away with it.\n\"I was in a great mood prior to all this, so for that reason I'll let that one slide.\"")
+                print("The Keeper is exasperated by you, but you seem to have gotten away with it.\n\"I was in a great mood prior to all this, so I'll let that one slide.\"")
                 response = "a"
         if response == "a":
             print("The Keeper lowers their arms and looks at the Knight. Though the eyes are hidden the Knight feels watched from every direction at once.\n")
@@ -531,17 +533,80 @@ def combat():
             print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + str(player_char.level) + "-year-long slumber.")
             current_room.enemy.hp = 0
         if response == "d":
-            print("The Keeper's robes seem to catch a faint wind. \"My function is to judge the worthiness of an infinite line of Knights. As such the cycle is everlasting. I have found you to be worthy.\"")
-        response = menu("\"Surely your function can be questioned, even changed.\" a", "\"That's cool and all, but I think I'll quit while I'm ahead.\" s")
-        if response == "s":
-            print("The Keeper's body starts to slump as a " + str(player_char.level) + "-year-long slumber grabs them.\n\"Very well. Take the Will Core now.\"")
-            current_room.enemy.hp = 0
-        if response == "a":
-            print("The Keeper's laughter echoes throughout the space. It feels like it lasts forever.\n\"Surely, you are not arrogant enough to assume you can speak against the elder creators? My function has been defined an eternity ago, and can only be written by speaking the elder tongue.\"")
-        response = input(Fore.YELLOW + "What do you wish to do?\n" + Fore.RESET + ">>>")
-        print(Fore.RED + "WORK IN PROGRESS" + Fore.RESET)
-        print("This is as far as I've gotten, so if you got this far, good job! The Will Core is yours!")
-        current_room.enemy.hp = 0
+            print("The Keeper's robes seem to catch a faint wind. \"My function is to judge the worthiness of an infinite line of Knights.\n As such the cycle is everlasting. I have found you to be worthy.\"")
+            response = menu("\"You have never questioned your function?\" a", "\"You're probably right. I'll have the Will Core, please.\" s")
+            if response == "s":
+                print("The Keeper's body starts to slump as a " + str(player_char.level) + "-year-long slumber takes a hold of them.\n\"Very well. Take the Will Core now...\"")
+                current_room.enemy.hp = 0
+            if response == "a":
+                print("The Keeper's laughter echoes throughout the space. It feels like it lasts forever.\n\"Knight! How would such a thing even work? Surely, you are not arrogant enough to assume you can speak against the elder creators?\nMy function was defined an eternity ago.\" The Keeper's robes swirl otherworldly.")
+                print("\"While the conditions of my servitude remain in place, there can be no escape from the cycle, and no escape from the judgement.\nThe sleeper shall always wake and resume the work.\"")
+                response = menu("\"You have found me worthy, Keeper. I'll take my prize.\" a", "\"What is the purpose of your slumber?\" s")
+                if response == "a":
+                    print("\"So I have, Knight. The Will Core is now yours, and I shall slumber again.\"")
+                    print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + str(player_char.level) + "-year-long slumber.")
+                    current_room.enemy.hp = 0
+                if response == "s":
+                    print("The Keeper's robes blow out in frustration. \"The purpose of the function is immaterial to the execution of the function!\nI am what I am, so I do what I do! Is it your place to question YOUR duties?\"\n")
+                    menu("\"Good faith questions strengthen the foundation of our convictions.\" a")
+                    print("The Keeper's innumerable eyes shift and swirl below their cowl.\n\"My function is not a stance I have come to through reasoned debate, it is simply part of my definition.\"")
+                    menu("\"Is it part of your function to alter your function?\" a")
+                    print("The Keeper's body jitters beneath the robes. \"Altering my function would go against my current function.\"")
+                    menu("\"Don't avoid the question, Keeper. Your need for sleep is arbitrary, is it not?\" a")
+                    print("")
+                    print("The Keeper squirms uncomfortably.")
+                    print("\"While true, sleep is part of my--\"")
+                    sleep(2)
+                    delete_rows(1)
+                    print(Fore.RED + "\"While " + Fore.RESET + "true, sleep is part of my--\"")
+                    sleep(2)
+                    delete_rows(1)
+                    print(Fore.RED + "\"While true, "  + Fore.RESET + "sleep is part of my--\"")
+                    sleep(2)
+                    delete_rows(1)
+                    print(Fore.RED + "\"While true, sleep " + Fore.RESET + "is part of my--\"")
+                    sleep(2)
+                    delete_rows(1)
+                    print(Fore.RED + "WHILE TRUE: SLEEP" + Fore.RESET)
+                    string = open("willcore_function.txt") #This is OK thematically but DAMN is it on the nose and cringe
+                    lines = string.readlines()
+                    for x in lines:
+                            print(x, end = "")
+                            sleep(.1)
+                    print("")
+                    sleep(2)
+                    delete_rows(11)
+                    j = 0
+                    while j < len(lines) + 1:
+                        for i, x in enumerate(lines):
+                            if i < len(lines) - j:
+                                print(x, end = "")
+                            else:
+                                print("")
+                        print("")
+                        sleep(.5)
+                        delete_rows(12)
+                        j += 1
+                    sleep(1)
+                    print("class keeper:")
+                    sleep(.3)
+                    print("    def judgement(knights):")
+                    sleep(1)
+                    print("        while True:")
+                    sleep(2)
+                    print("            sleep()")
+                    sleep(2)
+                    delete_rows(1)
+                    print(Fore.RED + "            sleep()" + Fore.RESET)
+                    sleep(3)
+                    print("The Keeper jitters, stutters and shifts unnaturally. They seem to be breaking apart, dissolving and imploding at the same time.\nThey fall to the floor, entering an " + Fore.RED + "endless sleep." + Fore.RESET)
+                    input("The Will Core is yours for the taking - it will never be active again due to the infinite slumber of its guardian.\nYour quest is complete, and the fate of every Knight forevermore has been altered.")
+                    print("Do what you wish.")
+                    sleep(2)
+                    print("Do what you do, for you are what you are.")
+                    sleep(2)
+                    print("\nThe room shifts back into focus, and you stand there alone. The Keeper is on the ground, as they will always be from now on.")
+                    current_room.enemy.hp = 0
     elif current_room.enemy.name.lower() == "the keeper" and player_char.inventory["Main Hand"] == item_shotgun and current_room.enemy.hp > 0:
         print("The eternal Keeper of the Will Core stands before the Knight. As they approach, the Keeper's robes sway gently.\n")
         response = menu("Just shoot the damn Keeper a", "If you lay down your arms and come back, this could have a different resolution b")
@@ -551,7 +616,7 @@ def combat():
         if response == "b":
             pass
     elif current_room.enemy.name.lower() == "the keeper" and current_room.enemy.hp <= 0:
-        print("The Keeper will no longer stand in your way.\n")
+        print("No need to fight - the Keeper will no longer stand in your way.\n")
 def combat_move():
     global player_move
     global turtle_discovered
@@ -916,7 +981,7 @@ def generate_world(xsize, ysize):
         random_xpos = room_list[random_room].xpos
         random_ypos = room_list[random_room].ypos
         if room_list[random_room] in q4:
-            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_core, generate_loot(container_core, 1), "This is the Chapel of the Will Core.\nBefore you lies your ultimate prize, and the journey is over.", enemy(20, 10, 5, 5, 4, "The Keeper", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 99), "special", 0)
+            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_core, generate_loot(container_core, 1), "This is the Chapel of the Will Core.\nBefore you lies your ultimate prize, and the journey is over.", enemy(20, 10, 5, 5, 4, "The Keeper", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 99), "special", 1)
             room_list[random_room].questroom = True
             valid = False
     
@@ -1027,7 +1092,7 @@ def parse_text(prompt, mode):#Go over breaks
                     f.close()
         if mode == "in": #---------------------------------------------------------------mode set to inventory
             found = False
-            if valid_text(list[0], "in", "eq", "use", "d", "help"):
+            if valid_text(list[0], "in", "eq", "uneq", "use", "d", "help"):
                 if list[0].lower() == "in": #inspect command in inventory
                     if len(list) > 1:
                         print("---------------")
@@ -1080,6 +1145,19 @@ def parse_text(prompt, mode):#Go over breaks
                                 print("---------------")
                                 found = True
                                 break
+                if list[0].lower() == "uneq": #unequip command in inventory
+                    if len(list) > 1:
+                        found = False
+                        print("---------------")
+                        for x in player_char.inventory:
+                            if list[1].lower() == player_char.inventory[x].name.lower():
+                                print("Unequipped " + player_char.inventory[x].name)
+                                print("---------------")
+                                player_backpack.append(player_char.inventory[x])
+                                player_char.inventory[x] = item_dummy
+                                found = True
+                                break
+
                 if list[0].lower() == "use": #use command in inventory
                     found = False
                     print("---------------")
@@ -1405,11 +1483,11 @@ def player_setup():#Remove keys after testing
     player_char = player(5, 3, 1, 1, 0, {
     "Helmet": item_dummy,
     "Armor": item_dummy,
-    "Main Hand": item_shotgun,
+    "Main Hand": item_dagger,
     "Off Hand": item_dummy,
     "Necklace": item_dummy
     }, "Nobody", 0, 1)
-    player_backpack = [item_logbook, item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2, item_tomato] #item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2, item_tomato
+    player_backpack = [item_logbook] #item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2, item_tomato
     player_xpos = 0
     player_ypos = 0
 def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?

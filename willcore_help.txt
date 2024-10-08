@@ -14,10 +14,12 @@ Inventory
         "in self" will inspect your current stats.
 "eq"  - Equip
         Requires an item in your backpack
-        Switch your currently equipped item for the specified item       
+        Switch your currently equipped item for the specified item 
+"uneq"- Unequip
+        Put an equipped item back in your backpack.
 "d"   - Drop item
-        Removes item from your backpack onto the ground of the room             
-        you are in.                                                            
+        Remove item from your backpack onto the ground of the room
+        you are in.
         (explore the room to pick it back up)
 "use" - Use item
         Will use items such as potions in your backpack.
