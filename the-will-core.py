@@ -252,12 +252,6 @@ def attack(attacker, attacker_move, defender, defender_move):
             defender.inventory["Main Hand"] = item_dummy
     else:
         print(attacker.name + " missed!")
-def calculate_combat_speed(instance):
-    combat_value = instance.speed
-    for x in instance.inventory.values():
-        if x.speed != 0:
-            combat_value += x.speed
-    return combat_value
 def check_lock(xpos, ypos):
     for x in room_list:
         if x.xpos == xpos and x.ypos == ypos:
@@ -303,9 +297,9 @@ def combat():
     while combat:
         player_turn = 0
         enemy_turn = 0
-        player_speed = calculate_combat_speed(player_char)
+        player_speed = player_char.speed
         print("Player speed : " + str(player_speed))
-        enemy_speed = calculate_combat_speed(current_room.enemy)
+        enemy_speed = current_room.enemy.speed
         print("Enemy speed  : " + str(enemy_speed))
         combat_threshold = max(player_speed, enemy_speed) * 4
         attack_adv = player_char.attack - current_room.enemy.defense
@@ -504,31 +498,46 @@ def combat():
             response = "s"
         if response == "s":
             print("\"You will now face my final challenge.\" The Keeper moves to stand between you and the Will Core.\n\"The challenge is simple. If you are worthy, command me to give you the Will Core.\"")
-            sleep(3)
-            print("The Keeper raises their arms above their head...") #Bit too dramatic, I want the Keeper outsmarted by an infinite loop
             sleep(2)
-            print("\"COMMAND ME, O KNIGHT, TO GIVE YOU THE WILL CORE\"")
-            sleep(2)
-            print("\"RETURN ME TO MY CYCLIC SLUMBER\"")
-            sleep(2)
-            print("\"ALLOW ME NEVER TO WAKE UP\"")
-        response = menu("\"I am worthy! Give me the Will Core, Keeper! Return to sleep!\" a", "*SNEAK AND GRAB THE WILL CORE* s")
+            print("The Keeper raises their arms above their head...")
+        string = open("willcore_function.txt") #This is OK thematically but DAMN is it on the nose and cringe
+        lines = string.readlines()
+        for x in lines:
+                print(x, end = "")
+                sleep(.1)
+        print("")
+        sleep(.5)
+        string.close()
+        delete_rows(11)
+        print("...\n" * 11)
+        sleep(1)
+        response = menu("\"I am worthy! Give me the Will Core, Keeper!\" a", "*SNEAK AND GRAB THE WILL CORE* s", "\"Hold on... What was that?\" d")
         if response == "s":
             if on_notice == True:
-                print("The Keeper's hands drop to their side. \"Are you s-- OK, you know what -\"")
+                print("The Keeper's hands drop to their side. \"Are you se-- OK, you know what -\"")
                 sleep(2)
                 death("the Keeper, for not being chill")
             elif idiot == 2:
-                print("The Keeper's hands drop to their side. \"Are you se-- OK, you know what, fine. FINE. I'm sick of your shit,\njust take the Will Core and get out before I lose my temper.\"")
+                print("The Keeper's hands drop to their side. \"Are you se-- OK, you know what, fine. FINE. I'm sick of your shit,\njust take the Will Core and get out before I lose my temper.\" The Keeper lays down on the ground, sick of your shit.")
                 current_room.enemy.hp = 0
+            else:
+                print("The Keeper is exasperated by you, but you seem to have gotten away with it.\n\"I was in a great mood prior to all this, so for that reason I'll let that one slide.\"")
+                response = "a"
         if response == "a":
-            print("The Keeper lowers their arms and looks at the Knight. Though the eyes are hidden the Knight feels watched from every direction at once.")
+            print("The Keeper lowers their arms and looks at the Knight. Though the eyes are hidden the Knight feels watched from every direction at once.\n")
             sleep(2)
-            print("\"Thank you.\"")
+            print("\"Thank you.\"\n")
             sleep(2)
-            print("\"Tell me again.\" The Keeper's voice grows slow and tired.")
-            print("\"Itghor threm balar tog frechtuqe shormu.\"") #"Tell me to go to endless sleep."
-        print("1 \"Go to sleep, Keeper.\" [a]")
+            print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + str(player_char.level) + "-year-long slumber.")
+            current_room.enemy.hp = 0
+        if response == "d":
+            print("The Keeper's robes seem to catch a faint wind. \"My function is to judge the worthiness of an infinite line of Knights. As such the cycle is everlasting. I have found you to be worthy.\"")
+        response = menu("\"Surely your function can be questioned, even changed.\" a", "\"That's cool and all, but I think I'll quit while I'm ahead.\" s")
+        if response == "s":
+            print("The Keeper's body starts to slump as a " + str(player_char.level) + "-year-long slumber grabs them.\n\"Very well. Take the Will Core now.\"")
+            current_room.enemy.hp = 0
+        if response == "a":
+            print("The Keeper's laughter echoes throughout the space. It feels like it lasts forever.\n\"Surely, you are not arrogant enough to assume you can speak against the elder creators? My function has been defined an eternity ago, and can only be written by speaking the elder tongue.\"")
         response = input(Fore.YELLOW + "What do you wish to do?\n" + Fore.RESET + ">>>")
         print(Fore.RED + "WORK IN PROGRESS" + Fore.RESET)
         print("This is as far as I've gotten, so if you got this far, good job! The Will Core is yours!")
@@ -695,7 +704,15 @@ def explore():
     print("../...............................\\..")
     print(current_room.desc)
     if current_room.enemy != []:
-        print("There is a " + Fore.RED + current_room.enemy.name + Fore.RESET + " in the room.")
+        if current_room.enemy.name.lower() == "the keeper":
+            if current_room.enemy.hp > 0:
+                print("The " + Fore.RED + "Keeper of the Will Core" + Fore.RESET + " stands in the room.")
+            else:
+                print("The " + Fore.RED + "Keeper of the Will Core" + Fore.RESET + " lies on the ground. They will not stand in your way any longer.")
+        elif current_room.enemy.hp > 0:
+            print("There is a " + Fore.RED + current_room.enemy.name + Fore.RESET + " in the room.")
+        else:
+            print("There is a " + Fore.RED + "dead " + current_room.enemy.name + Fore.RESET + " in the room.")
     if current_room.items != []:
         print(f"The room contains a {current_room.container.name.lower()} with: ", end = "")
         list_len = len(current_room.items)

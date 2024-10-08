@@ -1,9 +1,11 @@
 ---------------------------------------------------------------------
-The mysterious artefact known as the Will Core has gone missing
-from the college of Mages in Coderia. The League of Musical
-Villainy are surely behind this rotten deed! A Knight of
-the realm has been tasked by the King of Coderia, the mighty Lord 
-Hengun, to retrieve this holy object to its rightful,
+The mysterious artefact known as the Will Core went missing
+from the college of Mages in Coderia ten years ago, stolen by
+The League of Musical Villainy. There was no trace as to its
+whereabouts until recently, when the Mages picked up its vibes
+from a dungeon which turns out to be the League's hideout.
+A Knight of the realm has been tasked by the King of Coderia, 
+the mighty Lord Hengun, to retrieve this holy object to its rightful,
 i.e. most recent, owner.
 
 The journey to the Lair of Musical Villainy is long and perilous.
