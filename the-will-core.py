@@ -178,7 +178,7 @@ item_logbook = scroll("Logbook", "This logbook will update if you find anything 
 #CONTAINERS
 container_chest = container("Chest", item_cloak, 5, item_shield, 10, item_short_sword, 10, item_leather_helmet, 5)
 container_pantry = container("Pantry", item_fish, 3, item_meat, 2, item_tomato, 5)
-container_clothes_rack = container("Clothes Rack", item_pendant, 10, item_robe, 10, item_cloak, 10, item_hood, 10)
+container_clothes_rack = container("Clothes Rack", item_pendant, 10, item_robe, 10, item_cloak, 10, item_hood, 10, item_hat, 20, item_tophat, 5)
 container_potion_rack = container("Potion Rack", item_hp_potion, 40, item_max_hp_potion, 5, item_speed_potion, 5)
 container_armor_rack = container("Armor Rack", item_shield, 30, item_leather_armor, 20, item_leather_helmet, 20, item_plate_helmet, 10, item_platemail, 5)
 container_weapon_rack = container("Weapon Rack", item_long_sword, 100, item_short_sword, 300, item_spear, 100, item_hammer, 50, item_monster_tooth, 100, item_shotgun, 1)
@@ -314,9 +314,9 @@ def combat():
         else:
             print(Fore.YELLOW + "Attack advantage: " + str(attack_adv))
             print("50% to hit" + Fore.RESET)
-        defense_adv = current_room.enemy.attack - player_char.defense
+        defense_adv = player_char.defense - current_room.enemy.attack
         if defense_adv < 0:
-            print(Fore.RED + "Defense disadvantage: " + str(attack_adv))
+            print(Fore.RED + "Defense disadvantage: " + str(abs(attack_adv)))
             print(str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
         elif defense_adv > 0:
             print(Fore.GREEN + "Defense advantage: " + str(abs(attack_adv)))
@@ -769,6 +769,9 @@ def explore():
     print("..../...........................\\....")
     print(".../.............................\\...")
     print("../...............................\\..")
+    print(Fore.BLUE + "__________________________________________________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect   " + Fore.BLUE + "|" + Fore.RESET + "\"t\" - Take   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn  " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
     print(current_room.desc)
     if current_room.enemy != []:
         if current_room.enemy.name.lower() == "the keeper":
@@ -792,6 +795,10 @@ def explore():
                 print("and a " + x.name.lower() + ".")
     else:
         print("Nothing in the room to explore")
+    print(Fore.BLUE + "_____________________________________________________________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"i\" - Inventory  " + Fore.BLUE + "|" + Fore.RESET + "       \"f\" - Fight      " + Fore.BLUE + "|" + Fore.RESET + " \"ex\" - Explore " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"nav\" - Nagivate " + Fore.BLUE + "|" + Fore.RESET + " \"spell\" - Spellcasting " + Fore.BLUE + "|" + Fore.RESET + " \"help\" - Help  " + Fore.BLUE +  "|" + Fore.RESET)
+    print(Fore.BLUE + "'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
     parse_text("How will you explore the room? (\"help\" for command list)\n", "ex")
 def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika fiender?
     name_list = []
@@ -957,7 +964,7 @@ def generate_world(xsize, ysize):
         if i > i_max:
             i = 1
             lv += 1
-    print("Max lvl: " + str(lv))
+    #print("Max lvl: " + str(lv))
     #Making questrooms
     valid = True
     while valid:
@@ -983,7 +990,7 @@ def generate_world(xsize, ysize):
         random_xpos = room_list[random_room].xpos
         random_ypos = room_list[random_room].ypos
         if room_list[random_room] in q4:
-            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_core, generate_loot(container_core, 1), "This is the Chapel of the Will Core.\nBefore you lies your ultimate prize, and the journey is over.", enemy(20, 10, 5, 5, 4, "The Keeper", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 99), "special", 1)
+            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_core, generate_loot(container_core, 1), "This is the Chapel of the Will Core.\nBefore you lies your ultimate prize, and the journey is over.", enemy(20, 10, 5, 5, 4, "The Keeper", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 99), "special", 0)
             room_list[random_room].questroom = True
             valid = False
     
@@ -1030,7 +1037,15 @@ def inventory():
                     print(Fore.CYAN + x.name + Fore.RESET)
             else:
                 print(x.name)
-    parse_text(Fore.YELLOW + "What is thy wish?" + Fore.RESET + " (\"help\" for command list)\n>>>", "in")
+        print(Fore.BLUE + "__________________________________________________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect " + Fore.BLUE + "|" + Fore.RESET + "\"eq\" - Equip  " + Fore.BLUE + "|" + Fore.RESET + " \"uneq\" - Unequip " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"d\" - Drop     " + Fore.BLUE + "|" + Fore.RESET + "\"use\" - Use   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn    " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
+    print(Fore.BLUE + "_____________________________________________________________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"i\" - Inventory  " + Fore.BLUE + "|" + Fore.RESET + "       \"f\" - Fight      " + Fore.BLUE + "|" + Fore.RESET + " \"ex\" - Explore " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"nav\" - Nagivate " + Fore.BLUE + "|" + Fore.RESET + " \"spell\" - Spellcasting " + Fore.BLUE + "|" + Fore.RESET + " \"help\" - Help  " + Fore.BLUE +  "|" + Fore.RESET)
+    print(Fore.BLUE + "'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
+    parse_text(Fore.YELLOW + "What is thy wish?" + Fore.RESET + "\n>>>", "in")
 def item_description(_item):
     if type(_item) == item:
         print(_item.name + ":")
@@ -1505,10 +1520,14 @@ def split_text(text):
 def sprinkle_items(item_list): #Sprinkle items into unique rooms
     scroll_room_list = room_list.copy()
     for x in item_list:
-        random_room = randint(0, len(scroll_room_list) - 1)
-        scroll_room_list[random_room].items.append(x)
-        #print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
-        scroll_room_list.remove(scroll_room_list[random_room])
+        valid = True
+        while valid:
+            random_room = randint(0, len(scroll_room_list) - 1)
+            if scroll_room_list[random_room].questroom == 0:
+                scroll_room_list[random_room].items.append(x)
+                #print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
+                scroll_room_list.remove(scroll_room_list[random_room])
+                valid = False
 def update_stats():
     player_char.max_hp = player_char.base_hp + player_char.inventory["Main Hand"].max_hp + player_char.inventory["Off Hand"].max_hp + player_char.inventory["Helmet"].max_hp + player_char.inventory["Armor"].max_hp + player_char.inventory["Necklace"].max_hp
     player_char.speed = player_char.base_speed + player_char.inventory["Main Hand"].speed + player_char.inventory["Off Hand"].speed + player_char.inventory["Helmet"].speed + player_char.inventory["Armor"].speed + player_char.inventory["Necklace"].speed
@@ -1533,9 +1552,9 @@ def player_setup():#Remove keys after testing
     "Armor": item_dummy,
     "Main Hand": item_dagger,
     "Off Hand": item_dummy,
-    "Necklace": item_dummy
+    "Necklace": item_pendant
     }, "Nobody", 0, 1)
-    player_backpack = [item_logbook, d_scroll_3, armor_scroll1, item_maguffin2, item_maguffin1, item_key2, item_key3] #item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2, item_tomato
+    player_backpack = [item_logbook] #item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2, item_tomato
     player_xpos = 0
     player_ypos = 0
 def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
