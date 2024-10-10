@@ -3,7 +3,7 @@ from math import ceil
 from msvcrt import getch
 from sys import stdout
 from time import sleep
-from colorama import Fore, Back, Style
+from colorama import Fore, Back, Style, just_fix_windows_console
 #CLASSES
 class player:
     def __init__(self, hp, speed, attack, defense, armor, inventory, name, exp, level):
@@ -287,6 +287,33 @@ def combat():
     global turtle_heard
     global relentless_attack_heard
     global disarm_heard
+    global tut_cmb
+    if tutorials == True and tut_cmb == True:
+        print(Fore.GREEN + r"""......
+Combat
+''''''
+
+"e"   - Escape
+        Use to exit combat.
+"a"   - Aimed attack
+"d"   - Defensive attack
+"move"- Special moves
+        Show all known Special Moves
+
+Combat stats:
+Damage : How much damage your attack will inflict.
+HP     : How much damage you can take before falling in battle.
+Speed  : How fast your turn timer increments.
+Attack : How likely your attack is to hit.
+Defense: How likely you are to avoid an incoming attack.
+Armor  : How much incoming damage you block.
+
+Combat turns are based on your and the enemy's speed.
+Once your turn timer reaches max, you will execute a move. If you
+press Enter without entering a value, you will perform an unmodified
+attack. If you enter a value you will do a special move. Type "move"
+when prompted for more information.""" + Fore.RESET)
+        tut_cmb = False
     if current_room.enemy != [] and current_room.enemy.hp > 0 and current_room.enemy.name.lower() != "the keeper":
         combat = True
         current_room.enemy.hp = current_room.enemy.max_hp #Dunno about this, dawg! Stopgap to stop speed cheese
@@ -761,6 +788,7 @@ def exp_gain(exp):
         update_stats()
         input("You have gained +1 to Attack, Defense and Speed, as well as " + str(player_char.level) + " HP.")
 def explore():
+    global tut_expl
     print("..\\.............................../..")
     print("...\\............................./...")
     print("....\\.........................../....")
@@ -774,6 +802,24 @@ def explore():
     print("..../...........................\\....")
     print(".../.............................\\...")
     print("../...............................\\..")
+    if tutorials == True and tut_expl == True:
+        print(Fore.GREEN + "This is the Exploration view. Here you can see details of and interact with the items\nin the room you are currently in. Listed below are all commands you can take in the Exploration view.\n")
+        print(r"""...........
+Exploration
+'''''''''''
+"in"  - Inspect
+        Can only be done with no live enemies in room
+        Display stats of an item.
+        "in self" will inspect your current stats.
+        "in enemy" or "in [name]" will inspect the enemy's stats.
+"t"   - Take
+        Can only be done with no live enemies in room
+        Takes item(s) from somewhere.
+        "t all" takes all items in the room.
+"burn"- Burn items
+        Can be used to declutter the ground of a room and get rid
+        of items you don't want. Use with caution!""" + Fore.RESET)
+        tut_expl = False
     print(Fore.BLUE + "_____________" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.YELLOW + "EXPLORATION" + Fore.BLUE + "|" + Fore.BLUE + "_____________________________________" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect   " + Fore.BLUE + "|" + Fore.RESET + "\"t\" - Take   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn  " + Fore.BLUE + "|" + Fore.RESET)
@@ -1025,6 +1071,30 @@ def hp_gain(hp_gain):
     if player_char.hp > player_char.max_hp:
         player_char.hp = player_char.max_hp
 def inventory():
+    global tut_inv
+    if tutorials == True and tut_inv == True:
+        print(Fore.GREEN + "This is your Inventory.\nFrom here, you can inspect, equip and use items. This is divided into two sections: your Inventory and your Backpack.\nYour Inventory is divided into five slots:\nHelmet, Armor, Main Hand, Off Hand and Necklace.\nItems in these slots are currently equipped and confer stats to your character.\nYour Backpack contains items you have, but which are not equipped.\n\nListed below under \"INVENTORY\" are commands you can use from here.\nMany commands, such as \"in\" or \"use\" require a target - something to Inspect or Use." + Fore.RESET)
+        print(Fore.GREEN + r""".........
+Inventory
+'''''''''
+"in"  - Inspect
+        Display stats of an item or text of a scroll.
+        "in self" will inspect your current stats.
+"eq"  - Equip
+        Requires an item in your backpack
+        Switch your currently equipped item for the specified item 
+"uneq"- Unequip
+        Put an equipped item back in your backpack.
+"d"   - Drop item
+        Remove item from your backpack onto the ground of the room
+        you are in.
+        (explore the room to pick it back up)
+"use" - Use item
+        Will use items such as potions in your backpack.
+"burn"- Burn readables
+        Can be used to declutter your inventory from scrolls and pages.
+        "burn all" will burn all scrolls and pages in inventory, save your logbook. """ + Fore.RESET)
+        tut_inv = False
     print("..............\nYour Inventory\n''''''''''''''")
     for x in player_char.inventory:
         if player_char.inventory[x] == "Nothing":
@@ -1033,9 +1103,9 @@ def inventory():
             print("• " + x + ": " + player_char.inventory[x].name)
     print("")
     if player_backpack == []:
-        print("Thy backpack is empty.")
+        print("Thy Backpack is empty.")
     else:
-        print("Your backpack contains: ")
+        print("Your Backpack contains: ")
         for x in player_backpack:
             if type(x) == scroll:
                 if x.read == True:
@@ -1318,10 +1388,14 @@ def player_navigation():
     global room_list
     global current_room
     global menu_force
+    global tut_nav
     nav = True
     locked_door = 0
     needed_key = ""
     first = 0 #relic from the past, don't dare delete
+    if tutorials == True and tut_nav == True:
+        print(Fore.GREEN + "This is the Navigation screen. Use WASD to navigate through the dungeon, \nand press \"E\" to exit Navigation mode and go into Exploration of the room you are currently in.\n\nBelow the map, you can see what is in the room you are in, as well as the enemy guarding it." + Fore.RESET)
+        tut_nav = False
     render_map()
     print("Navigate with WASD, exit with E")
     while nav:
@@ -1476,6 +1550,10 @@ def spellcasting():
     global spell_hp_found
     global spell_speed_found
     global spell_armor_found
+    global tut_spell
+    if tutorials == True and tut_spell == True:
+        print("This menu is used to cast Magic Spells! If only there was a way to figure out what the magic words are...")
+        tut_spell = False
     print("............")
     print("SPELLCASTING")
     print("''''''''''''")
@@ -1483,7 +1561,8 @@ def spellcasting():
     if spell_word.lower() == spell_hp_keyword.lower():
         if spell_hp_found == False:
             spell_fanfare()
-            player_char.hp += 5 #change to max HP
+            player_char.max_hp += 5 #change to max HP
+            hp_gain(5)
             spell_hp_found = True
             input("You cast the magic healing spell!\nMax HP increased by 5!")
             item_logbook.text += "\n- You have cast the Healing Spell \"" + spell_hp_keyword + "\" for +5 Max HP!"
@@ -1568,7 +1647,18 @@ def player_setup():#Remove keys after testing
     player_ypos = 0
 def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
     global menu_force
-    if menu_force == "":
+    global tut_main
+    global tut_inv
+    global tut_nav
+    global tut_cmb
+    global tut_expl
+    global tut_spell
+    if tutorials == True and tut_main == True:
+        print(Fore.GREEN + "Welcome to Hunt for the Will Core! Tutorial messages like this will appear the first time you use\na new menu, such as your Inventory or Fight. It will give you an overview of the current actions\navailable to you. If you want a reminder, go to the Main Menu (type \"m\" from any other menu)\n and use the command \"reset\" to reset tutorials.\n\nThis is the Main Menu of the game. From here, you can type commands\nin order to access different areas of the game. The Main Menu is structured like this:\n[no.][name][shortcut]\nYou can use either the number, name or shortcut to go to a different menu." + Fore.RESET)
+        tut_main = False
+    if menu_force == "" and tutorials == True:
+        menu_choice = menu("Navigate nav", "Explore ex", "Inventory i", "Fight f", "Spell casting spell", "Help help", "Reset tutorials reset")
+    elif menu_force == "" and tutorials == False:
         menu_choice = menu("Navigate nav", "Explore ex", "Inventory i", "Fight f", "Spell casting spell", "Help help")
     else:
         menu_choice = menu_force
@@ -1587,6 +1677,13 @@ def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
         generate_loot(choice(container_list))
     if menu_choice.lower() == "spell":
         spellcasting()
+    if menu_choice.lower() == "reset" and tutorials == True:
+        tut_main = True
+        tut_inv = True
+        tut_nav = True
+        tut_cmb = True
+        tut_expl = True
+        tut_spell = True
 
 #World setup
 map_xsize = 0
@@ -1780,6 +1877,7 @@ sprinkle_items(scroll_list)
 scroll_names(page_list, scroll_adjectives, "Page")
 sprinkle_items(page_list)
 
+just_fix_windows_console()
 #GAME SETUP
 player_setup()
 current_room = room_list[0]
@@ -1792,26 +1890,39 @@ with open("willcore_logo.txt") as f:
     print(f.read())
     f.close()
 
-# start = ""
-# while start.lower() != "start":
-#     start = menu("Start start", "Story story", "Help h", "Exit x")
-#     if start.lower() == "story":
-#         with open("willcore_story.txt") as f:
-#             print(f.read())
-#             f.close()
-#     if start.lower() == "h":
-#         with open("willcore_help.txt") as f:
-#             print(f.read())
-#             f.close()
-#     if start.lower() == "x":
-#         exit()
+start = ""
+while start.lower() != "start":
+    start = menu("Start start", "Story story", "Help h", "Exit x")
+    if start.lower() == "story":
+        with open("willcore_story.txt") as f:
+            print(f.read())
+            f.close()
+    if start.lower() == "h":
+        with open("willcore_help.txt") as f:
+            print(f.read())
+            f.close()
+    if start.lower() == "x":
+        exit()
   
-# player_char.name = input("What is the noble Knight's name? ")
-# if player_char.name == "":
-#     player_char.name = "Nobody"
-# print("The Knight's name is " + player_char.name)
-# input("Enter to continue")
+player_char.name = input("What is the noble Knight's name? ")
+if player_char.name == "":
+    player_char.name = "Nobody"
+print("The Knight's name is " + Fore.YELLOW + "~" + player_char.name + "~" + Fore.RESET)
 player_char.name = "Testimus" #Remove after testing
+
+#Tutorials
+tutorials = input("Enable tutorial messages? (Y/N)\n")
+if tutorials.lower() == "y":
+    tutorials = True
+    tut_main = True
+    tut_inv = True
+    tut_nav = True
+    tut_cmb = True
+    tut_expl = True
+    tut_spell = True
+else:
+    tutorials = False
+
 
 while True:
     main_menu()
