@@ -29,7 +29,7 @@ Inventory
 ...........
 Exploration
 '''''''''''
-"in"  - Inspect (How about not being able to inspect from ground?)
+"in"  - Inspect
         Can only be done with no live enemies in room
         Display stats of an item.
         "in self" will inspect your current stats.

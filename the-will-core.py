@@ -300,10 +300,13 @@ def combat():
         player_turn = 0
         enemy_turn = 0
         player_speed = player_char.speed
-        print("Player speed : " + str(player_speed))
         enemy_speed = current_room.enemy.speed
-        print("Enemy speed  : " + str(enemy_speed))
-        combat_threshold = max(player_speed, enemy_speed) * 4
+        print(Fore.CYAN + "          Player" + Fore.RESET + "   " + Fore.RED + "Enemy" + Fore.RESET)
+        print("HP:       " + str(player_char.hp) + " " * (9 - len(str(player_char.hp))) + str(current_room.enemy.hp))
+        print("Speed:    " + str(player_speed) + " " * (9 - len(str(player_speed))) + str(enemy_speed))
+        print("Attack:   " + str(player_char.attack) + " " * (9 - len(str(player_char.attack))) + str(current_room.enemy.attack))
+        print("Defense:  " + str(player_char.defense) + " " * (9 - len(str(player_char.defense))) + str(current_room.enemy.defense))
+        print("Armor:    " + str(player_char.armor) + " " * (9 - len(str(player_char.armor))) + str(current_room.enemy.armor))
         attack_adv = player_char.attack - current_room.enemy.defense
         if attack_adv > 0:
             print(Fore.GREEN + "Attack advantage: " + str(attack_adv))
@@ -324,6 +327,7 @@ def combat():
         else:
             print(Fore.YELLOW + "Defense advantage: " + str(attack_adv))
             print("50% to get hit" + Fore.RESET)
+        combat_threshold = max(player_speed, enemy_speed) * 4
         print("Player damage: " + str(player_char.level + player_char.inventory["Main Hand"].min_dmg) + "-" + str(player_char.level + player_char.inventory["Main Hand"].max_dmg))
         print("Enemy damage : " + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].min_dmg) + "-" + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].max_dmg))
         player_move = ""
@@ -366,6 +370,8 @@ def combat():
                     print(current_room.enemy.name + " takes a swing!")
                     sleep(1)
                     attack(current_room.enemy, enemy_move, player_char, player_move)
+                    sleep(1)
+                    input("Press Enter to continue.")
                 else:
                     print(current_room.enemy.name + " turtled up this time.")
                 enemy_move = ""
@@ -377,7 +383,7 @@ def combat():
                     if relentless_attack_heard == False:
                         relentless_attack_heard = True
                         item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + ra_translation.upper() + "!\""
-                    input("The enemy is inspired to do a Relentless Attack!")
+                    input("The enemy is inspired to do a Relentless Attack!\nPress Enter to continue.")
                     enemy_move = relentless_attack_keyword
                 elif en_move_random == 2:
                     print("\nYou hear a voice booming through the dungeon:")
@@ -385,7 +391,7 @@ def combat():
                     if turtle_heard == False:
                         turtle_heard = True
                         item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + t_translation.upper() + "!\""
-                    input("The enemy is inspired to do a Turtle move!")
+                    input("The enemy is inspired to do a Turtle move!\nPress Enter to continue.")
                     enemy_move = turtle_keyword
                 elif en_move_random == 3:
                     print("\nYou hear a voice booming through the dungeon:")
@@ -393,7 +399,7 @@ def combat():
                     if disarm_heard == False:
                         disarm_heard = True
                         item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + d_translation.upper() + "!\""
-                    input("The enemy is inspired to do a Disarm move!")
+                    input("The enemy is inspired to do a Disarm move!\nPress Enter to continue.")
                     enemy_move = disarm_keyword
                 delete_row = False
                 if player_char.hp <= 0:
@@ -755,7 +761,6 @@ def exp_gain(exp):
         update_stats()
         input("You have gained +1 to Attack, Defense and Speed, as well as " + str(player_char.level) + " HP.")
 def explore():
-    print("...........\nExploration\n'''''''''''")
     print("..\\.............................../..")
     print("...\\............................./...")
     print("....\\.........................../....")
@@ -769,7 +774,8 @@ def explore():
     print("..../...........................\\....")
     print(".../.............................\\...")
     print("../...............................\\..")
-    print(Fore.BLUE + "__________________________________________________" + Fore.RESET)
+    print(Fore.BLUE + "_____________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.YELLOW + "EXPLORATION" + Fore.BLUE + "|" + Fore.BLUE + "_____________________________________" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect   " + Fore.BLUE + "|" + Fore.RESET + "\"t\" - Take   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn  " + Fore.BLUE + "|" + Fore.RESET)
     print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
     print(current_room.desc)
@@ -780,7 +786,7 @@ def explore():
             else:
                 print("The " + Fore.RED + "Keeper of the Will Core" + Fore.RESET + " lies on the ground. They will not stand in your way any longer.")
         elif current_room.enemy.hp > 0:
-            print("There is a " + Fore.RED + current_room.enemy.name + Fore.RESET + " in the room.")
+            print("There is a " + Fore.RED + current_room.enemy.name + " LVL " + str(current_room.enemy.level) + Fore.RESET + " in the room.")
         else:
             print("There is a " + Fore.RED + "dead " + current_room.enemy.name + Fore.RESET + " in the room.")
     if current_room.items != []:
@@ -795,8 +801,10 @@ def explore():
                 print("and a " + x.name.lower() + ".")
     else:
         print("Nothing in the room to explore")
-    print(Fore.BLUE + "_____________________________________________________________" + Fore.RESET)
+    print(Fore.BLUE + "_________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.YELLOW + "GENERAL" + Fore.BLUE + "|____________________________________________________" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.RESET + "\"i\" - Inventory  " + Fore.BLUE + "|" + Fore.RESET + "       \"f\" - Fight      " + Fore.BLUE + "|" + Fore.RESET + " \"ex\" - Explore " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "|-----------------|------------------------|----------------|" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.RESET + "\"nav\" - Nagivate " + Fore.BLUE + "|" + Fore.RESET + " \"spell\" - Spellcasting " + Fore.BLUE + "|" + Fore.RESET + " \"help\" - Help  " + Fore.BLUE +  "|" + Fore.RESET)
     print(Fore.BLUE + "'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
     parse_text("How will you explore the room? (\"help\" for command list)\n", "ex")
@@ -876,8 +884,7 @@ def generate_loot(container, how_many):
 def generate_room_description():
     adjective = choice(["musty", "clean", "tattered", "lumpy", "putrid", "impressive", "improper"])
     color = choice(["mold", "a unicorn", "off meat", "confetti", "sludge", "sludge that's blue", "a red house", "you know, whatever"])
-    center = choice(["table", "man. A man screaming forever", "a minidisc player", "nothing", "something", "THE VOID"])
-    string = ("The room is " + adjective + " and the walls are the color of " + color + ".\nIn the center of the room there is " + center + ".")
+    string = ("The room is " + adjective + " and the walls are the color of " + color + ".")
     return string
 def generate_world(xsize, ysize):
     global map_xsize
@@ -1037,11 +1044,13 @@ def inventory():
                     print(Fore.CYAN + x.name + Fore.RESET)
             else:
                 print(x.name)
-        print(Fore.BLUE + "__________________________________________________" + Fore.RESET)
+    print(Fore.BLUE + "___________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.YELLOW + "INVENTORY" + Fore.BLUE + "|_______________________________________" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect " + Fore.BLUE + "|" + Fore.RESET + "\"eq\" - Equip  " + Fore.BLUE + "|" + Fore.RESET + " \"uneq\" - Unequip " + Fore.BLUE + "|" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.RESET + "\"d\" - Drop     " + Fore.BLUE + "|" + Fore.RESET + "\"use\" - Use   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn    " + Fore.BLUE + "|" + Fore.RESET)
     print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
-    print(Fore.BLUE + "_____________________________________________________________" + Fore.RESET)
+    print(Fore.BLUE + "_________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.YELLOW + "GENERAL" + Fore.BLUE + "|____________________________________________________" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.RESET + "\"i\" - Inventory  " + Fore.BLUE + "|" + Fore.RESET + "       \"f\" - Fight      " + Fore.BLUE + "|" + Fore.RESET + " \"ex\" - Explore " + Fore.BLUE + "|" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.RESET + "\"nav\" - Nagivate " + Fore.BLUE + "|" + Fore.RESET + " \"spell\" - Spellcasting " + Fore.BLUE + "|" + Fore.RESET + " \"help\" - Help  " + Fore.BLUE +  "|" + Fore.RESET)
     print(Fore.BLUE + "'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
