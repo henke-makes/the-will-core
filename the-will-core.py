@@ -57,7 +57,7 @@ class potion(consumable):
         if potion.name.lower() == "tomato":
             hp_gain(2)
             print("Used Tomato to heal 2 HP.")
-        if potion.name.lower() == "bread":
+        if potion.name.lower() == "meat":
             hp_gain(3)
             print("Used Bread to heal 3 HP.")
         if potion.name.lower() == "hp potion":
@@ -142,7 +142,7 @@ item_robe          = item(0, 1, 0, 2, 0, 0, 0, "Armor", "Robe")
 item_platemail     = item(0, -3, 0, 0, 0, 0, 2, "Armor", "Platemail")
 #Helmet
 item_hat           = item(0, 0, 2, 0, 0, 0, 0, "Helmet", "Hat")
-item_tophat        = item(1, 1, 0, 0, 0, 0, 2, "Helmet", "Rasmus' Tophat")
+item_tophat        = item(1, 1, 0, 0, 0, 0, 2, "Helmet", "Rasmus' Fancy Tophat")
 item_goggles       = item(0, 1, 1, 0, 0, 0, 0, "Helmet", "Goggles")
 item_hood          = item(0, 1, -2, 2, 0, 0, 0, "Helmet", "Hood")
 item_leather_helmet= item(0, 0, 0, 0, 0, 0, 1, "Helmet", "Leather Helmet")
@@ -288,7 +288,7 @@ def combat():
     global relentless_attack_heard
     global disarm_heard
     global tut_cmb
-    if tutorials == True and tut_cmb == True:
+    if tut_cmb == True:
         print(Fore.GREEN + r"""......
 Combat
 ''''''
@@ -404,30 +404,31 @@ when prompted for more information.""" + Fore.RESET)
                 enemy_move = ""
                 enemy_turn = 0
                 en_move_random = randint(1, 6)
-                if en_move_random == 1:
-                    print("\nYou hear a voice booming through the dungeon:")
-                    print("\"" + ra_translation.upper() + "!\"")
-                    if relentless_attack_heard == False:
-                        relentless_attack_heard = True
-                        item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + ra_translation.upper() + "!\""
-                    input("The enemy is inspired to do a Relentless Attack!\nPress Enter to continue.")
-                    enemy_move = relentless_attack_keyword
-                elif en_move_random == 2:
-                    print("\nYou hear a voice booming through the dungeon:")
-                    print("\"" + t_translation.upper() + "!\"")
-                    if turtle_heard == False:
-                        turtle_heard = True
-                        item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + t_translation.upper() + "!\""
-                    input("The enemy is inspired to do a Turtle move!\nPress Enter to continue.")
-                    enemy_move = turtle_keyword
-                elif en_move_random == 3:
-                    print("\nYou hear a voice booming through the dungeon:")
-                    print("\"" + d_translation.upper() + "!\"")
-                    if disarm_heard == False:
-                        disarm_heard = True
-                        item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + d_translation.upper() + "!\""
-                    input("The enemy is inspired to do a Disarm move!\nPress Enter to continue.")
-                    enemy_move = disarm_keyword
+                if enemy.level > 1:
+                    if en_move_random == 1:
+                        print("\nYou hear a voice booming through the dungeon:")
+                        print("\"" + ra_translation.upper() + "!\"")
+                        if relentless_attack_heard == False:
+                            relentless_attack_heard = True
+                            item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + ra_translation.upper() + "!\""
+                        input("The enemy is inspired to do a Relentless Attack!\nPress Enter to continue.")
+                        enemy_move = relentless_attack_keyword
+                    elif en_move_random == 2:
+                        print("\nYou hear a voice booming through the dungeon:")
+                        print("\"" + t_translation.upper() + "!\"")
+                        if turtle_heard == False:
+                            turtle_heard = True
+                            item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + t_translation.upper() + "!\""
+                        input("The enemy is inspired to do a Turtle move!\nPress Enter to continue.")
+                        enemy_move = turtle_keyword
+                    elif en_move_random == 3:
+                        print("\nYou hear a voice booming through the dungeon:")
+                        print("\"" + d_translation.upper() + "!\"")
+                        if disarm_heard == False:
+                            disarm_heard = True
+                            item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + d_translation.upper() + "!\""
+                        input("The enemy is inspired to do a Disarm move!\nPress Enter to continue.")
+                        enemy_move = disarm_keyword
                 delete_row = False
                 if player_char.hp <= 0:
                     death(current_room.enemy.name)
@@ -479,7 +480,7 @@ when prompted for more information.""" + Fore.RESET)
         idiot = 0
         on_notice = False
         input("The eternal Keeper of the Will Core stands before the Knight. As they approach, the Keeper's robes sway gently.\nThis battle will be fought between minds.")
-        print("The Keeper: \"Keep your wits about you, mortal. I am here to make sure that the Will Core is only\ntaken by a Knight of pure heart and good intention. My slumber has ended, another cycle has begun and the judgement will now commence.\"\n")
+        print("\"Keep your wits about you, mortal. I am here to make sure that the Will Core is only taken by a\nKnight of pure heart and good intention. My slumber has ended, another cycle has begun and the judgement will now commence.\"\n")
         response = menu("\"What is this sorcery?\" a", "\"Step aside, Keeper! My quest and my honor requires me to deliver the Will Core to the King.\" s")
         if response == "a":
             print("The Keeper's pale lips pull into a wry smile, revealing prismatic teeth.")
@@ -625,7 +626,7 @@ when prompted for more information.""" + Fore.RESET)
                     sleep(1)
                     print("class keeper:")
                     sleep(.3)
-                    print("    def judgement(knights):")
+                    print("    def judgement():")
                     sleep(1)
                     print("        while True:")
                     sleep(2)
@@ -635,11 +636,11 @@ when prompted for more information.""" + Fore.RESET)
                     print(Fore.RED + "            sleep()" + Fore.RESET)
                     sleep(3)
                     print("The Keeper jitters, stutters and shifts unnaturally. They seem to be breaking apart, dissolving and imploding at the same time.\nThey fall to the floor, entering an " + Fore.RED + "endless sleep." + Fore.RESET)
-                    input("The Will Core is yours for the taking - it will never be active again due to the infinite slumber of its guardian.\nYour quest is complete, and the fate of every Knight forevermore has been altered.")
-                    print("Do what you wish.")
-                    sleep(2)
-                    print("Do what you do, for you are what you are.")
-                    sleep(2)
+                    input("The Will Core is yours for the taking - it will never be active again due to the infinite slumber of its guardian.\nYour quest is nearly complete, and the fate of every Knight, everywhere, everywhen, has been altered.")
+                    print(Fore.BLUE + "Do what you wish.")
+                    sleep(3)
+                    print("Do what you do, for you are what you are." + Fore.RESET)
+                    sleep(3)
                     print("\nThe room shifts back into focus, and you stand there alone. The Keeper is on the ground, as they will always be from now on.")
                     current_room.enemy.hp = 0
     elif current_room.enemy.name.lower() == "the keeper" and player_char.inventory["Main Hand"] == item_shotgun and current_room.enemy.hp > 0:
@@ -718,6 +719,7 @@ def death(cause):
     with open("willcore_gameover.txt") as f:
         print(f.read())
         f.close()
+    input("Press Enter to exit in shame.")
     exit()
 def delete_rows(rows):
     i = 0
@@ -802,7 +804,7 @@ def explore():
     print("..../...........................\\....")
     print(".../.............................\\...")
     print("../...............................\\..")
-    if tutorials == True and tut_expl == True:
+    if tut_expl == True:
         print(Fore.GREEN + "This is the Exploration view. Here you can see details of and interact with the items\nin the room you are currently in. Listed below are all commands you can take in the Exploration view.\n")
         print(r"""...........
 Exploration
@@ -1072,8 +1074,8 @@ def hp_gain(hp_gain):
         player_char.hp = player_char.max_hp
 def inventory():
     global tut_inv
-    if tutorials == True and tut_inv == True:
-        print(Fore.GREEN + "This is your Inventory.\nFrom here, you can inspect, equip and use items. This is divided into two sections: your Inventory and your Backpack.\nYour Inventory is divided into five slots:\nHelmet, Armor, Main Hand, Off Hand and Necklace.\nItems in these slots are currently equipped and confer stats to your character.\nYour Backpack contains items you have, but which are not equipped.\n\nListed below under \"INVENTORY\" are commands you can use from here.\nMany commands, such as \"in\" or \"use\" require a target - something to Inspect or Use." + Fore.RESET)
+    if tut_inv == True:
+        print(Fore.GREEN + "This is your Inventory.\nFrom here, you can inspect, equip and use items. This is divided into two sections: your Inventory and your Backpack.\nYour Inventory is divided into five slots:\nHelmet, Armor, Main Hand, Off Hand and Necklace.\nItems in these slots are currently equipped and confer stats to your character.\nYour Backpack contains items you have, but which are not equipped.\n\nListed below under \"INVENTORY\" are commands you can use from here.\nMany commands, such as \"in\" or \"use\" require a target - something to Inspect or Use.\nYou can either write the name of the item (Ex: \"in pendant\") or the numbe\n in your Backpack (Ex: \"in 2\" for the second item in your Backpack)." + Fore.RESET)
         print(Fore.GREEN + r""".........
 Inventory
 '''''''''
@@ -1096,6 +1098,11 @@ Inventory
         "burn all" will burn all scrolls and pages in inventory, save your logbook. """ + Fore.RESET)
         tut_inv = False
     print("..............\nYour Inventory\n''''''''''''''")
+    print(Fore.BLUE + "___________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.YELLOW + "INVENTORY" + Fore.BLUE + "|_______________________________________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect " + Fore.BLUE + "|" + Fore.RESET + "\"eq\" - Equip  " + Fore.BLUE + "|" + Fore.RESET + " \"uneq\" - Unequip " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"d\" - Drop     " + Fore.BLUE + "|" + Fore.RESET + "\"use\" - Use   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn    " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
     for x in player_char.inventory:
         if player_char.inventory[x] == "Nothing":
             print("• " + x + ": Nothing")
@@ -1106,19 +1113,14 @@ Inventory
         print("Thy Backpack is empty.")
     else:
         print("Your Backpack contains: ")
-        for x in player_backpack:
+        for i, x in enumerate(player_backpack):
             if type(x) == scroll:
                 if x.read == True:
-                    print(Fore.BLUE + x.name + Fore.RESET)
+                    print(Fore.BLUE + str(i + 1), x.name + Fore.RESET)
                 else:
-                    print(Fore.CYAN + x.name + Fore.RESET)
+                    print(Fore.CYAN + str(i + 1), x.name + Fore.RESET)
             else:
-                print(x.name)
-    print(Fore.BLUE + "___________" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.YELLOW + "INVENTORY" + Fore.BLUE + "|_______________________________________" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect " + Fore.BLUE + "|" + Fore.RESET + "\"eq\" - Equip  " + Fore.BLUE + "|" + Fore.RESET + " \"uneq\" - Unequip " + Fore.BLUE + "|" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.RESET + "\"d\" - Drop     " + Fore.BLUE + "|" + Fore.RESET + "\"use\" - Use   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn    " + Fore.BLUE + "|" + Fore.RESET)
-    print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
+                print(str(i + 1), x.name)
     print(Fore.BLUE + "_________" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.YELLOW + "GENERAL" + Fore.BLUE + "|____________________________________________________" + Fore.RESET)
     print(Fore.BLUE + "|" + Fore.RESET + "\"i\" - Inventory  " + Fore.BLUE + "|" + Fore.RESET + "       \"f\" - Fight      " + Fore.BLUE + "|" + Fore.RESET + " \"ex\" - Explore " + Fore.BLUE + "|" + Fore.RESET)
@@ -1191,28 +1193,37 @@ def parse_text(prompt, mode):#Go over breaks
             if valid_text(list[0], "in", "eq", "uneq", "use", "d", "burn", "help"):
                 if list[0].lower() == "in": #inspect command in inventory
                     if len(list) > 1:
-                        print("---------------")
-                        for x in player_char.inventory:
-                            if type(player_char.inventory[x]) == item:
-                                if list[1].lower() == player_char.inventory[x].name.lower():
-                                    item_description(player_char.inventory[x])
-                                    print("---------------")
-                                    found = True
-                                    break
-                        if found == False:
-                            for i, x in enumerate(player_backpack):
-                                if list[1].lower() == player_backpack[i].name.lower():
-                                    item_description(player_backpack[i])
-                                    print("---------------")
-                                    if isinstance(x, scroll) and x != item_logbook:
-                                        if x.read == False:
-                                            item_logbook.text += x.log_text
-                                        x.read = True
-                                    found = True
-                                    break
-                        if found == False and list[1] != "self":
-                            print("\"" + list[1] + "\"" + " not found.")
+                        if list[1].isdigit() and int(list[1]) <= len(player_backpack):
+                            _item = player_backpack[int(list[1]) - 1]
+                            item_description(_item)
+                            if isinstance(_item, scroll) and _item != item_logbook:
+                                if _item.read == False:
+                                    item_logbook.text += _item.log_text
+                                _item.read = True
+                            found = True
+                        else:
                             print("---------------")
+                            for x in player_char.inventory:
+                                if type(player_char.inventory[x]) == item:
+                                    if list[1].lower() == player_char.inventory[x].name.lower():
+                                        item_description(player_char.inventory[x])
+                                        print("---------------")
+                                        found = True
+                                        break
+                            if found == False:
+                                for i, x in enumerate(player_backpack):
+                                    if list[1].lower() == player_backpack[i].name.lower():
+                                        item_description(player_backpack[i])
+                                        print("---------------")
+                                        if isinstance(x, scroll) and x != item_logbook:
+                                            if x.read == False:
+                                                item_logbook.text += x.log_text
+                                            x.read = True
+                                        found = True
+                                        break
+                            if found == False and list[1] != "self":
+                                print("\"" + list[1] + "\"" + " not found.")
+                                print("---------------")
                         if list[1].lower() == "self":
                             print("." * (len(player_char.name) + 1))
                             print(player_char.name + ":")
@@ -1266,7 +1277,6 @@ def parse_text(prompt, mode):#Go over breaks
                     if found == False:
                         print(list[1].lower() + " is not usable.")
                         print("---------------")
-                        break
                 if list[0].lower() == "burn": #burn command in inventory
                     if len(list) > 1:
                         found = False
@@ -1297,7 +1307,6 @@ def parse_text(prompt, mode):#Go over breaks
                         if found == False:
                             print(list[1].lower() + " is not flammable.")
                             print("---------------")
-                            break
                 if list[0].lower() == "d": #drop command in inventory
                     if len(list) > 1:
                         found = False
@@ -1316,7 +1325,6 @@ def parse_text(prompt, mode):#Go over breaks
                             print("---------------")
                 if found == False and len(list) > 1:
                     print(list[1].lower() + " not found")
-                    break
                 elif found == False and list[0] != "help":
                     print("Only one word found")
             elif valid_text(list[0], "nav", "ex", "i", "f", "spell"):
@@ -1334,11 +1342,10 @@ def parse_text(prompt, mode):#Go over breaks
                                 if list[1].lower() == x.name.lower():
                                     item_description(x)
                                     found = True
-                                    parse = False
+                                    break
                         if list[1].lower() == current_room.enemy.name.lower() or list[1].lower() == "enemy":
                             enemy_description(current_room.enemy)
                             found = True
-                            parse = False
                     else:
                         print("Need something to inspect!")
                 if list[0].lower() == "t":
@@ -1393,7 +1400,7 @@ def player_navigation():
     locked_door = 0
     needed_key = ""
     first = 0 #relic from the past, don't dare delete
-    if tutorials == True and tut_nav == True:
+    if tut_nav == True:
         print(Fore.GREEN + "This is the Navigation screen. Use WASD to navigate through the dungeon, \nand press \"E\" to exit Navigation mode and go into Exploration of the room you are currently in.\n\nBelow the map, you can see what is in the room you are in, as well as the enemy guarding it." + Fore.RESET)
         tut_nav = False
     render_map()
@@ -1551,8 +1558,8 @@ def spellcasting():
     global spell_speed_found
     global spell_armor_found
     global tut_spell
-    if tutorials == True and tut_spell == True:
-        print("This menu is used to cast Magic Spells! If only there was a way to figure out what the magic words are...")
+    if tut_spell == True:
+        print(Fore.GREEN + "This menu is used to cast Magic Spells! If only there was a way to figure out what the magic words are..." + Fore.RESET)
         tut_spell = False
     print("............")
     print("SPELLCASTING")
@@ -1653,13 +1660,11 @@ def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
     global tut_cmb
     global tut_expl
     global tut_spell
-    if tutorials == True and tut_main == True:
-        print(Fore.GREEN + "Welcome to Hunt for the Will Core! Tutorial messages like this will appear the first time you use\na new menu, such as your Inventory or Fight. It will give you an overview of the current actions\navailable to you. If you want a reminder, go to the Main Menu (type \"m\" from any other menu)\n and use the command \"reset\" to reset tutorials.\n\nThis is the Main Menu of the game. From here, you can type commands\nin order to access different areas of the game. The Main Menu is structured like this:\n[no.][name][shortcut]\nYou can use either the number, name or shortcut to go to a different menu." + Fore.RESET)
+    if tut_main == True:
+        print(Fore.GREEN + "Welcome to Hunt for the Will Core! Tutorial messages like this will appear the first time you use\na new menu, such as your Inventory or Fight. It will give you an overview of the current actions\navailable to you. If you want a reminder, go to the Main Menu (type \"m\" from any other menu)\nand use the command \"reset\" to reset tutorials.\n\nThis is the Main Menu of the game. From here, you can type commands\nin order to access different areas of the game. The Main Menu is structured like this:\n[no.][name][shortcut]\nYou can use either the number, name or shortcut to go to a different menu." + Fore.RESET)
         tut_main = False
-    if menu_force == "" and tutorials == True:
-        menu_choice = menu("Navigate nav", "Explore ex", "Inventory i", "Fight f", "Spell casting spell", "Help help", "Reset tutorials reset")
-    elif menu_force == "" and tutorials == False:
-        menu_choice = menu("Navigate nav", "Explore ex", "Inventory i", "Fight f", "Spell casting spell", "Help help")
+    if menu_force == "":
+        menu_choice = menu( "Explore Room ex", "Navigate Dungeon nav", "Inventory i", "Spell Casting spell", "Help help", "Reset Tutorials reset")
     else:
         menu_choice = menu_force
     menu_force = ""
@@ -1677,7 +1682,7 @@ def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
         generate_loot(choice(container_list))
     if menu_choice.lower() == "spell":
         spellcasting()
-    if menu_choice.lower() == "reset" and tutorials == True:
+    if menu_choice.lower() == "reset":
         tut_main = True
         tut_inv = True
         tut_nav = True
@@ -1903,25 +1908,33 @@ while start.lower() != "start":
             f.close()
     if start.lower() == "x":
         exit()
-  
 player_char.name = input("What is the noble Knight's name? ")
 if player_char.name == "":
     player_char.name = "Nobody"
 print("The Knight's name is " + Fore.YELLOW + "~" + player_char.name + "~" + Fore.RESET)
-player_char.name = "Testimus" #Remove after testing
+#player_char.name = "Testimus" #Remove after testing
 
 #Tutorials
 tutorials = input("Enable tutorial messages? (Y/N)\n")
 if tutorials.lower() == "y":
-    tutorials = True
     tut_main = True
     tut_inv = True
     tut_nav = True
     tut_cmb = True
     tut_expl = True
     tut_spell = True
-else:
+elif tutorials == "TEST":
+    print(Fore.RED + "Test mode enabled!" + Fore.RESET)
     tutorials = False
+    player_char.inventory["Main Hand"] = item_shotgun
+    player_backpack += [item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2]
+else:
+    tut_main = False
+    tut_inv = False
+    tut_nav = False
+    tut_cmb = False
+    tut_expl = False
+    tut_spell = False
 
 
 while True:
