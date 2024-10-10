@@ -59,7 +59,7 @@ class potion(consumable):
             print("Used Tomato to heal 2 HP.")
         if potion.name.lower() == "meat":
             hp_gain(3)
-            print("Used Bread to heal 3 HP.")
+            print("Used Meat to heal 3 HP.")
         if potion.name.lower() == "hp potion":
             hp_gain(5)
             print("Used HP Potion to heal 5 HP.")
@@ -87,7 +87,7 @@ class potion(consumable):
             # - Hail to the King, Baby      : Found the secret weapon
             # - Merciless                   : Killed every monster
             # - Tripped on the Finish Line  : Burned the Will Core (?)
-
+            input("Press Enter to exit as a champion!")
             exit()
 class scroll(consumable):
     def __init__(self, name, text, log_text):
@@ -124,41 +124,45 @@ class room:
 #INVENTORY ITEMS
 # MAX_HP, SPEED, ATTACK, DEFENSE, MIN-DMG, MAX-DMG, ARMOR, SLOT, NAME
 #Main Hand
-item_dagger        = item(0, 1, 0, 0, 1, 2, 0, "Main Hand", "Dagger")
-item_short_sword   = item(0, 0, 1, 0, 2, 3, 0, "Main Hand", "Short Sword")
-item_long_sword    = item(0, 0, 1, -1, 3, 5, 0, "Main Hand", "Long Sword")
-item_hammer        = item(0, -2, 0, -2, 5, 7, 0, "Main Hand", "Hammer")
-item_spear         = item(0, 2, 3, 0, 3, 5, 0, "Main Hand", "Spear")
-item_flail         = item(0, 1, 3, 1, 4, 6, -1, "Main Hand", "Flail")
-item_whip          = item(0, 3, 5, -2, 2, 5, -1, "Main Hand", "Whip")
-item_broadsword    = item(0, -2, 3, 0, 5, 8, 1, "Main Hand", "Broadsword")
+item_dagger         = item(0, 1, 0, 0, 1, 2, 0, "Main Hand", "Dagger")
+item_short_sword    = item(0, 0, 1, 0, 2, 3, 0, "Main Hand", "Short Sword")
+item_long_sword     = item(0, 0, 1, -1, 3, 5, 0, "Main Hand", "Long Sword")
+item_hammer         = item(0, -2, 0, -2, 5, 7, 0, "Main Hand", "Hammer")
+item_spear          = item(0, 2, 3, 0, 3, 5, 0, "Main Hand", "Spear")
+item_flail          = item(0, 1, 3, 2, 3, 5, -1, "Main Hand", "Flail")
+item_whip           = item(0, 2, 5, -2, 2, 5, -1, "Main Hand", "Whip")
+item_broadsword     = item(0, -2, 0, 3, 5, 8, 1, "Main Hand", "Broadsword")
+item_nine_tails     = item(0, 1, 6, -3, 3, 5, 0, "Main Hand", "Cat-o-Nine-Tails")
 #Off Hand
-item_shield        = item(0, 0, 0, 2, 0, 0, 1, "Off Hand", "Shield")
-item_torch         = item(0, 1, 2, 0, 0, 0, 0, "Off Hand", "Torch")
+item_shield         = item(0, 0, 0, 2, 0, 0, 1, "Off Hand", "Shield")
+item_torch          = item(0, 1, 2, 0, 0, 0, 0, "Off Hand", "Torch")
+item_lantern        = item(0, 0, 4, 0, 0, 0, 0, "Off Hand", "Lantern")
+item_knife          = item(0, 1, 2, -2, 0, 0, 0, "Off Hand", "Knife")
 #Armor
-item_cloak         = item(1, 1, 0, 1, 0, 0, 0, "Armor", "Cloak")
-item_leather_armor = item(0, -1, 0, 0, 0, 0, 2, "Armor", "Leather Armor")
-item_robe          = item(0, 1, 0, 2, 0, 0, 0, "Armor", "Robe")
-item_platemail     = item(0, -3, 0, 0, 0, 0, 2, "Armor", "Platemail")
+item_cloak          = item(1, 1, 0, 1, 0, 0, 0, "Armor", "Cloak")
+item_apron          = item(1, 0, 0, 3, 0, 0, 1, "Armor", "Butcher's Apron")
+item_leather_armor  = item(0, -1, 0, 0, 0, 0, 2, "Armor", "Leather Armor")
+item_robe           = item(0, 1, 0, 2, 0, 0, 0, "Armor", "Robe")
+item_platemail      = item(0, -2, 0, -3, 0, 0, 3, "Armor", "Platemail")
 #Helmet
-item_hat           = item(0, 0, 2, 0, 0, 0, 0, "Helmet", "Hat")
-item_tophat        = item(1, 1, 0, 0, 0, 0, 2, "Helmet", "Rasmus' Fancy Tophat")
-item_goggles       = item(0, 1, 1, 0, 0, 0, 0, "Helmet", "Goggles")
-item_hood          = item(0, 1, -2, 2, 0, 0, 0, "Helmet", "Hood")
-item_leather_helmet= item(0, 0, 0, 0, 0, 0, 1, "Helmet", "Leather Helmet")
-item_plate_helmet  = item(0, -1, 0, 0, 0, 0, 2, "Helmet", "Plate Helmet")
+item_hat            = item(0, 0, 2, 0, 0, 0, 0, "Helmet", "Hat")
+item_tophat         = item(1, 1, 0, 0, 0, 0, 2, "Helmet", "Rasmus' Fancy Tophat")
+item_goggles        = item(0, 1, 1, 0, 0, 0, 0, "Helmet", "Goggles")
+item_hood           = item(0, 1, -2, 2, 0, 0, 0, "Helmet", "Hood")
+item_leather_helmet = item(0, 0, 0, 0, 0, 0, 1, "Helmet", "Leather Helmet")
+item_plate_helmet   = item(0, -1, 0, 0, 0, 0, 2, "Helmet", "Plate Helmet")
 #Necklace
-item_pendant       = item(0, 1, 0, 0, 0, 0, 0, "Necklace", "Pendant")
-item_monster_tooth = item(0, 1, 2, -2, 0, 0, -2, "Necklace", "Monster Tooth")
-item_dragon_tooth  = item(0, 2, 5, -5, 0, 0, -4, "Necklace", "Dragon Tooth")
-item_icon          = item(3, 0, 0, 5, 0, 0, 0, "Necklace", "Icon")
+item_pendant        = item(0, 1, 0, 0, 0, 0, 0, "Necklace", "Pendant")
+item_monster_tooth  = item(0, 1, 2, -2, 0, 0, -2, "Necklace", "Monster Tooth")
+item_dragon_tooth   = item(0, 2, 5, -5, 0, 0, -4, "Necklace", "Dragon Tooth")
+item_icon           = item(3, 0, 0, 5, 0, 0, 0, "Necklace", "Icon")
 #Fun stuff
-item_dummy         = item(0, 0, 0, 0, 1, 1, 0, "None", "Nothing")
-item_shotgun       = item(0, 20, 20, 20, 50, 50, 0, "Main Hand", "SHOTGUN SON")
+item_dummy          = item(0, 0, 0, 0, 1, 1, 0, "None", "Nothing")
+item_shotgun        = item(0, 20, 20, 20, 50, 50, 0, "Main Hand", "SHOTGUN SON")
 #QUEST ITEMS
-item_maguffin1     = scroll("Funky Guitar", "The guitar of the Mighty Funk Sean, taken from his still tapping hand after death.", "You have found Funk Sean's guitar. The Will Core resonates in the strings!")
-item_maguffin2     = scroll("Dramatic Helmet", "The helmet of the Opulent Opera Tor, taken from his open mouthed head after death.", "You have found Opera Tor's helmet. The Will Core resonates in the horns!")
-item_maguffin3     = potion("The Will Core", "The elusive Will Core! Once it is activated your Quest will be complete!")
+item_maguffin1      = scroll("Funky Guitar", "The guitar of the Mighty Funk Sean, taken from his still tapping hand after death.", "You have found Funk Sean's guitar. The Will Core resonates in the strings!")
+item_maguffin2      = scroll("Dramatic Helmet", "The helmet of the Opulent Opera Tor, taken from his open mouthed head after death.", "You have found Opera Tor's helmet. The Will Core resonates in the horns!")
+item_maguffin3      = potion("The Will Core", "The elusive Will Core! Once it is activated your Quest will be complete!")
 #KEYS
 item_key1 = key("Key A", "A", "A key used to open doors with lock A.")
 item_key2 = key("Key B", "B", "A key used to open doors with lock B.")
@@ -178,8 +182,8 @@ item_logbook = scroll("Logbook", "This logbook will update if you find anything 
 #CONTAINERS
 container_chest = container("Chest", item_cloak, 5, item_shield, 10, item_short_sword, 10, item_leather_helmet, 5)
 container_pantry = container("Pantry", item_fish, 3, item_meat, 2, item_tomato, 5)
-container_clothes_rack = container("Clothes Rack", item_pendant, 10, item_robe, 10, item_cloak, 10, item_hood, 10, item_hat, 20, item_tophat, 5)
-container_potion_rack = container("Potion Rack", item_hp_potion, 40, item_max_hp_potion, 5, item_speed_potion, 5)
+container_clothes_rack = container("Clothes Rack", item_pendant, 10, item_robe, 10, item_cloak, 10, item_hood, 10, item_hat, 20, item_goggles, 15, item_tophat, 5)
+container_potion_rack = container("Potion Rack", item_hp_potion, 40, item_max_hp_potion, 5, item_speed_potion, 5, item_goggles, 10)
 container_armor_rack = container("Armor Rack", item_shield, 30, item_leather_armor, 20, item_leather_helmet, 20, item_plate_helmet, 10, item_platemail, 5)
 container_weapon_rack = container("Weapon Rack", item_long_sword, 100, item_short_sword, 300, item_spear, 100, item_hammer, 50, item_monster_tooth, 100, item_shotgun, 1)
 container_jewel_case = container("Jewel Case", item_pendant, 20, item_icon, 20, item_monster_tooth, 20, item_dragon_tooth, 10)
@@ -386,6 +390,7 @@ when prompted for more information.""" + Fore.RESET)
                         current_room.items.append(current_room.enemy.inventory["Main Hand"])
                         current_room.enemy.inventory["Main Hand"] = item_dummy
                     exp_gain(current_room.enemy.level)
+                    input("Press Enter to continue")
                     break
                 if combat_move():
                     pass
@@ -404,7 +409,7 @@ when prompted for more information.""" + Fore.RESET)
                 enemy_move = ""
                 enemy_turn = 0
                 en_move_random = randint(1, 6)
-                if enemy.level > 1:
+                if current_room.enemy.level > 1:
                     if en_move_random == 1:
                         print("\nYou hear a voice booming through the dungeon:")
                         print("\"" + ra_translation.upper() + "!\"")
@@ -884,11 +889,11 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
     if lvl == 1:
         gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_short_sword])
     elif lvl == 2:
-        gen_enemy.inventory["Main Hand"] = choice([item_long_sword, item_short_sword])
+        gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_short_sword])
     elif lvl == 3:
-        gen_enemy.inventory["Main Hand"] = choice([item_spear, item_long_sword, item_whip])
+        gen_enemy.inventory["Main Hand"] = choice([item_long_sword, item_whip])
     elif lvl == 4:
-        gen_enemy.inventory["Main Hand"] = choice([item_hammer, item_flail])
+        gen_enemy.inventory["Main Hand"] = choice([item_spear, item_flail])
     else:
         gen_enemy.inventory["Main Hand"] = choice([item_hammer, item_flail, item_broadsword])
     return gen_enemy
@@ -1193,6 +1198,7 @@ def parse_text(prompt, mode):#Go over breaks
             if valid_text(list[0], "in", "eq", "uneq", "use", "d", "burn", "help"):
                 if list[0].lower() == "in": #inspect command in inventory
                     if len(list) > 1:
+                        print("---------------")
                         if list[1].isdigit() and int(list[1]) <= len(player_backpack):
                             _item = player_backpack[int(list[1]) - 1]
                             item_description(_item)
@@ -1202,7 +1208,6 @@ def parse_text(prompt, mode):#Go over breaks
                                 _item.read = True
                             found = True
                         else:
-                            print("---------------")
                             for x in player_char.inventory:
                                 if type(player_char.inventory[x]) == item:
                                     if list[1].lower() == player_char.inventory[x].name.lower():
@@ -1240,18 +1245,26 @@ def parse_text(prompt, mode):#Go over breaks
                             found = True
                 if list[0].lower() == "eq": #equip command in inventory
                     if len(list) > 1:
-                        found = False
                         print("---------------")
-                        for i, x in enumerate(player_backpack):
-                            if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == item:
-                                equip(player_backpack[i])
-                                found = True
-                                break
-                            if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) != item:
-                                print(player_backpack[i].name + " is not equippable.")
-                                print("---------------")
-                                found = True
-                                break
+                        if list[1].isdigit() and int(list[1]) <= len(player_backpack) and type(player_backpack[int(list[1]) - 1]) == item:
+                            equip(player_backpack[int(list[1]) - 1])
+                            found = True
+                        elif list[1].isdigit() and int(list[1]) <= len(player_backpack) and type(player_backpack[int(list[1]) - 1]) != item:
+                            print(player_backpack[int(list[1]) - 1].name + " is not equippable.")
+                            print("---------------")
+                            found = True
+                        else:
+                            if found == False: 
+                                for i, x in enumerate(player_backpack):
+                                    if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == item:
+                                        equip(player_backpack[i])
+                                        found = True
+                                        break
+                                    if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) != item:
+                                        print(player_backpack[i].name + " is not equippable.")
+                                        print("---------------")
+                                        found = True
+                                        break
                 if list[0].lower() == "uneq": #unequip command in inventory
                     if len(list) > 1:
                         found = False
@@ -1267,16 +1280,21 @@ def parse_text(prompt, mode):#Go over breaks
                 if list[0].lower() == "use": #use command in inventory
                     found = False
                     print("---------------")
-                    for i, x in enumerate(player_backpack):
+                    if list[1].isdigit() and int(list[1]) <= len(player_backpack) and type(player_backpack[int(list[1]) - 1]) == potion:
+                        player_backpack[int(list[1]) - 1].function()
+                        player_backpack.remove(player_backpack[int(list[1]) - 1])
+                        found = True
+                    else:
+                        for i, x in enumerate(player_backpack):
+                            if found == False:
+                                if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == potion:
+                                    player_backpack[i].function()
+                                    player_backpack.remove(player_backpack[i])
+                                    found = True
+                                    print("---------------")
                         if found == False:
-                            if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == potion:
-                                player_backpack[i].function()
-                                player_backpack.remove(player_backpack[i])
-                                found = True
-                                print("---------------")
-                    if found == False:
-                        print(list[1].lower() + " is not usable.")
-                        print("---------------")
+                            print(list[1].lower() + " is not usable.")
+                            print("---------------")
                 if list[0].lower() == "burn": #burn command in inventory
                     if len(list) > 1:
                         found = False
@@ -1297,29 +1315,43 @@ def parse_text(prompt, mode):#Go over breaks
                                     found = True
                                     break
                         else:
-                            for i, x in enumerate(player_backpack):
-                                if found == False:
-                                    if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == scroll and x != item_maguffin1 and x != item_maguffin2 and x != item_logbook:
-                                        print("Burned " + player_backpack[i].name)
-                                        print("---------------")
-                                        player_backpack.remove(player_backpack[i])
-                                        found = True
+                            if list[1].isdigit() and int(list[1]) <= len(player_backpack) and type(player_backpack[int(list[1]) - 1]) == scroll:
+                                print("Burned " + player_backpack[int(list[1]) - 1].name)
+                                print("---------------")
+                                player_backpack.remove(player_backpack[int(list[1]) - 1])
+                                found = True
+                            else:
+                                for i, x in enumerate(player_backpack):
+                                    if found == False:
+                                        if list[1].lower() == player_backpack[i].name.lower() and type(player_backpack[i]) == scroll and x != item_maguffin1 and x != item_maguffin2 and x != item_logbook:
+                                            print("Burned " + player_backpack[i].name)
+                                            print("---------------")
+                                            player_backpack.remove(player_backpack[i])
+                                            found = True
                         if found == False:
                             print(list[1].lower() + " is not flammable.")
                             print("---------------")
                 if list[0].lower() == "d": #drop command in inventory
                     if len(list) > 1:
-                        found = False
                         print("---------------")
-                        for i, x in enumerate(player_backpack):
-                            if list[1].lower() == player_backpack[i].name.lower():
-                                drop_item = player_backpack[i]
-                                player_backpack.remove(drop_item)
-                                current_room.items.append(drop_item)
-                                found = True
-                                print("Dropped the " + drop_item.name.lower())
-                                print("---------------")
-                                break
+                        if list[1].isdigit() and int(list[1]) <= len(player_backpack):
+                            drop_item = player_backpack[int(list[1]) - 1]
+                            player_backpack.remove(drop_item)
+                            current_room.items.append(drop_item)
+                            found = True
+                            print("Dropped the " + drop_item.name.lower())
+                            print("---------------")
+                        else:
+                            found = False
+                            for i, x in enumerate(player_backpack):
+                                if list[1].lower() == player_backpack[i].name.lower():
+                                    drop_item = player_backpack[i]
+                                    player_backpack.remove(drop_item)
+                                    current_room.items.append(drop_item)
+                                    found = True
+                                    print("Dropped the " + drop_item.name.lower())
+                                    print("---------------")
+                                    break
                         if found == False:
                             print("\"" + list[1] + "\"" + " not found.")
                             print("---------------")
@@ -1336,18 +1368,21 @@ def parse_text(prompt, mode):#Go over breaks
             if valid_text(list[0], "in", "t", "burn", "help"):
                 found = False
                 if list[0].lower() == "in": # inspect command in exploration
-                    if len(list) > 1:
-                        if current_room.items != []:
-                            for x in current_room.items:
-                                if list[1].lower() == x.name.lower():
-                                    item_description(x)
-                                    found = True
-                                    break
-                        if list[1].lower() == current_room.enemy.name.lower() or list[1].lower() == "enemy":
-                            enemy_description(current_room.enemy)
-                            found = True
+                    if current_room.enemy.hp <= 0:
+                        if len(list) > 1:
+                            if current_room.items != []:
+                                for x in current_room.items:
+                                    if list[1].lower() == x.name.lower():
+                                        item_description(x)
+                                        found = True
+                                        break
+                            if list[1].lower() == current_room.enemy.name.lower() or list[1].lower() == "enemy":
+                                enemy_description(current_room.enemy)
+                                found = True
+                        else:
+                            print("Need something to inspect!")
                     else:
-                        print("Need something to inspect!")
+                        print("Cannot inspect with live enemy in room!")
                 if list[0].lower() == "t":
                     if len(list) > 1: # take command in exploration
                         if current_room.enemy.hp > 0:
@@ -1642,7 +1677,7 @@ def player_setup():#Remove keys after testing
     global player_backpack
     global player_xpos
     global player_ypos
-    player_char = player(5, 3, 1, 1, 0, {
+    player_char = player(8, 3, 1, 1, 0, {
     "Helmet": item_dummy,
     "Armor": item_dummy,
     "Main Hand": item_dagger,
@@ -1869,7 +1904,7 @@ ra_scroll_2 = scroll("Page 2", "A page from a dictionary which reads: \n\"" + li
 ra_scroll_3 = scroll("Page 3", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[ra_word_3] +  " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"", "\"" + list(combat_move_dict_verb.keys())[ra_word_3] + " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"")
 t_scroll_1 = scroll("Page 4", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_skill.keys())[t_word_1] + ": " + list(combat_move_dict_skill.values())[t_word_1] + "\"", "\"" + list(combat_move_dict_skill.keys())[t_word_1] + ": " + list(combat_move_dict_skill.values())[t_word_1] + "\"")
 t_scroll_2 = scroll("Page 5", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_praise.keys())[t_word_2] + ": " + list(combat_move_dict_praise.values())[t_word_2] + "\"", "\"" + list(combat_move_dict_praise.keys())[t_word_2] + ": " + list(combat_move_dict_praise.values())[t_word_2] + "\"")
-t_scroll_3 = scroll("Page 6", "A page from a dictionary which reads: \n\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"", "\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + "\"")
+t_scroll_3 = scroll("Page 6", "A page from a dictionary which reads: \n\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"", "\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"")
 d_scroll_1 = scroll("Page 7", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + list(combat_move_dict_verb.values())[d_word_1] + "\"", "\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + list(combat_move_dict_verb.values())[d_word_1] + "\"")
 d_scroll_2 = scroll("Page 8", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + list(combat_move_dict_bodypart.values())[d_word_2] + "\"", "\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + list(combat_move_dict_bodypart.values())[d_word_2] + "\"")
 d_scroll_3 = scroll("Page 9", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"", "\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"")
@@ -1925,9 +1960,14 @@ if tutorials.lower() == "y":
     tut_spell = True
 elif tutorials == "TEST":
     print(Fore.RED + "Test mode enabled!" + Fore.RESET)
-    tutorials = False
     player_char.inventory["Main Hand"] = item_shotgun
     player_backpack += [item_dagger, item_key1, item_key2, item_key3, item_maguffin1, item_maguffin2]
+    tut_main = False
+    tut_inv = False
+    tut_nav = False
+    tut_cmb = False
+    tut_expl = False
+    tut_spell = False
 else:
     tut_main = False
     tut_inv = False
