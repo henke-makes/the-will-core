@@ -125,11 +125,13 @@ class room:
 # MAX_HP, SPEED, ATTACK, DEFENSE, MIN-DMG, MAX-DMG, ARMOR, SLOT, NAME
 #Main Hand
 item_dagger         = item(0, 1, 0, 0, 1, 2, 0, "Main Hand", "Dagger")
+item_bludgeon       = item(0, 0, 1, 1, 1, 2, 0, "Main Hand", "Bludgeon")
+item_staff          = item(0, -1, 0, 0, 2, 3, 0, "Main Hand", "Staff")
 item_short_sword    = item(0, 0, 1, 0, 2, 3, 0, "Main Hand", "Short Sword")
-item_long_sword     = item(0, 0, 1, -1, 3, 5, 0, "Main Hand", "Long Sword")
-item_hammer         = item(0, -2, 0, -2, 5, 7, 0, "Main Hand", "Hammer")
-item_spear          = item(0, 2, 3, 0, 3, 5, 0, "Main Hand", "Spear")
-item_flail          = item(0, 1, 3, 2, 3, 5, -1, "Main Hand", "Flail")
+item_long_sword     = item(0, 0, 1, -1, 3, 4, 0, "Main Hand", "Long Sword")
+item_hammer         = item(0, -2, 0, -2, 4, 6, 0, "Main Hand", "Hammer")
+item_spear          = item(0, 2, 0, 0, 2, 4, 0, "Main Hand", "Spear")
+item_flail          = item(0, 1, 4, 0, 1, 4, 0, "Main Hand", "Flail")
 item_whip           = item(0, 2, 5, -2, 2, 5, -1, "Main Hand", "Whip")
 item_broadsword     = item(0, -2, 0, 3, 5, 8, 1, "Main Hand", "Broadsword")
 item_nine_tails     = item(0, 1, 6, -3, 3, 5, 0, "Main Hand", "Cat-o-Nine-Tails")
@@ -217,6 +219,8 @@ def attack(attacker, attacker_move, defender, defender_move):
     defender_bonus = 0
     attack_damage = 0
     defender_armor = defender.inventory["Helmet"].armor - defender.inventory["Armor"].armor + defender.armor
+    if type(attacker) == player:
+        attacker_bonus += 4
     if attacker_move.lower() == "a":
         attacker_bonus = 5
     if attacker_move.lower() == "d":
@@ -340,21 +344,17 @@ when prompted for more information.""" + Fore.RESET)
         print("Armor:    " + str(player_char.armor) + " " * (9 - len(str(player_char.armor))) + str(current_room.enemy.armor))
         attack_adv = player_char.attack - current_room.enemy.defense
         if attack_adv > 0:
-            print(Fore.GREEN + "Attack advantage: " + str(attack_adv))
-            print(str(round(((10 + attack_adv)/20)*100)) + "% to hit" + Fore.RESET)
+            print(Fore.GREEN + str(round(((14 + attack_adv)/20)*100)) + "% to hit" + Fore.RESET)
         elif attack_adv < 0:
-            print(Fore.RED + "Attack disadvantage: " + str(abs(attack_adv)))
-            print(str(round(((10 + attack_adv)/20)*100)) + "% to hit" + Fore.RESET)
+            print(Fore.RED + str(round(((14 + attack_adv)/20)*100)) + "% to hit" + Fore.RESET)
         else:
-            print(Fore.YELLOW + "Attack advantage: " + str(attack_adv))
-            print("50% to hit" + Fore.RESET)
+            print(Fore.YELLOW + "70% to hit" + Fore.RESET)
         defense_adv = player_char.defense - current_room.enemy.attack
         if defense_adv < 0:
-            print(Fore.RED + "Defense disadvantage: " + str(abs(attack_adv)))
-            print(str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
+
+            print(Fore.RED + str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
         elif defense_adv > 0:
-            print(Fore.GREEN + "Defense advantage: " + str(abs(attack_adv)))
-            print(str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
+            print(Fore.GREEN + str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
         else:
             print(Fore.YELLOW + "Defense advantage: " + str(attack_adv))
             print("50% to get hit" + Fore.RESET)
@@ -450,35 +450,35 @@ when prompted for more information.""" + Fore.RESET)
                 player_combat_percentage = round((player_turn/combat_threshold) * 10)
                 enemy_combat_percentage = round((enemy_turn/combat_threshold) * 10)
                 if player_move == "":
-                    player_move_text = "do a normal attack."
+                    player_move_text = "Going to do a normal attack."
                 elif player_move.lower() == "a":
-                    player_move_text = "do an Aimed attack."
+                    player_move_text = "Going to do an Aimed attack."
                 elif player_move.lower() == "d":
-                    player_move_text = "do a Defensive attack."
+                    player_move_text = "Going to do a Defensive attack."
                 elif player_move.lower() == "e":
-                    player_move_text = "escape!"
+                    player_move_text = "Escaping!"
                 elif player_move.lower() == relentless_attack_keyword or ra_shortcut:
-                    player_move_text = "do a Relentless Attack!"
+                    player_move_text = "Preparing a Relentless Attack! (2x damage, 2x damage taken)"
                 elif player_move.lower() == turtle_keyword or turtle_shortcut:
-                    player_move_text = "Turtle up!"
+                    player_move_text = "Turtled up! (+3 armor until next move)"
                 elif player_move.lower() == disarm_keyword or disarm_shortcut:
-                    player_move_text = "attempt to Disarm!"
+                    player_move_text = "Will attempt to Disarm! (-8 Attack)"
                 if enemy_move == "":
-                    enemy_move_text = "do a normal attack."
+                    enemy_move_text = "Going to do a normal attack."
                 elif enemy_move.lower() == "a":
-                    enemy_move_text = "do an Aimed attack."
+                    enemy_move_text = "Going to do an Aimed attack."
                 elif enemy_move.lower() == "d":
-                    enemy_move_text = "do a Defensive attack."
+                    enemy_move_text = "Going to do a Defensive attack."
                 elif enemy_move.lower() == "e":
-                    enemy_move_text = "escape!"
+                    enemy_move_text = "Escaping!"
                 elif enemy_move.lower() == relentless_attack_keyword or enemy_move.lower() == ra_shortcut:
-                    enemy_move_text = "do a Relentless Attack!"
+                    enemy_move_text = "Preparing a Relentless Attack! (2x damage, 2x damage taken)"
                 elif enemy_move.lower() == turtle_keyword or enemy_move.lower() == turtle_shortcut:
-                    enemy_move_text = "Turtle up!"
+                    enemy_move_text = "Turtled up! (+3 armor until next move)"
                 elif enemy_move.lower() == disarm_keyword or enemy_move.lower() == disarm_shortcut:
-                    enemy_move_text = "attempt to Disarm!"
-                print("Player: " + Fore.CYAN + "█" * player_combat_percentage + Fore.RESET + "-" * (10 - player_combat_percentage) + " " + str(player_char.hp) + "/" + str(player_char.max_hp) + " HP | Going to " + player_move_text)
-                print("Enemy : " + Fore.RED + "█" * enemy_combat_percentage + Fore.RESET + "-" * (10 - enemy_combat_percentage) + " " + str(current_room.enemy.hp) + " HP | Going to " + enemy_move_text)
+                    enemy_move_text = "Will attempt to Disarm! (-8 Attack)"
+                print("Player: " + Fore.CYAN + "█" * player_combat_percentage + Fore.RESET + "-" * (10 - player_combat_percentage) + " " + str(player_char.hp) + "/" + str(player_char.max_hp) + " HP | " + player_move_text)
+                print("Enemy : " + Fore.RED + "█" * enemy_combat_percentage + Fore.RESET + "-" * (10 - enemy_combat_percentage) + " " + str(current_room.enemy.hp) + " HP | " + enemy_move_text)
                 sleep(.5)
         combat = False
     if current_room.enemy.name.lower() == "the keeper" and player_char.inventory["Main Hand"] != item_shotgun and current_room.enemy.hp > 0:
@@ -885,17 +885,23 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
         name_list = ["Terrible Knight", "Strong Fish", "Necromancer", "Weeb"]
         for i, x in enumerate(name_list):
             name_list[i] += " +" + str(lvl-9)
-    gen_enemy = enemy(lvl*5, lvl*2, lvl*2, lvl*2, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
+    gen_enemy = enemy(lvl*5, lvl, lvl*2, lvl*2, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
     if lvl == 1:
-        gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_short_sword])
+        gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_bludgeon, item_staff])
     elif lvl == 2:
-        gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_short_sword])
+        gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_staff, item_short_sword])
     elif lvl == 3:
-        gen_enemy.inventory["Main Hand"] = choice([item_long_sword, item_whip])
+        gen_enemy.inventory["Main Hand"] = choice([item_short_sword, item_long_sword])
     elif lvl == 4:
-        gen_enemy.inventory["Main Hand"] = choice([item_spear, item_flail])
+        gen_enemy.inventory["Main Hand"] = choice([item_long_sword, item_spear, item_hammer])
+    elif lvl == 5:
+        gen_enemy.inventory["Main Hand"] = choice([item_hammer, item_flail, item_spear])
+    elif lvl == 6:
+        gen_enemy.inventory["Main Hand"] = choice([item_flail, item_hammer, item_whip])
+    elif lvl == 7:
+        gen_enemy.inventory["Main Hand"] = choice([item_spear, item_flail, item_broadsword])
     else:
-        gen_enemy.inventory["Main Hand"] = choice([item_hammer, item_flail, item_broadsword])
+        gen_enemy.inventory["Main Hand"] = choice([item_spear, item_nine_tails, item_broadsword])
     return gen_enemy
 def generate_items(how_many, *items): #Mostly (completetly?) obsolete, replace with generate_loot
     i = 0
@@ -1080,10 +1086,44 @@ def hp_gain(hp_gain):
 def inventory():
     global tut_inv
     if tut_inv == True:
-        print(Fore.GREEN + "This is your Inventory.\nFrom here, you can inspect, equip and use items. This is divided into two sections: your Inventory and your Backpack.\nYour Inventory is divided into five slots:\nHelmet, Armor, Main Hand, Off Hand and Necklace.\nItems in these slots are currently equipped and confer stats to your character.\nYour Backpack contains items you have, but which are not equipped.\n\nListed below under \"INVENTORY\" are commands you can use from here.\nMany commands, such as \"in\" or \"use\" require a target - something to Inspect or Use.\nYou can either write the name of the item (Ex: \"in pendant\") or the numbe\n in your Backpack (Ex: \"in 2\" for the second item in your Backpack)." + Fore.RESET)
-        print(Fore.GREEN + r""".........
-Inventory
-'''''''''
+        print(Fore.GREEN + "This is your Inventory.\nFrom here, you can inspect, equip and use items. This is divided into two sections: your Inventory and your Backpack.\nYour Inventory is divided into five slots:\nHelmet, Armor, Main Hand, Off Hand and Necklace.\nItems in these slots are currently equipped and confer stats to your character.\nYour Backpack contains items you have, but which are not equipped.\n\nListed below under \"INVENTORY\" are commands you can use from here.\nMany commands, such as \"in\" or \"use\" require a target - something to Inspect or Use." + Fore.RESET)
+    print("..............\nYour Inventory\n''''''''''''''")
+    print(Fore.BLUE + "___________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.YELLOW + "INVENTORY" + Fore.BLUE + "|_______________________________________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect " + Fore.BLUE + "|" + Fore.RESET + "\"eq\" - Equip  " + Fore.BLUE + "|" + Fore.RESET + " \"uneq\" - Unequip " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"d\" - Drop     " + Fore.BLUE + "|" + Fore.RESET + "\"use\" - Use   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn    " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
+    if tut_inv == True:
+        print(Fore.GREEN + "This is your Inventory and it lists all your equipped items in their corresponding slot." + Fore.RESET)
+    for x in player_char.inventory:
+        if player_char.inventory[x] == "Nothing":
+            print("• " + x + ": Nothing")
+        else:
+            print("• " + x + ": " + player_char.inventory[x].name)
+    print("")
+    if tut_inv == True:
+        print(Fore.GREEN + "This is your backpack. You can interact with items here by either writing their name (Ex: \"in logbook\")\nor by using their corresponding number (Ex: \"in 1\").")
+    if player_backpack == []:
+        print("Thy Backpack is empty.")
+    else:
+        print("Your Backpack contains: ")
+        for i, x in enumerate(player_backpack):
+            if type(x) == scroll:
+                if x.read == True:
+                    print(Fore.BLUE + str(i + 1), x.name + Fore.RESET)
+                else:
+                    print(Fore.CYAN + str(i + 1), x.name + Fore.RESET)
+            else:
+                print(str(i + 1), x.name)
+    print(Fore.BLUE + "_________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.YELLOW + "GENERAL" + Fore.BLUE + "|____________________________________________________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"i\" - Inventory  " + Fore.BLUE + "|" + Fore.RESET + "       \"f\" - Fight      " + Fore.BLUE + "|" + Fore.RESET + " \"ex\" - Explore " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"nav\" - Nagivate " + Fore.BLUE + "|" + Fore.RESET + " \"spell\" - Spellcasting " + Fore.BLUE + "|" + Fore.RESET + " \"help\" - Help  " + Fore.BLUE +  "|" + Fore.RESET)
+    print(Fore.BLUE + "'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
+    if tut_inv == True:
+        print(Fore.GREEN + r"""..................
+Inventory Commands
+''''''''''''''''''
 "in"  - Inspect
         Display stats of an item or text of a scroll.
         "in self" will inspect your current stats.
@@ -1102,35 +1142,6 @@ Inventory
         Can be used to declutter your inventory from scrolls and pages.
         "burn all" will burn all scrolls and pages in inventory, save your logbook. """ + Fore.RESET)
         tut_inv = False
-    print("..............\nYour Inventory\n''''''''''''''")
-    print(Fore.BLUE + "___________" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.YELLOW + "INVENTORY" + Fore.BLUE + "|_______________________________________" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect " + Fore.BLUE + "|" + Fore.RESET + "\"eq\" - Equip  " + Fore.BLUE + "|" + Fore.RESET + " \"uneq\" - Unequip " + Fore.BLUE + "|" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.RESET + "\"d\" - Drop     " + Fore.BLUE + "|" + Fore.RESET + "\"use\" - Use   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn    " + Fore.BLUE + "|" + Fore.RESET)
-    print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
-    for x in player_char.inventory:
-        if player_char.inventory[x] == "Nothing":
-            print("• " + x + ": Nothing")
-        else:
-            print("• " + x + ": " + player_char.inventory[x].name)
-    print("")
-    if player_backpack == []:
-        print("Thy Backpack is empty.")
-    else:
-        print("Your Backpack contains: ")
-        for i, x in enumerate(player_backpack):
-            if type(x) == scroll:
-                if x.read == True:
-                    print(Fore.BLUE + str(i + 1), x.name + Fore.RESET)
-                else:
-                    print(Fore.CYAN + str(i + 1), x.name + Fore.RESET)
-            else:
-                print(str(i + 1), x.name)
-    print(Fore.BLUE + "_________" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.YELLOW + "GENERAL" + Fore.BLUE + "|____________________________________________________" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.RESET + "\"i\" - Inventory  " + Fore.BLUE + "|" + Fore.RESET + "       \"f\" - Fight      " + Fore.BLUE + "|" + Fore.RESET + " \"ex\" - Explore " + Fore.BLUE + "|" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.RESET + "\"nav\" - Nagivate " + Fore.BLUE + "|" + Fore.RESET + " \"spell\" - Spellcasting " + Fore.BLUE + "|" + Fore.RESET + " \"help\" - Help  " + Fore.BLUE +  "|" + Fore.RESET)
-    print(Fore.BLUE + "'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
     parse_text(Fore.YELLOW + "What is thy wish?" + Fore.RESET + "\n>>>", "in")
 def item_description(_item):
     if type(_item) == item:
