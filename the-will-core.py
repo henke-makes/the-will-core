@@ -52,14 +52,14 @@ class consumable(item):
 class potion(consumable):
     def function(potion):
         if potion.name.lower() == "fish":
-            hp_gain(1)
-            print("Used Fish to heal 1 HP.")
-        if potion.name.lower() == "tomato":
             hp_gain(2)
-            print("Used Tomato to heal 2 HP.")
-        if potion.name.lower() == "meat":
+            print("Used Fish to heal 2 HP.")
+        if potion.name.lower() == "tomato":
             hp_gain(3)
-            print("Used Meat to heal 3 HP.")
+            print("Used Tomato to heal 3 HP.")
+        if potion.name.lower() == "meat":
+            hp_gain(4)
+            print("Used Meat to heal 4 HP.")
         if potion.name.lower() == "hp potion":
             hp_gain(5)
             print("Used HP Potion to heal 5 HP.")
@@ -189,7 +189,7 @@ container_potion_rack = container("Potion Rack", item_hp_potion, 40, item_max_hp
 container_armor_rack = container("Armor Rack", item_shield, 30, item_leather_armor, 20, item_leather_helmet, 20, item_plate_helmet, 10, item_platemail, 5)
 container_weapon_rack = container("Weapon Rack", item_long_sword, 100, item_short_sword, 300, item_spear, 100, item_hammer, 50, item_monster_tooth, 100, item_shotgun, 1)
 container_jewel_case = container("Jewel Case", item_pendant, 20, item_icon, 20, item_monster_tooth, 20, item_dragon_tooth, 10)
-container_container = container("DUMMY CONTAINER", container_chest, 10, container_clothes_rack, 10, container_potion_rack, 5, container_pantry, 20, container_armor_rack, 5, container_weapon_rack, 10, container_jewel_case, 5)
+container_container = container("DUMMY CONTAINER", container_chest, 10, container_clothes_rack, 10, container_potion_rack, 5, container_pantry, 25, container_armor_rack, 5, container_weapon_rack, 15, container_jewel_case, 5)
 
 container_funk = container("Throne of Funk", item_maguffin1, 1)
 container_opera = container("Operatic Plinth", item_maguffin2, 1)
@@ -250,18 +250,18 @@ def attack(attacker, attacker_move, defender, defender_move):
     if attack_roll <= chance_to_hit:
         if attacker_move != disarm_keyword:
             defender.hp -= attack_damage
-            print(attacker.name + " did " + str(attack_damage) + " damage")
+            print(attacker.name + " did " + Fore.RED + str(attack_damage) + Fore.RESET + " damage. " + defender.name + " has " + Fore.GREEN + str(defender.hp) + Fore.RESET +  " HP left.")
             #print("Attacker move: " + attacker_move)
             #print("Attacker Bonus: " + str(attacker_bonus))
             #print("Defender move: " + defender_move)
             #print("Defense Bonus: " + str(defender_bonus))
             #print("Attack roll: " + str(attack_roll))
         else:
-            print(attacker.name + " has knocked the " + defender.inventory["Main Hand"].name + " out of " + defender.name + "'s hand!")
+            print(attacker.name + " has knocked the " + defender.inventory["Main Hand"].name + " out of " + defender.name + "'s hand onto the ground!")
             current_room.items.append(defender.inventory["Main Hand"])
             defender.inventory["Main Hand"] = item_dummy
     else:
-        print(attacker.name + " missed!")
+        print(attacker.name + Fore.RED +  " missed!" + Fore.RESET)
 def check_lock(xpos, ypos):
     for x in room_list:
         if x.xpos == xpos and x.ypos == ypos:
@@ -378,6 +378,7 @@ when prompted for more information.""" + Fore.RESET)
                     attack(player_char, player_move, current_room.enemy, enemy_move)
                 else:
                     print(player_char.name + " curled up like a turtle.")
+                input("Press Enter to continue.")
                 player_move = ""
                 player_turn = 0
                 delete_row = False
@@ -669,7 +670,7 @@ def combat_move():
         print(Fore.BLUE + "|" + Fore.RESET + " \"a\" - Aimed Attack: " + Fore.BLUE + "|" + Fore.RESET + "  \"d\" - Defensive Strike: " + Fore.BLUE + "|" + Fore.RESET + "       \"e\" - Escape        " + Fore.BLUE + "|" + Fore.RESET)
         print(Fore.BLUE + "|" + Fore.RESET + "   +5 ATK, -5 DEF    " + Fore.BLUE + "|" + Fore.RESET + "      +5 DEF, -5 ATK      " + Fore.BLUE + "|" + Fore.RESET + " \"move\" - Special Move list" + Fore.BLUE + "|" + Fore.RESET)
         print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
-        player_move = input("Press enter for a Normal Attack, or type something to cheer " + player_char.name + " on!\n>>>")
+        player_move = input(Fore.YELLOW + "Press enter for a Normal Attack, or type something to cheer " + player_char.name + " on!\n>>>" + Fore.RESET)
         if player_move.lower() == "e":
             print("You will attempt to escape the battle!")
             return True
@@ -893,7 +894,7 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
         name_list = ["Terrible Knight", "Strong Fish", "Necromancer", "Weeb"]
         for i, x in enumerate(name_list):
             name_list[i] += " +" + str(lvl-9)
-    gen_enemy = enemy(lvl*5, lvl + 1, lvl*2, lvl*2, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
+    gen_enemy = enemy(lvl*4, lvl + 1, lvl*2, lvl*2, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
     if lvl == 1:
         gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_bludgeon, item_staff])
     elif lvl == 2:
@@ -974,7 +975,7 @@ def generate_world(xsize, ysize):
         while i < xsize:
             cont_list = generate_loot(container_container, 1)
             container = cont_list[0]
-            new_room = room(i, j, 0, "     ", "     ", "     ", container, generate_loot(container, randint(0, 2)), generate_room_description(), [], "", 0)
+            new_room = room(i, j, 0, "     ", "     ", "     ", container, generate_loot(container, choice([0, 1, 1, 2, 2])), generate_room_description(), [], "", 0)
             room_n += 1
             room_list.append(new_room)
             i += 1
@@ -1948,7 +1949,7 @@ update_stats()
 with open("willcore_logo.txt") as f:
     print(f.read())
     f.close()
-player_backpack += scroll_list + page_list
+
 start = ""
 while start.lower() != "start":
     start = menu("Start start", "Story story", "Help h", "Exit x")
