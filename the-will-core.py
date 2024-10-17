@@ -52,17 +52,17 @@ class consumable(item):
 class potion(consumable):
     def function(potion):
         if potion.name.lower() == "fish":
-            hp_gain(2)
-            print("Used Fish to heal 2 HP.")
+            hp_gain(round(player_char.max_hp * 0.25))
+            print("Used Fish to" + Fore.GREEN +  " heal " + str(round(player_char.max_hp * 0.25)) + Fore.RESET + " HP.")
         if potion.name.lower() == "tomato":
-            hp_gain(3)
-            print("Used Tomato to heal 3 HP.")
+            hp_gain(round(player_char.max_hp * 0.5))
+            print("Used Tomato to"  + Fore.GREEN +  " heal " + str(round(player_char.max_hp * 0.50)) + Fore.RESET + " HP.")
         if potion.name.lower() == "meat":
-            hp_gain(4)
-            print("Used Meat to heal 4 HP.")
+            hp_gain(round(player_char.max_hp * 0.75))
+            print("Used Meat to" + Fore.GREEN +  " heal " + str(round(player_char.max_hp * 0.75)) + Fore.RESET + " HP.")
         if potion.name.lower() == "hp potion":
-            hp_gain(5)
-            print("Used HP Potion to heal 5 HP.")
+            hp_gain(player_char.max_hp)
+            print("Used HP Potion to" + Fore.GREEN +  " heal " + str(player_char.max_hp) + Fore.RESET + " HP.")
         if potion.name.lower() == "max hp potion":
             player_char.base_hp += 2
             update_stats()
@@ -172,30 +172,31 @@ item_key3 = key("Key C", "C", "A key used to open doors with lock C.")
 item_key4 = key("FunKEY", "FUNKY", "Key used to open the door to the Palace of Funk.")
 item_key5 = key("Opera Key", "OPERA", "Key used to open the door to the Opera.")
 #POTIONS
-item_fish          = potion("Fish", "Heal for 1 HP")
-item_tomato        = potion("Tomato", "Heal for 2 HP.\nBrought to you by Tilli's Trash Tomatoes®")
-item_meat          = potion("Meat", "Heal for 3 HP")
-item_hp_potion     = potion("HP Potion", "Heal for 5 HP")
+item_fish          = potion("Fish", "Heal 25% HP")
+item_tomato        = potion("Tomato", "Heal 50% HP.\nBrought to you by Tilli's Trash Tomatoes®")
+item_meat          = potion("Meat", "Heal 75% HP")
+item_hp_potion     = potion("HP Potion", "Heal 100% HP")
 item_max_hp_potion = potion("Max HP Potion", "Grants +2 Max HP!")
 item_speed_potion  = potion("Swift potion", "Grants +1 Speed!")
 
 item_logbook = scroll("Logbook", "This logbook will update if you find anything interesting on your quest.", "")
 
 #CONTAINERS
-container_chest = container("Chest", item_cloak, 5, item_shield, 10, item_short_sword, 10, item_leather_helmet, 5)
+container_chest = container("Chest", item_cloak, 5, item_shield, 10, item_lantern, 10, item_leather_helmet, 5, item_torch, 10)
+container_tool_shed = container("Tool Shed", item_apron, 10, item_torch, 10, item_lantern, 10, item_goggles, 10, item_knife, 10)
 container_pantry = container("Pantry", item_fish, 3, item_meat, 2, item_tomato, 5)
 container_clothes_rack = container("Clothes Rack", item_pendant, 10, item_robe, 10, item_cloak, 10, item_hood, 10, item_hat, 20, item_goggles, 15, item_tophat, 5)
 container_potion_rack = container("Potion Rack", item_hp_potion, 40, item_max_hp_potion, 5, item_speed_potion, 5, item_goggles, 10)
 container_armor_rack = container("Armor Rack", item_shield, 30, item_leather_armor, 20, item_leather_helmet, 20, item_plate_helmet, 10, item_platemail, 5)
 container_weapon_rack = container("Weapon Rack", item_long_sword, 100, item_short_sword, 300, item_spear, 100, item_hammer, 50, item_monster_tooth, 100, item_shotgun, 1)
 container_jewel_case = container("Jewel Case", item_pendant, 20, item_icon, 20, item_monster_tooth, 20, item_dragon_tooth, 10)
-container_container = container("DUMMY CONTAINER", container_chest, 10, container_clothes_rack, 10, container_potion_rack, 5, container_pantry, 25, container_armor_rack, 5, container_weapon_rack, 15, container_jewel_case, 5)
+container_container = container("DUMMY CONTAINER", container_chest, 10, container_tool_shed, 10, container_clothes_rack, 10, container_potion_rack, 5, container_pantry, 25, container_armor_rack, 5, container_weapon_rack, 15, container_jewel_case, 5)
 
 container_funk = container("Throne of Funk", item_maguffin1, 1)
 container_opera = container("Operatic Plinth", item_maguffin2, 1)
 container_core = container("Core Pedestal", item_maguffin3, 1)
 #container_bookcase if lore books ever become a thing
-container_list = [container_chest, container_clothes_rack, container_potion_rack, container_pantry, container_armor_rack, container_weapon_rack, container_jewel_case]
+container_list = [container_chest, container_tool_shed, container_clothes_rack, container_potion_rack, container_pantry, container_armor_rack, container_weapon_rack, container_jewel_case]
 
 #HOUSEKEEPING
 CURSOR_UP_ONE = '\x1b[1A'
@@ -1038,7 +1039,6 @@ def generate_world(xsize, ysize):
         if i > i_max:
             i = 1
             lv += 1
-    #print("Max lvl: " + str(lv))
     #Making questrooms
     valid = True
     while valid:
@@ -1067,7 +1067,44 @@ def generate_world(xsize, ysize):
             room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_core, generate_loot(container_core, 1), "This is the Chapel of the Will Core.\nBefore you lies your ultimate prize, and the journey is over.", enemy(20, 10, 5, 5, 4, "The Keeper", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 99), "special", 0)
             room_list[random_room].questroom = True
             valid = False
-    
+    #Sprinkle healing
+    healing_items_list = [item_fish, item_tomato, item_meat, item_hp_potion]
+    i = 0
+    while i < len(healing_items_list):
+        valid = True
+        while valid:
+            random_room = randint(1, len(room_list) - 1)
+            if room_list[random_room] in q1:
+                room_list[random_room].items.append(healing_items_list[i])
+                i += 1
+                valid = False
+    i = 0
+    while i < len(healing_items_list):
+        valid = True
+        while valid:
+            random_room = randint(1, len(room_list) - 1)
+            if room_list[random_room] in q2:
+                room_list[random_room].items.append(healing_items_list[i])
+                i += 1
+                valid = False
+    i = 0
+    while i < len(healing_items_list):
+        valid = True
+        while valid:
+            random_room = randint(1, len(room_list) - 1)
+            if room_list[random_room] in q3:
+                room_list[random_room].items.append(healing_items_list[i])
+                i += 1
+                valid = False
+    i = 0
+    while i < len(healing_items_list):
+        valid = True
+        while valid:
+            random_room = randint(1, len(room_list) - 1)
+            if room_list[random_room] in q4:
+                room_list[random_room].items.append(healing_items_list[i])
+                i += 1
+                valid = False
     #DONE
     return room_list
 def generate_word(syllables):
@@ -1668,15 +1705,15 @@ def split_text(text):
     str1, str2 = text[:len(text)//2], text[len(text)//2:] 
     return [str1, str2]
 def sprinkle_items(item_list): #Sprinkle items into unique rooms
-    scroll_room_list = room_list.copy()
+    item_room_list = room_list.copy()
     for x in item_list:
         valid = True
         while valid:
-            random_room = randint(0, len(scroll_room_list) - 1)
-            if scroll_room_list[random_room].questroom == 0:
-                scroll_room_list[random_room].items.append(x)
+            random_room = randint(0, len(item_room_list) - 1)
+            if item_room_list[random_room].questroom == 0:
+                item_room_list[random_room].items.append(x)
                 #print(x.name, "is in room", str(room_list[random_room].xpos) + str(room_list[random_room].ypos))
-                scroll_room_list.remove(scroll_room_list[random_room])
+                item_room_list.remove(item_room_list[random_room])
                 valid = False
 def update_stats():
     player_char.max_hp = player_char.base_hp + player_char.inventory["Main Hand"].max_hp + player_char.inventory["Off Hand"].max_hp + player_char.inventory["Helmet"].max_hp + player_char.inventory["Armor"].max_hp + player_char.inventory["Necklace"].max_hp
