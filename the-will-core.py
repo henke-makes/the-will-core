@@ -669,7 +669,7 @@ def combat_move():
         print(Fore.BLUE + "|" + Fore.RESET + " \"a\" - Aimed Attack: " + Fore.BLUE + "|" + Fore.RESET + "  \"d\" - Defensive Strike: " + Fore.BLUE + "|" + Fore.RESET + "       \"e\" - Escape        " + Fore.BLUE + "|" + Fore.RESET)
         print(Fore.BLUE + "|" + Fore.RESET + "   +5 ATK, -5 DEF    " + Fore.BLUE + "|" + Fore.RESET + "      +5 DEF, -5 ATK      " + Fore.BLUE + "|" + Fore.RESET + " \"move\" - Special Move list" + Fore.BLUE + "|" + Fore.RESET)
         print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
-        player_move = input("Press enter for a Normal Attack, or type something to cheer " + player_char.name + " on!\n")
+        player_move = input("Press enter for a Normal Attack, or type something to cheer " + player_char.name + " on!\n>>>")
         if player_move.lower() == "e":
             print("You will attempt to escape the battle!")
             return True
@@ -726,7 +726,7 @@ def combat_move():
                 disarm_discovered = True
                 print("You have discovered Disarm!\nType \"move\" for more information.")
         if player_move != "":
-            print(player_char.name + " is " + choice(["reasonably", "moderately", "sort of", "not overly", "politely indicating that they are"]) + " impressed by your cheering.")
+            print(Fore.GREEN + player_char.name + " is " + choice(["reasonably", "moderately", "sort of", "not overly", "politely indicating that they are"]) + " impressed by your cheering." + Fore.RESET)
 def death(cause):
     print("You have fallen at the hands of " + cause + ".")
     with open("willcore_gameover.txt") as f:
@@ -893,7 +893,7 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
         name_list = ["Terrible Knight", "Strong Fish", "Necromancer", "Weeb"]
         for i, x in enumerate(name_list):
             name_list[i] += " +" + str(lvl-9)
-    gen_enemy = enemy(lvl*5, lvl, lvl*2, lvl*2, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
+    gen_enemy = enemy(lvl*5, lvl + 1, lvl*2, lvl*2, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
     if lvl == 1:
         gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_bludgeon, item_staff])
     elif lvl == 2:
@@ -1910,23 +1910,23 @@ spell_armor_keyword = generate_word(3)
 spell_armor_found = False
 
 #Generate spell scrolls
-hp_scroll1 = scroll("Scroll 1", "A torn scroll with the text:\n\"" + split_text(spell_hp_keyword)[0] + "-\"", "You found a torn scroll: \"" + split_text(spell_hp_keyword)[0] + "-\"")
-hp_scroll2 = scroll("Scroll 2", "A torn scroll with the text:\n\"-" + split_text(spell_hp_keyword)[1] + "\"", "You found a torn scroll: \"-" + split_text(spell_hp_keyword)[1] + "\"")
-speed_scroll1 = scroll("Scroll 3", "A torn scroll with the text:\n\"" + split_text(spell_speed_keyword)[0] + "-\"", "You found a torn scroll: \"" + split_text(spell_speed_keyword)[0] + "-\"")
-speed_scroll2 = scroll("Scroll 4", "A torn scroll with the text:\n\"-" + split_text(spell_speed_keyword)[1] + "\"", "You found a torn scroll: \"-" + split_text(spell_speed_keyword)[1] + "\"")
-armor_scroll1 = scroll("Scroll 5", "A torn scroll with the text:\n\"" + split_text(spell_armor_keyword)[0] + "-\"", "You found a torn scroll: \"" + split_text(spell_armor_keyword)[0] + "-\"")
-armor_scroll2 = scroll("Scroll 6", "A torn scroll with the text:\n\"-" + split_text(spell_armor_keyword)[1] + "\"", "You found a torn scroll: \"-" + split_text(spell_armor_keyword)[1] + "\"")
+hp_scroll1 = scroll("Scroll 1", "A torn scroll with the text:\n\"" + Fore.BLUE + split_text(spell_hp_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.BLUE + split_text(spell_hp_keyword)[0] + Fore.RESET + "-\"")
+hp_scroll2 = scroll("Scroll 2", "A torn scroll with the text:\n\"-" + Fore.BLUE + split_text(spell_hp_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.BLUE + split_text(spell_hp_keyword)[1] + Fore.RESET + "\"")
+speed_scroll1 = scroll("Scroll 3", "A torn scroll with the text:\n\"" + Fore.BLUE + split_text(spell_speed_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.BLUE + split_text(spell_speed_keyword)[0] + Fore.RESET + "-\"")
+speed_scroll2 = scroll("Scroll 4", "A torn scroll with the text:\n\"-" + Fore.BLUE + split_text(spell_speed_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.BLUE + split_text(spell_speed_keyword)[1] + Fore.RESET + "\"")
+armor_scroll1 = scroll("Scroll 5", "A torn scroll with the text:\n\"" + Fore.BLUE + split_text(spell_armor_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.BLUE + split_text(spell_armor_keyword)[0] + Fore.RESET + "-\"")
+armor_scroll2 = scroll("Scroll 6", "A torn scroll with the text:\n\"-" + Fore.BLUE + split_text(spell_armor_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.BLUE + split_text(spell_armor_keyword)[1] + Fore.RESET + "\"")
 scroll_list = [hp_scroll1, hp_scroll2, speed_scroll1, speed_scroll2, armor_scroll1, armor_scroll2]
 #Generate combat move dictionary scrolls
-ra_scroll_1 = scroll("Page 1", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + list(combat_move_dict_verb.values())[ra_word_1] + "\"", "\"" + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + list(combat_move_dict_verb.values())[ra_word_1] + "\"")
-ra_scroll_2 = scroll("Page 2", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_bodypart.keys())[ra_word_2] + ": " + list(combat_move_dict_bodypart.values())[ra_word_2] + "\"", "\"" + list(combat_move_dict_bodypart.keys())[ra_word_2] + ": " + list(combat_move_dict_bodypart.values())[ra_word_2] + "\"")
-ra_scroll_3 = scroll("Page 3", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[ra_word_3] +  " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"", "\"" + list(combat_move_dict_verb.keys())[ra_word_3] + " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"")
-t_scroll_1 = scroll("Page 4", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_skill.keys())[t_word_1] + ": " + list(combat_move_dict_skill.values())[t_word_1] + "\"", "\"" + list(combat_move_dict_skill.keys())[t_word_1] + ": " + list(combat_move_dict_skill.values())[t_word_1] + "\"")
-t_scroll_2 = scroll("Page 5", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_praise.keys())[t_word_2] + ": " + list(combat_move_dict_praise.values())[t_word_2] + "\"", "\"" + list(combat_move_dict_praise.keys())[t_word_2] + ": " + list(combat_move_dict_praise.values())[t_word_2] + "\"")
-t_scroll_3 = scroll("Page 6", "A page from a dictionary which reads: \n\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"", "\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"")
-d_scroll_1 = scroll("Page 7", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + list(combat_move_dict_verb.values())[d_word_1] + "\"", "\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + list(combat_move_dict_verb.values())[d_word_1] + "\"")
-d_scroll_2 = scroll("Page 8", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + list(combat_move_dict_bodypart.values())[d_word_2] + "\"", "\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + list(combat_move_dict_bodypart.values())[d_word_2] + "\"")
-d_scroll_3 = scroll("Page 9", "A page from a dictionary which reads: \n\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"", "\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"")
+ra_scroll_1 = scroll("Page 1", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + Fore.RED + list(combat_move_dict_verb.values())[ra_word_1] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + Fore.RED +  list(combat_move_dict_verb.values())[ra_word_1] + "\"" + Fore.RESET)
+ra_scroll_2 = scroll("Page 2", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_bodypart.keys())[ra_word_2] + ": " + Fore.RED + list(combat_move_dict_bodypart.values())[ra_word_2] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_bodypart.keys())[ra_word_2] + ": " + Fore.RED + list(combat_move_dict_bodypart.values())[ra_word_2] + "\"" + Fore.RESET)
+ra_scroll_3 = scroll("Page 3", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[ra_word_3] +  " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[ra_word_3] + " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"" + Fore.RESET)
+t_scroll_1 = scroll("Page 4", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_skill.keys())[t_word_1] + ": " + Fore.RED + list(combat_move_dict_skill.values())[t_word_1] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_skill.keys())[t_word_1] + ": " + Fore.RED + list(combat_move_dict_skill.values())[t_word_1] + "\"" + Fore.RESET)
+t_scroll_2 = scroll("Page 5", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_praise.keys())[t_word_2] + ": " + Fore.RED + list(combat_move_dict_praise.values())[t_word_2] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_praise.keys())[t_word_2] + ": " + Fore.RED + list(combat_move_dict_praise.values())[t_word_2] + "\"" + Fore.RESET)
+t_scroll_3 = scroll("Page 6", "A page from a dictionary which reads: \n\"your " + Fore.CYAN + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + Fore.RED + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"" + Fore.RESET, Fore.CYAN + "\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + Fore.RED + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"" + Fore.RESET)
+d_scroll_1 = scroll("Page 7", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[d_word_1] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_1] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_1] + "\"" + Fore.RESET)
+d_scroll_2 = scroll("Page 8", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + Fore.RED + list(combat_move_dict_bodypart.values())[d_word_2] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + Fore.RED + list(combat_move_dict_bodypart.values())[d_word_2] + "\"" + Fore.RESET)
+d_scroll_3 = scroll("Page 9", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"" + Fore.RESET)
 page_list = [ra_scroll_1, ra_scroll_2, ra_scroll_3, t_scroll_1, t_scroll_2, t_scroll_3, d_scroll_1, d_scroll_2, d_scroll_3]
 
 #Rename and sprinkle scrolls and pages
@@ -1948,7 +1948,7 @@ update_stats()
 with open("willcore_logo.txt") as f:
     print(f.read())
     f.close()
-
+player_backpack += scroll_list + page_list
 start = ""
 while start.lower() != "start":
     start = menu("Start start", "Story story", "Help h", "Exit x")
