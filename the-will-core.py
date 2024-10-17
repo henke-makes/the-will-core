@@ -355,8 +355,7 @@ when prompted for more information.""" + Fore.RESET)
         elif defense_adv > 0:
             print(Fore.GREEN + str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
         else:
-            print(Fore.YELLOW + "Defense advantage: " + str(attack_adv))
-            print("50% to get hit" + Fore.RESET)
+            print(Fore.YELLOW + "50% to get hit" + Fore.RESET)
         combat_threshold = max(player_speed, enemy_speed) * 4
         print("Player damage: " + str(player_char.level + player_char.inventory["Main Hand"].min_dmg) + "-" + str(player_char.level + player_char.inventory["Main Hand"].max_dmg))
         print("Enemy damage : " + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].min_dmg) + "-" + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].max_dmg))
@@ -1388,21 +1387,22 @@ def parse_text(prompt, mode):#Go over breaks
             if valid_text(list[0], "in", "t", "burn", "help"):
                 found = False
                 if list[0].lower() == "in": # inspect command in exploration
-                    if current_room.enemy.hp <= 0:
                         if len(list) > 1:
-                            if current_room.items != []:
-                                for x in current_room.items:
-                                    if list[1].lower() == x.name.lower():
-                                        item_description(x)
-                                        found = True
-                                        break
                             if list[1].lower() == current_room.enemy.name.lower() or list[1].lower() == "enemy":
                                 enemy_description(current_room.enemy)
                                 found = True
+                            elif current_room.enemy.hp > 0:
+                                print("Cannot inspect ground with enemy in room!")
+                                found = True
+                            else:
+                                if current_room.items != []:
+                                    for x in current_room.items:
+                                        if list[1].lower() == x.name.lower():
+                                            item_description(x)
+                                            found = True
+                                            break
                         else:
                             print("Need something to inspect!")
-                    else:
-                        print("Cannot inspect with live enemy in room!")
                 if list[0].lower() == "t":
                     if len(list) > 1: # take command in exploration
                         if current_room.enemy.hp > 0:
