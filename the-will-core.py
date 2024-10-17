@@ -301,12 +301,12 @@ def combat():
 Combat
 ''''''
 
-"e"   - Escape
-        Use to exit combat.
-"a"   - Aimed attack
-"d"   - Defensive attack
 "move"- Special moves
         Show all known Special Moves
+"a"   - Aimed attack
+"d"   - Defensive attack
+"e"   - Escape
+        Use to exit combat.
 
 Combat stats:
 Damage : How much damage your attack will inflict.
@@ -351,7 +351,6 @@ when prompted for more information.""" + Fore.RESET)
             print(Fore.YELLOW + "70% to hit" + Fore.RESET)
         defense_adv = player_char.defense - current_room.enemy.attack
         if defense_adv < 0:
-
             print(Fore.RED + str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
         elif defense_adv > 0:
             print(Fore.GREEN + str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
@@ -403,6 +402,8 @@ when prompted for more information.""" + Fore.RESET)
                     sleep(1)
                     attack(current_room.enemy, enemy_move, player_char, player_move)
                     sleep(1)
+                    if player_char.hp <= 0:
+                        death(current_room.enemy.name)
                     input("Press Enter to continue.")
                 else:
                     print(current_room.enemy.name + " turtled up this time.")
@@ -435,8 +436,6 @@ when prompted for more information.""" + Fore.RESET)
                         input("The enemy is inspired to do a Disarm move!\nPress Enter to continue.")
                         enemy_move = disarm_keyword
                 delete_row = False
-                if player_char.hp <= 0:
-                    death(current_room.enemy.name)
             if player_turn < combat_threshold and enemy_turn < combat_threshold:
                 player_turn += player_speed
                 if player_turn > combat_threshold:
@@ -665,7 +664,12 @@ def combat_move():
     global disarm_discovered
     loop = True
     while loop:
-        player_move = input("Press enter to continue, \"move\" for combat moves, or type something to cheer " + player_char.name + " on!\n")
+        print(Fore.BLUE + "________" + Fore.RESET)
+        print(Fore.BLUE + "|" + Fore.YELLOW + "COMBAT" + Fore.BLUE + "|______________________________________________________________________" + Fore.RESET)
+        print(Fore.BLUE + "|" + Fore.RESET + " \"a\" - Aimed Attack: " + Fore.BLUE + "|" + Fore.RESET + "  \"d\" - Defensive Strike: " + Fore.BLUE + "|" + Fore.RESET + "       \"e\" - Escape        " + Fore.BLUE + "|" + Fore.RESET)
+        print(Fore.BLUE + "|" + Fore.RESET + "   +5 ATK, -5 DEF    " + Fore.BLUE + "|" + Fore.RESET + "      +5 DEF, -5 ATK      " + Fore.BLUE + "|" + Fore.RESET + " \"move\" - Special Move list" + Fore.BLUE + "|" + Fore.RESET)
+        print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
+        player_move = input("Press enter for a Normal Attack, or type something to cheer " + player_char.name + " on!\n")
         if player_move.lower() == "e":
             print("You will attempt to escape the battle!")
             return True
@@ -679,9 +683,9 @@ def combat_move():
             return True
         if player_move.lower() == "move":
             print("-Aimed attack: [a]\n",
-                  "Focus on aiming, but expose yourself to attack. (+5 ATK, -5 DEF)")
+                  "Focus on aiming, but expose yourself to attack. (+5 Attack, -5 Defense)")
             print("-Defend: [d]\n",
-                  "Focus on avoiding the next attack, sacrificing accuracy. (+5 ATK, -5 DEF)")
+                  "Focus on avoiding the next attack, sacrificing accuracy. (+5 Defense, -5 Attack)")
             print("-Escape [e]\n",
                   "Use to exit combat.")
             if relentless_attack_discovered or turtle_discovered or disarm_discovered:
@@ -695,6 +699,8 @@ def combat_move():
                 if disarm_discovered == True:
                     print("Disarm: \"" + disarm_keyword + "\"[" + disarm_shortcut + "]")
                     print("Aim for your opponent's weapon to disarm them. (-8 attack, hit disarms enemy)")
+            else:
+                print("SPECIAL MOVES:\nNo Special Moves discovered!")
         if player_move.lower() == relentless_attack_keyword or player_move.lower() == ra_shortcut: #------------------------------ SPECIAL MOVES
             if relentless_attack_discovered == True:
                 print(player_char.name + " will do a relentless attack!")
@@ -702,7 +708,7 @@ def combat_move():
                 return True
             elif player_move.lower() == relentless_attack_keyword:
                 relentless_attack_discovered = True
-                print("You have discovered Relentless Attack!\nSay again to use it, otherwise use a different command or press Enter to continue.")
+                print("You have discovered Relentless Attack!\nType \"move\" for more information.")
         if player_move.lower() == turtle_keyword or player_move.lower() == turtle_shortcut:
             if turtle_discovered == True:
                 print(player_char.name + " will turtle until next move. (+3 Armor, no attacking)")
@@ -710,7 +716,7 @@ def combat_move():
                 return True
             elif player_move.lower() == turtle_keyword:
                 turtle_discovered = True
-                print("You have discovered Turtle!\nSay again to use it, otherwise use a different command or press Enter to continue.")
+                print("You have discovered Turtle!\nType \"move\" for more information.")
         if player_move == disarm_keyword or player_move.lower() == disarm_shortcut:
             if disarm_discovered == True:
                 print(player_char.name + " will attempt to disarm their opponent!")
@@ -718,7 +724,9 @@ def combat_move():
                 return True
             elif player_move.lower() == disarm_keyword:
                 disarm_discovered = True
-                print("You have discovered Disarm!\nSay again to use it, otherwise use a different command or press Enter to continue.")
+                print("You have discovered Disarm!\nType \"move\" for more information.")
+        if player_move != "":
+            print(player_char.name + " is " + choice(["reasonably", "moderately", "sort of", "not overly", "politely indicating that they are"]) + " impressed by your cheering.")
 def death(cause):
     print("You have fallen at the hands of " + cause + ".")
     with open("willcore_gameover.txt") as f:
@@ -874,7 +882,7 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
     elif lvl == 5:
         name_list = ["Marauder", "Swole Rat", "Skull (floating)", "Huge Man"]
     elif lvl == 6:
-        name_list = ["Tax Criminal", "Giant Rat", "Skeleton Warrior", "THE Man"]
+        name_list = ["Tax Criminal", "Giant Rat", "Skelly Warrior", "THE Man"]
     elif lvl == 7:
         name_list = ["Weak Knight", "Giant GIANT Rat", "Skeleton Wazazard", "Ninja"]
     elif lvl == 8:
@@ -891,15 +899,15 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
     elif lvl == 2:
         gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_staff, item_short_sword])
     elif lvl == 3:
-        gen_enemy.inventory["Main Hand"] = choice([item_short_sword, item_long_sword])
+        gen_enemy.inventory["Main Hand"] = choice([item_short_sword, item_staff, item_long_sword])
     elif lvl == 4:
-        gen_enemy.inventory["Main Hand"] = choice([item_long_sword, item_spear, item_hammer])
+        gen_enemy.inventory["Main Hand"] = choice([item_long_sword, item_hammer, item_flail])
     elif lvl == 5:
         gen_enemy.inventory["Main Hand"] = choice([item_hammer, item_flail, item_spear])
     elif lvl == 6:
         gen_enemy.inventory["Main Hand"] = choice([item_flail, item_hammer, item_whip])
     elif lvl == 7:
-        gen_enemy.inventory["Main Hand"] = choice([item_spear, item_flail, item_broadsword])
+        gen_enemy.inventory["Main Hand"] = choice([item_spear, item_nine_tails, item_broadsword])
     else:
         gen_enemy.inventory["Main Hand"] = choice([item_spear, item_nine_tails, item_broadsword])
     return gen_enemy
@@ -1578,9 +1586,9 @@ def render_map():
             i += 1
         j += 1
     if current_room.enemy.hp > 0:
-        print("The room is guarded by a " + current_room.enemy.name + " LVL " + str(current_room.enemy.level))
+        print("The room is guarded by a " + Fore.RED + current_room.enemy.name + " LVL " + str(current_room.enemy.level) + Fore.RESET)
     else:
-        print("There is a dead " + current_room.enemy.name + " in the room.")
+        print("There is a" + Fore.CYAN + " dead " + Fore.RED + current_room.enemy.name + Fore.RESET +  " in the room.")
     if current_room.items != []:
         print(f"The room contains a {current_room.container.name.lower()} with: ", end = "")
         list_len = len(current_room.items)
