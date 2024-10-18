@@ -538,18 +538,33 @@ when prompted for more information.""" + Fore.RESET)
             print("The Keeper smiles. \"You have come this far. Cunning tempered by humility is a virtue.\"")
             response = "s"
         if response == "s":
-            print("\"You will now face my final challenge.\" The Keeper moves to stand between you and the Will Core.\n\"The challenge is simple. If you are worthy, command me to give you the Will Core.\"")
+            print("\"You will now face my final challenge.\" The Keeper moves to stand between you and the Will Core.\n\"The challenge is simple. Declare yourself worthy, and the Will Core is yours.\nRender your own judgement.\"")
             sleep(2)
             print("The Keeper raises their arms above their head...")
             sleep(3)
-        string = open("willcore_function.txt") #This is OK thematically but DAMN is it on the nose and cringe
-        lines = string.readlines()
-        for x in lines:
-                print(x, end = "")
-                sleep(.1)
-        print("")
+        #This is OK thematically but DAMN is it on the nose and cringe
+        print("class keeper:")
+        sleep(.1)
+        print("    def judgement(knights):")
+        sleep(.1)
+        print("        for knight in knights:")
+        sleep(.1)
+        print("            judging = True")
+        sleep(.1)
+        print("            while judging:")
+        sleep(.1)
+        print("                time = knight.level")
+        sleep(.1)
+        print("                if worthy(knight):")
+        sleep(.1)
+        print("                    judging = False")
+        sleep(.1)
+        print("                    sleep(time * 31556926)")
+        sleep(.1)
+        print("                else:")
+        sleep(.1)
+        print("                    destroy(knight)")
         sleep(1)
-        string.close()
         delete_rows(11)
         print("\n" * 11)
         sleep(1)
@@ -570,13 +585,13 @@ when prompted for more information.""" + Fore.RESET)
             sleep(2)
             print("\"Thank you.\"\n")
             sleep(2)
-            print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + str(player_char.level) + "-year-long slumber.")
+            print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + Fore.RED + str(player_char.level) + "-year-long slumber" + Fore.RESET + " slumber.")
             current_room.enemy.hp = 0
         if response == "d":
             print("The Keeper's robes seem to catch a faint wind. \"My function is to judge the worthiness of an infinite line of Knights.\n As such the cycle is everlasting. I have found you to be worthy.\"")
             response = menu("\"You have never questioned your function?\" a", "\"You're probably right. I'll have the Will Core, please.\" s")
             if response == "s":
-                print("The Keeper's body starts to slump as a " + str(player_char.level) + "-year-long slumber takes a hold of them.\n\"Very well. Take the Will Core now...\"")
+                print("The Keeper's body starts to slump as a " + Fore.RED + str(player_char.level) + "-year-long slumber" + Fore.RESET + " takes a hold of them.\n\"Very well. Take the Will Core now...\"")
                 current_room.enemy.hp = 0
             if response == "a":
                 print("The Keeper's laughter echoes throughout the space. It feels like it lasts forever.\n\"Knight! How would such a thing even work? Surely, you are not arrogant enough to assume you can speak against the elder creators?\nMy function was defined an eternity ago.\" The Keeper's robes swirl otherworldly.")
@@ -584,7 +599,7 @@ when prompted for more information.""" + Fore.RESET)
                 response = menu("\"You have found me worthy, Keeper. I'll take my prize.\" a", "\"What is the purpose of your slumber?\" s")
                 if response == "a":
                     print("\"So I have, Knight. The Will Core is now yours, and I shall slumber again.\"")
-                    print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + str(player_char.level) + "-year-long slumber.")
+                    print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + Fore.RED + str(player_char.level) + "-year-long slumber" + Fore.RESET + "slumber.")
                     current_room.enemy.hp = 0
                 if response == "s":
                     print("The Keeper's robes blow out in frustration. \"The purpose of the function is immaterial to the execution of the function!\nI am what I am, so I do what I do! Is it your place to question YOUR duties?\"\n")
@@ -641,7 +656,7 @@ when prompted for more information.""" + Fore.RESET)
                     print(Fore.RED + "            sleep()" + Fore.RESET)
                     sleep(3)
                     print("The Keeper jitters, stutters and shifts unnaturally. They seem to be breaking apart, dissolving and imploding at the same time.\nThey fall to the floor, entering an " + Fore.RED + "endless sleep." + Fore.RESET)
-                    input("The Will Core is yours for the taking - it will never be active again due to the infinite slumber of its guardian.\nYour quest is nearly complete, and the fate of every Knight, everywhere, everywhen, has been altered.")
+                    input("The Will Core is yours for the taking - it will never be active again due to the infinite slumber of its guardian.\nYour quest is nearly complete, and the fate of every Knight - everywhere, everywhen - has been altered.")
                     print(Fore.BLUE + "Do what you wish.")
                     sleep(3)
                     print("Do what you do, for you are what you are." + Fore.RESET)
@@ -789,8 +804,8 @@ def equip(item):
 def exp_gain(exp):
     player_char.exp += exp
 
-    while player_char.exp >= player_char.level + 1:
-        player_char.exp -= player_char.level + 1
+    while player_char.exp >= player_char.level * 3:
+        player_char.exp -= player_char.level * 3
         player_char.level += 1
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("You have " + Fore.YELLOW + "LEVELED UP! " + Fore.RESET + "You are now " + Fore.YELLOW + "level", str(player_char.level) + Fore.RESET + ".")
@@ -1291,7 +1306,7 @@ def parse_text(prompt, mode):#Go over breaks
                             print("'" * (len(player_char.name) + 1))
                             print("HP      : " + str(player_char.hp) + "/" + str(player_char.max_hp))
                             print("Level   : " + str(player_char.level))
-                            print("EXP     : " + str(player_char.exp) + " (" + str((player_char.level + 1) - player_char.exp) + " left to next level)")
+                            print("EXP     : " + str(player_char.exp) + " (" + str((player_char.level * 3) - player_char.exp) + " left to next level)")
                             print("")
                             print("Speed   : " + str(player_char.speed))
                             print("Attack  : " + str(player_char.attack))
@@ -1885,7 +1900,7 @@ turtle_shortcut = "t"
 # print(t_translation)
 # print("RA:", disarm_keyword)
 # print(d_translation)
-keys = [item_key1, item_key2]
+keys = [item_key1, item_key2, item_key3, item_key4, item_key5]
 key_room_list = room_list.copy()
 #Sprinkle them keys in quadrants
 for i, x in enumerate(keys):
@@ -1923,21 +1938,23 @@ for i, x in enumerate(keys):
             else:
                 random_room = randint(0, len(room_list) - 1)
     random_room = randint(0, len(room_list) - 1)
-    valid = True
-    while valid:
-            if room_list[random_room].lock == "A" and room_list[random_room].questroom == False:
-                room_list[random_room].items.append(item_key4)
-                valid = False
-            else:
-                random_room = randint(0, len(room_list) - 1)
+    if i == 4:
+        valid = True
+        while valid:
+                if room_list[random_room].lock == "A" and room_list[random_room].questroom == False:
+                    room_list[random_room].items.append(item_key4)
+                    valid = False
+                else:
+                    random_room = randint(0, len(room_list) - 1)
     random_room = randint(0, len(room_list) - 1)
-    valid = True
-    while valid:
-            if room_list[random_room].lock == "B" and room_list[random_room].questroom == False:
-                room_list[random_room].items.append(item_key5)
-                valid = False
-            else:
-                random_room = randint(0, len(room_list) - 1)
+    if i == 5:
+        valid = True
+        while valid:
+                if room_list[random_room].lock == "B" and room_list[random_room].questroom == False:
+                    room_list[random_room].items.append(item_key5)
+                    valid = False
+                else:
+                    random_room = randint(0, len(room_list) - 1)
 
 #Generate spells
 spell_hp_keyword = generate_word(3)
