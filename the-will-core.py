@@ -66,6 +66,7 @@ class potion(consumable):
         if potion.name.lower() == "max hp potion":
             player_char.base_hp += 2
             update_stats()
+            hp_gain(2)
             print("Used Max HP potion for +2 max HP!")
         if potion.name.lower() == "swift potion":
             player_char.base_speed += 1
@@ -414,26 +415,26 @@ when prompted for more information.""" + Fore.RESET)
                 if current_room.enemy.level > 1:
                     if en_move_random == 1:
                         print("\nYou hear a voice booming through the dungeon:")
-                        print("\"" + ra_translation.upper() + "!\"")
+                        print(Fore.RED + "\"" + ra_translation.upper() + "!\"" + Fore.RESET)
                         if relentless_attack_heard == False:
                             relentless_attack_heard = True
-                            item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + ra_translation.upper() + "!\""
+                            item_logbook.text += "\n• You heard a voice in the dungeon saying:" + Fore.RED + " \"" +  ra_translation.upper() + "!\"" + Fore.RESET
                         input("The enemy is inspired to do a Relentless Attack!\nPress Enter to continue.")
                         enemy_move = relentless_attack_keyword
                     elif en_move_random == 2:
                         print("\nYou hear a voice booming through the dungeon:")
-                        print("\"" + t_translation.upper() + "!\"")
+                        print(Fore.RED + "\"" + t_translation.upper() + "!\"" + Fore.RESET)
                         if turtle_heard == False:
                             turtle_heard = True
-                            item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + t_translation.upper() + "!\""
+                            item_logbook.text += "\n• You heard a voice in the dungeon saying:" + Fore.RED + " \"" + t_translation.upper() + "!\"" + Fore.RESET
                         input("The enemy is inspired to do a Turtle move!\nPress Enter to continue.")
                         enemy_move = turtle_keyword
                     elif en_move_random == 3:
                         print("\nYou hear a voice booming through the dungeon:")
-                        print("\"" + d_translation.upper() + "!\"")
+                        print(Fore.RED + "\"" + d_translation.upper() + "!\"" + Fore.RESET)
                         if disarm_heard == False:
                             disarm_heard = True
-                            item_logbook.text += "\n• You heard a voice in the dungeon saying: \"" + d_translation.upper() + "!\""
+                            item_logbook.text += "\n• You heard a voice in the dungeon saying:" + Fore.RED + " \"" + d_translation.upper() + "!\"" + Fore.RESET
                         input("The enemy is inspired to do a Disarm move!\nPress Enter to continue.")
                         enemy_move = disarm_keyword
                 delete_row = False
@@ -490,7 +491,7 @@ when prompted for more information.""" + Fore.RESET)
         if response == "a":
             print("The Keeper's pale lips pull into a wry smile, revealing prismatic teeth.")
             print("There is no sorcery, Knight. I materialized together with the Will Core aeons ago to act as a steward of its powers.\nI was always here, just as I am everywhere.\n")
-            response = menu("\"No matter! My duty is to the King\" a")
+            response = menu("\"No matter! My duty is to the King and the Will Core shall be mine.\" a")
             response = "s"
         if response == "s":
             print("The Keeper shrugs their shoulders and extend their arms in an inviting motion.\n\"If you must. Take it.\"\n")
@@ -745,9 +746,23 @@ def combat_move():
             print(Fore.GREEN + player_char.name + " is " + choice(["reasonably", "moderately", "sort of", "not overly", "politely indicating that they are"]) + " impressed by your cheering." + Fore.RESET)
 def death(cause):
     print("You have fallen at the hands of " + cause + ".")
-    with open("willcore_gameover.txt") as f:
-        print(f.read())
-        f.close()
+    print(Fore.BLUE)
+    print(r"""      # ###                                                 # ###                                      
+    /  /###  /                                            /  /###                                      
+   /  /  ###/                                            /  /  ###                                     
+  /  ##   ##                                            /  ##   ###  ##                                
+ /  ###                                                /  ###    ### ##                                
+##   ##            /###   ### /### /###     /##       ##   ##     ##  ##    ###      /##  ###  /###    
+##   ##   ###     / ###  / ##/ ###/ /##  / / ###      ##   ##     ##   ##    ###    / ###  ###/ #### / 
+##   ##  /###  / /   ###/   ##  ###/ ###/ /   ###     ##   ##     ##   ##     ###  /   ###  ##   ###/  
+##   ## /  ###/ ##    ##    ##   ##   ## ##    ###    ##   ##     ##   ##      ## ##    ### ##         
+##   ##/    ##  ##    ##    ##   ##   ## ########     ##   ##     ##   ##      ## ########  ##         
+ ##  ##     #   ##    ##    ##   ##   ## #######       ##  ##     ##   ##      ## #######   ##         
+  ## #      /   ##    ##    ##   ##   ## ##             ## #      /    ##      ## ##        ##         
+   ###     /    ##    /#    ##   ##   ## ####    /       ###     /     ##      /  ####    / ##         
+    ######/      ####/ ##   ###  ###  ### ######/         ######/       ######/    ######/  ###        
+      ###         ###   ##   ###  ###  ### #####            ###          #####      #####    ###       """)
+    print(Fore.RESET)
     input("Press Enter to exit in shame.")
     exit()
 def delete_rows(rows):
@@ -909,7 +924,7 @@ def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika
         name_list = ["Terrible Knight", "Strong Fish", "Necromancer", "Weeb"]
         for i, x in enumerate(name_list):
             name_list[i] += " +" + str(lvl-9)
-    gen_enemy = enemy(lvl*4, lvl + 1, lvl*2, lvl*2, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
+    gen_enemy = enemy(lvl*4, lvl + 1, lvl, lvl, lvl - 1, choice(name_list), {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], lvl)
     if lvl == 1:
         gen_enemy.inventory["Main Hand"] = choice([item_dagger, item_bludgeon, item_staff])
     elif lvl == 2:
@@ -1134,11 +1149,73 @@ def generate_word(syllables):
         name = syl2
     return name
 def help():
-    print("---------------")
-    with open("willcore_help.txt") as f:
-            print(f.read())
-            f.close()
-    print("---------------")
+    print(r"""Command List:
+
+In the main menu, items are listed in the following way:
+[no.][name][shortcut]
+In the main menu, you can write either of these things to make a choice.
+Outside the main menu, such as in your inventory or exploring a room, some
+commands are available to you. 
+
+.........
+Inventory
+'''''''''
+"in"  - Inspect
+        Display stats of an item or text of a scroll.
+        "in self" will inspect your current stats.
+"eq"  - Equip
+        Requires an item in your backpack
+        Switch your currently equipped item for the specified item 
+"uneq"- Unequip
+        Put an equipped item back in your backpack.
+"d"   - Drop item
+        Remove item from your backpack onto the ground of the room
+        you are in.
+        (explore the room to pick it back up)
+"use" - Use item
+        Will use items such as potions in your backpack.
+"burn"- Burn readables
+        Can be used to declutter your inventory from scrolls and pages.
+        "burn all" will burn all scrolls and pages in inventory, save your logbook.
+...........
+Exploration
+'''''''''''
+"in"  - Inspect
+        Can only be done with no live enemies in room
+        Display stats of an item.
+        "in self" will inspect your current stats.
+        "in enemy" or "in [name]" will inspect the enemy's stats.
+"t"   - Take
+        Can only be done with no live enemies in room
+        Takes item(s) from somewhere.
+        "t all" takes all items in the room.
+"burn"- Burn items
+        Can be used to declutter the ground of a room and get rid
+        of items you don't want. Use with caution!
+"m"   - Return to menu
+        Use in inventory or while exploring to return to menu
+
+......
+Combat
+''''''
+
+"e"   - Escape
+        Use to exit combat.
+"move"- Special moves
+        Show all known Special Moves
+
+Combat stats:
+Damage : How much damage your attack will inflict.
+HP     : How much damage you can take before falling in battle.
+Speed  : How fast your turn timer increments.
+Attack : How likely your attack is to hit.
+Defense: How likely you are to avoid an incoming attack.
+Armor  : How much incoming damage you block.
+
+Once your turn timer reaches max, you will execute a move. If you
+press Enter without entering a value, you will perform an unmodified
+attack. If you enter a value you will do a special move. Type "move"
+when prompted for more information.""")
 def hp_gain(hp_gain):
     player_char.hp += hp_gain
     if player_char.hp > player_char.max_hp:
@@ -1237,7 +1314,7 @@ def menu(*choices):
             parse_list = choice.rsplit(" ", 1)
             text = parse_list[0]
             shortcut = parse_list[1]
-            print(str(x + 1) + " " + text + " [" + shortcut + "]")
+            print("[" + Fore.YELLOW +str(x + 1) + Fore.RESET + "]" +  " " + text + " [" + shortcut + "]")
         menu_choice= input(Fore.YELLOW + "What do you wish to do?\n" + Fore.RESET + ">>>")
         for x, choice in enumerate(choices):
             parse_list = choice.rsplit(" ", 1)
@@ -1261,9 +1338,7 @@ def parse_text(prompt, mode):#Go over breaks
             parse = False
             break
         if list[0].lower() == "help": #display help file
-                with open("willcore_help.txt") as f:
-                    print(f.read())
-                    f.close()
+                help()
         if mode == "in": #---------------------------------------------------------------mode set to inventory
             found = False
             if valid_text(list[0], "in", "eq", "uneq", "use", "d", "burn", "help"):
@@ -1401,6 +1476,7 @@ def parse_text(prompt, mode):#Go over breaks
                                             found = True
                         if found == False:
                             print(list[1].lower() + " is not flammable.")
+                            found = True
                             print("---------------")
                 if list[0].lower() == "d": #drop command in inventory
                     if len(list) > 1:
@@ -1422,6 +1498,7 @@ def parse_text(prompt, mode):#Go over breaks
                                     found = True
                                     print("Dropped the " + drop_item.name.lower())
                                     print("---------------")
+                                    menu_force = "i"
                                     break
                         if found == False:
                             print("\"" + list[1] + "\"" + " not found.")
@@ -1666,12 +1743,12 @@ def spellcasting():
     global spell_armor_found
     global tut_spell
     if tut_spell == True:
-        print(Fore.GREEN + "This menu is used to cast Magic Spells! If only there was a way to figure out what the magic words are..." + Fore.RESET)
+        print(Fore.GREEN + "This menu is used to cast Magic Spells! If only there was a way to figure out what the " + Fore.MAGENTA + "magic words " + Fore.GREEN + "are..." + Fore.RESET)
         tut_spell = False
     print("............")
     print("SPELLCASTING")
     print("''''''''''''")
-    spell_word = input("What is the magic spell?\n")
+    spell_word = input("What is the " + Fore.MAGENTA + "magic spell" + Fore.RESET + "?\n")
     if spell_word.lower() == spell_hp_keyword.lower():
         if spell_hp_found == False:
             spell_fanfare()
@@ -1679,7 +1756,7 @@ def spellcasting():
             hp_gain(5)
             spell_hp_found = True
             input("You cast the magic healing spell!\nMax HP increased by 5!")
-            item_logbook.text += "\n- You have cast the Healing Spell \"" + spell_hp_keyword + "\" for +5 Max HP!"
+            item_logbook.text += "\n- You have cast the Healing Spell \"" + Fore.MAGENTA + spell_hp_keyword + Fore.RESET + "\" for +5 Max HP!"
         else:
             input("You cast the magic healing spell!\n... But you have already gained its power.")
     elif spell_word.lower() == spell_speed_keyword.lower():
@@ -1688,7 +1765,7 @@ def spellcasting():
             player_char.speed += 2
             spell_speed_found = True
             input("You cast the magic speed spell!\nSpeed increased by 2!")
-            item_logbook.text += "\n- You have cast the Speed Spell \"" + spell_speed_keyword + "\" for +2 Speed!"
+            item_logbook.text += "\n- You have cast the Speed Spell \"" + Fore.MAGENTA + spell_speed_keyword + Fore.RESET + "\" for +2 Speed!"
         else:
             input("You cast the magic speed spell!\n... But you have already gained its power.")
     elif spell_word.lower() == spell_armor_keyword.lower():
@@ -1697,17 +1774,27 @@ def spellcasting():
             player_char.armor += 2
             spell_armor_found = True
             input("You cast the magic armor spell!\nArmor increased by 2!")
-            item_logbook.text += "\n- You have cast the Armor Spell \"" + spell_armor_keyword + "\" for +2 Armor!"
+            item_logbook.text += "\n- You have cast the Armor Spell \""+ Fore.MAGENTA + spell_armor_keyword + Fore.RESET +  "\" for +2 Armor!"
         else:
             input("You cast the magic armor spell!\n... But you have already gained its power.")
     else:
         input("No such spell - spell failed!")
 def spell_fanfare():
+    print(Fore.YELLOW)
     i = 0
     for i in range(7):
         if i % 2 == 0:
-            with open("willcore_spell.txt") as f:
-                print(f.read())
+            print(r"""
+   _________   ___________   ________  _____  ______
+  / ____/   | / ___/_  __/  /_  __/ / / /   |/_  __/
+ / /   / /| | \__ \ / /      / / / /_/ / /| | / /   
+/ /___/ ___ |___/ // /      / / / __  / ___ |/ /    
+\____/_/ _|_/____//_/__    /_/ /_/ /_/_/  |_/_/_    
+  / ___// __ \/ ____/ /   / /         \ \/ / __ \   
+  \__ \/ /_/ / __/ / /   / /           \  / / / /   
+ ___/ / ____/ /___/ /___/ /____        / / /_/ /    
+/____/_/   /_____/_____/_____( )      /_/\____/     
+                             |/                     """)
             sleep(1)
         else:
             delete_rows(11)
@@ -1715,7 +1802,7 @@ def spell_fanfare():
             sleep(0.3)
             delete_rows(11)
         i += 1
-    f.close()
+    print(Fore.RESET)
 def split_text(text):
     str1, str2 = text[:len(text)//2], text[len(text)//2:] 
     return [str1, str2]
@@ -1771,7 +1858,7 @@ def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
         print(Fore.GREEN + "Welcome to Hunt for the Will Core! Tutorial messages like this will appear the first time you use\na new menu, such as your Inventory or Fight. It will give you an overview of the current actions\navailable to you. If you want a reminder, go to the Main Menu (type \"m\" from any other menu)\nand use the command \"reset\" to reset tutorials.\n\nThis is the Main Menu of the game. From here, you can type commands\nin order to access different areas of the game. The Main Menu is structured like this:\n[no.][name][shortcut]\nYou can use either the number, name or shortcut to go to a different menu." + Fore.RESET)
         tut_main = False
     if menu_force == "":
-        menu_choice = menu( "Explore Room ex", "Navigate Dungeon nav", "Inventory i", "Spell Casting spell", "Help help", "Reset Tutorials reset")
+        menu_choice = menu("Explore Room ex", "Navigate Dungeon nav", "Inventory i", "Spell Casting spell", "Help help", "Reset Tutorials reset")
     else:
         menu_choice = menu_force
     menu_force = ""
@@ -1929,16 +2016,8 @@ for i, x in enumerate(keys):
                 valid = False
             else:
                 random_room = randint(0, len(room_list) - 1)
-    if i == 3:
-        valid = True
-        while valid:
-            if room_list[random_room].lock == "C" and room_list[random_room].questroom == False:
-                room_list[random_room].items.append(x)
-                valid = False
-            else:
-                random_room = randint(0, len(room_list) - 1)
     random_room = randint(0, len(room_list) - 1)
-    if i == 4:
+    if i == 3:
         valid = True
         while valid:
                 if room_list[random_room].lock == "A" and room_list[random_room].questroom == False:
@@ -1947,7 +2026,7 @@ for i, x in enumerate(keys):
                 else:
                     random_room = randint(0, len(room_list) - 1)
     random_room = randint(0, len(room_list) - 1)
-    if i == 5:
+    if i == 4:
         valid = True
         while valid:
                 if room_list[random_room].lock == "B" and room_list[random_room].questroom == False:
@@ -1963,14 +2042,14 @@ spell_speed_keyword = generate_word(3)
 spell_speed_found = False
 spell_armor_keyword = generate_word(3)
 spell_armor_found = False
-
+print(spell_hp_keyword)
 #Generate spell scrolls
-hp_scroll1 = scroll("Scroll 1", "A torn scroll with the text:\n\"" + Fore.BLUE + split_text(spell_hp_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.BLUE + split_text(spell_hp_keyword)[0] + Fore.RESET + "-\"")
-hp_scroll2 = scroll("Scroll 2", "A torn scroll with the text:\n\"-" + Fore.BLUE + split_text(spell_hp_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.BLUE + split_text(spell_hp_keyword)[1] + Fore.RESET + "\"")
-speed_scroll1 = scroll("Scroll 3", "A torn scroll with the text:\n\"" + Fore.BLUE + split_text(spell_speed_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.BLUE + split_text(spell_speed_keyword)[0] + Fore.RESET + "-\"")
-speed_scroll2 = scroll("Scroll 4", "A torn scroll with the text:\n\"-" + Fore.BLUE + split_text(spell_speed_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.BLUE + split_text(spell_speed_keyword)[1] + Fore.RESET + "\"")
-armor_scroll1 = scroll("Scroll 5", "A torn scroll with the text:\n\"" + Fore.BLUE + split_text(spell_armor_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.BLUE + split_text(spell_armor_keyword)[0] + Fore.RESET + "-\"")
-armor_scroll2 = scroll("Scroll 6", "A torn scroll with the text:\n\"-" + Fore.BLUE + split_text(spell_armor_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.BLUE + split_text(spell_armor_keyword)[1] + Fore.RESET + "\"")
+hp_scroll1 = scroll("Scroll 1", "A torn scroll with the text:\n\"" + Fore.MAGENTA + split_text(spell_hp_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.MAGENTA + split_text(spell_hp_keyword)[0] + Fore.RESET + "-\"")
+hp_scroll2 = scroll("Scroll 2", "A torn scroll with the text:\n\"-" + Fore.MAGENTA + split_text(spell_hp_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.MAGENTA + split_text(spell_hp_keyword)[1] + Fore.RESET + "\"")
+speed_scroll1 = scroll("Scroll 3", "A torn scroll with the text:\n\"" + Fore.MAGENTA + split_text(spell_speed_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.MAGENTA + split_text(spell_speed_keyword)[0] + Fore.RESET + "-\"")
+speed_scroll2 = scroll("Scroll 4", "A torn scroll with the text:\n\"-" + Fore.MAGENTA + split_text(spell_speed_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.MAGENTA + split_text(spell_speed_keyword)[1] + Fore.RESET + "\"")
+armor_scroll1 = scroll("Scroll 5", "A torn scroll with the text:\n\"" + Fore.MAGENTA + split_text(spell_armor_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.MAGENTA + split_text(spell_armor_keyword)[0] + Fore.RESET + "-\"")
+armor_scroll2 = scroll("Scroll 6", "A torn scroll with the text:\n\"-" + Fore.MAGENTA + split_text(spell_armor_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.MAGENTA + split_text(spell_armor_keyword)[1] + Fore.RESET + "\"")
 scroll_list = [hp_scroll1, hp_scroll2, speed_scroll1, speed_scroll2, armor_scroll1, armor_scroll2]
 #Generate combat move dictionary scrolls
 ra_scroll_1 = scroll("Page 1", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + Fore.RED + list(combat_move_dict_verb.values())[ra_word_1] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + Fore.RED +  list(combat_move_dict_verb.values())[ra_word_1] + "\"" + Fore.RESET)
@@ -1978,10 +2057,10 @@ ra_scroll_2 = scroll("Page 2", "A page from a dictionary which reads: \n\"" + Fo
 ra_scroll_3 = scroll("Page 3", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[ra_word_3] +  " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[ra_word_3] + " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"" + Fore.RESET)
 t_scroll_1 = scroll("Page 4", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_skill.keys())[t_word_1] + ": " + Fore.RED + list(combat_move_dict_skill.values())[t_word_1] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_skill.keys())[t_word_1] + ": " + Fore.RED + list(combat_move_dict_skill.values())[t_word_1] + "\"" + Fore.RESET)
 t_scroll_2 = scroll("Page 5", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_praise.keys())[t_word_2] + ": " + Fore.RED + list(combat_move_dict_praise.values())[t_word_2] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_praise.keys())[t_word_2] + ": " + Fore.RED + list(combat_move_dict_praise.values())[t_word_2] + "\"" + Fore.RESET)
-t_scroll_3 = scroll("Page 6", "A page from a dictionary which reads: \n\"your " + Fore.CYAN + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + Fore.RED + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"" + Fore.RESET, Fore.CYAN + "\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + Fore.RED + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"" + Fore.RESET)
+t_scroll_3 = scroll("Page 6", "A page from a dictionary which reads: \n" + Fore.CYAN + "\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + Fore.RED + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"" + Fore.RESET, Fore.CYAN + "\"your " + list(combat_move_dict_skill.keys())[t_word_3] + " are " + list(combat_move_dict_praise.keys())[t_word_4] + ": " + Fore.RED + combat_move_dict_grammar["your"] + " " + list(combat_move_dict_skill.values())[t_word_3] + " " + combat_move_dict_grammar["are"] + " " + list(combat_move_dict_praise.values())[t_word_4] + "\"" + Fore.RESET)
 d_scroll_1 = scroll("Page 7", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[d_word_1] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_1] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_1] + "\"" + Fore.RESET)
 d_scroll_2 = scroll("Page 8", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + Fore.RED + list(combat_move_dict_bodypart.values())[d_word_2] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + Fore.RED + list(combat_move_dict_bodypart.values())[d_word_2] + "\"" + Fore.RESET)
-d_scroll_3 = scroll("Page 9", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"" + Fore.RESET)
+d_scroll_3 = scroll("Page 9", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + " " + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"" + Fore.RESET)
 page_list = [ra_scroll_1, ra_scroll_2, ra_scroll_3, t_scroll_1, t_scroll_2, t_scroll_3, d_scroll_1, d_scroll_2, d_scroll_3]
 
 #Rename and sprinkle scrolls and pages
@@ -2000,21 +2079,110 @@ combat_threshold = 20
 menu_force = ""
 update_stats()
 #GAME START
-with open("willcore_logo.txt") as f:
-    print(f.read())
-    f.close()
+print(Fore.YELLOW)
+print(r"""
+  _   _             _      __              _   _          
+ | | | |_   _ _ __ | |_   / _| ___  _ __  | |_| |__   ___ 
+ | |_| | | | | '_ \| __| | |_ / _ \| '__| | __| '_ \ / _ \
+ |  _  | |_| | | | | |_  |  _| (_) | |    | |_| | | |  __/
+ |_| |_|\__,_|_| |_|\__| |_|  \___/|_|     \__|_| |_|\___|
+         __        ___ _ _    ____                        
+         \ \      / (_) | |  / ___|___  _ __ ___          
+          \ \ /\ / /| | | | | |   / _ \| '__/ _ \         
+           \ V  V / | | | | | |__| (_) | | |  __/         
+            \_/\_/  |_|_|_|  \____\___/|_|  \___|     """)
+print(Fore.RESET)
 
 start = ""
 while start.lower() != "start":
     start = menu("Start start", "Story story", "Help h", "Exit x")
     if start.lower() == "story":
-        with open("willcore_story.txt") as f:
-            print(f.read())
-            f.close()
+        print(r"""---------------------------------------------------------------------
+The mysterious artefact known as the Will Core went missing
+from the college of Mages in Coderia ten years ago, stolen by
+The League of Musical Villainy. There was no trace as to its
+whereabouts until recently, when the Mages picked up its vibes
+from a dungeon which turns out to be the League's hideout.
+A Knight of the realm has been tasked by the King of Coderia, 
+the mighty Lord Hengun, to retrieve this holy object to its rightful,
+i.e. most recent, owner.
+
+The journey to the Lair of Musical Villainy is long and perilous.
+We won't be playing that part though, don't worry. It went fine.
+As you step towards the gate of their dungeon, you feel the pull of
+the Will Core.
+
+If you reach it, you will succeed this day!
+Else you will fall and the Will Core will be lost forever.
+---------------------------------------------------------------------""")
     if start.lower() == "h":
-        with open("willcore_help.txt") as f:
-            print(f.read())
-            f.close()
+        print(r"""Command List:
+
+In the main menu, items are listed in the following way:
+[no.][name][shortcut]
+In the main menu, you can write either of these things to make a choice.
+Outside the main menu, such as in your inventory or exploring a room, some
+commands are available to you. 
+
+.........
+Inventory
+'''''''''
+"in"  - Inspect
+        Display stats of an item or text of a scroll.
+        "in self" will inspect your current stats.
+"eq"  - Equip
+        Requires an item in your backpack
+        Switch your currently equipped item for the specified item 
+"uneq"- Unequip
+        Put an equipped item back in your backpack.
+"d"   - Drop item
+        Remove item from your backpack onto the ground of the room
+        you are in.
+        (explore the room to pick it back up)
+"use" - Use item
+        Will use items such as potions in your backpack.
+"burn"- Burn readables
+        Can be used to declutter your inventory from scrolls and pages.
+        "burn all" will burn all scrolls and pages in inventory, save your logbook.
+...........
+Exploration
+'''''''''''
+"in"  - Inspect
+        Can only be done with no live enemies in room
+        Display stats of an item.
+        "in self" will inspect your current stats.
+        "in enemy" or "in [name]" will inspect the enemy's stats.
+"t"   - Take
+        Can only be done with no live enemies in room
+        Takes item(s) from somewhere.
+        "t all" takes all items in the room.
+"burn"- Burn items
+        Can be used to declutter the ground of a room and get rid
+        of items you don't want. Use with caution!
+"m"   - Return to menu
+        Use in inventory or while exploring to return to menu
+
+......
+Combat
+''''''
+
+"e"   - Escape
+        Use to exit combat.
+"move"- Special moves
+        Show all known Special Moves
+
+Combat stats:
+Damage : How much damage your attack will inflict.
+HP     : How much damage you can take before falling in battle.
+Speed  : How fast your turn timer increments.
+Attack : How likely your attack is to hit.
+Defense: How likely you are to avoid an incoming attack.
+Armor  : How much incoming damage you block.
+
+Once your turn timer reaches max, you will execute a move. If you
+press Enter without entering a value, you will perform an unmodified
+attack. If you enter a value you will do a special move. Type "move"
+when prompted for more information.""")
     if start.lower() == "x":
         exit()
 player_char.name = input("What is the noble Knight's name? ")
