@@ -2042,7 +2042,7 @@ spell_speed_keyword = generate_word(3)
 spell_speed_found = False
 spell_armor_keyword = generate_word(3)
 spell_armor_found = False
-print(spell_hp_keyword)
+
 #Generate spell scrolls
 hp_scroll1 = scroll("Scroll 1", "A torn scroll with the text:\n\"" + Fore.MAGENTA + split_text(spell_hp_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.MAGENTA + split_text(spell_hp_keyword)[0] + Fore.RESET + "-\"")
 hp_scroll2 = scroll("Scroll 2", "A torn scroll with the text:\n\"-" + Fore.MAGENTA + split_text(spell_hp_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.MAGENTA + split_text(spell_hp_keyword)[1] + Fore.RESET + "\"")
