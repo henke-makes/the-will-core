@@ -77,13 +77,14 @@ class potion(consumable):
             #Achievements:
             # - Winner!                     : Won the game!
             # - Idiot Savant                : Won by pissing the Keeper off
-            # - True Ending?                : Outsmart the Keeper
+            # - Cycle Broken                : Outsmart the Keeper
+            # - No Muss No Fuss             : Fukn killed the Keeper
             # - Magic User                  : Cast all the spells 
             # - Combatant                   : Unlocked every combat move
             # - Hardcore                    : Won the game at character level [whatever is hard but doable] or lower
             # - Fire Starter                : Burned every scroll and page
-            # - Twister Fire Starter        : Burned every scroll and page before reading it
-            # - HARDCORE Hardcore           : Unlocked "Hardcore" and "Twister Fire Starter" on the same run (?)
+            # - Twisted Fire Starter        : Burned every scroll and page before reading it
+            # - HARDCORE Hardcore           : Unlocked "Hardcore" and "Twisted Fire Starter" on the same run (?)
             # - Bookworm                    : Translated all the lore text (?)
             # - Hail to the King, Baby      : Found the secret weapon
             # - Merciless                   : Killed every monster
@@ -490,7 +491,7 @@ when prompted for more information.""" + Fore.RESET)
         response = menu("\"What is this sorcery?\" a", "\"Step aside, Keeper! My quest and my honor requires me to deliver the Will Core to the King.\" s")
         if response == "a":
             print("The Keeper's pale lips pull into a wry smile, revealing prismatic teeth.")
-            print("There is no sorcery, Knight. I materialized together with the Will Core aeons ago to act as a steward of its powers.\nI was always here, just as I am everywhere.\n")
+            print("\"There is no sorcery, Knight. I materialized together with the Will Core aeons ago to act as a steward of its powers.\nI was always here, just as I am everywhere.\"\n")
             response = menu("\"No matter! My duty is to the King and the Will Core shall be mine.\" a")
             response = "s"
         if response == "s":
@@ -539,7 +540,7 @@ when prompted for more information.""" + Fore.RESET)
             print("The Keeper smiles. \"You have come this far. Cunning tempered by humility is a virtue.\"")
             response = "s"
         if response == "s":
-            print("\"You will now face my final challenge.\" The Keeper moves to stand between you and the Will Core.\n\"The challenge is simple. Declare yourself worthy, and the Will Core is yours.\nRender your own judgement.\"")
+            print("\"You will now face my final challenge.\" The Keeper moves to stand between you and the Will Core.\n\"The challenge is simple. The Will Core is yours if you declare yourself worthy.\nI am letting you define how your judgement shall be evaluated.\"")
             sleep(2)
             print("The Keeper raises their arms above their head...")
             sleep(3)
@@ -550,125 +551,132 @@ when prompted for more information.""" + Fore.RESET)
         sleep(.1)
         print("        for knight in knights:")
         sleep(.1)
-        print("            judging = True")
-        sleep(.1)
         print("            while judging:")
         sleep(.1)
         print("                time = knight.level")
         sleep(.1)
         print("                if worthy(knight):")
         sleep(.1)
-        print("                    judging = False")
-        sleep(.1)
         print("                    sleep(time * 31556926)")
+        sleep(.1)
+        print("                    break")
         sleep(.1)
         print("                else:")
         sleep(.1)
         print("                    destroy(knight)")
+        sleep(.1)
+        print("                    break")
         sleep(1)
         delete_rows(11)
         print("\n" * 11)
         sleep(1)
-        response = menu("\"I am worthy! Give me the Will Core, Keeper!\" a", "*SNEAK IN AND GRAB THE WILL CORE* s", "\"Hold on... What was that?\" d")
+        print("The Keeper flickers and fades for a second.")
+        response = menu(f"\"{player_char.name} is worthy.\" a", "*SNEAK IN AND GRAB THE WILL CORE* s", "\"Hold on... What was that?\" d")
         if response == "s":
             if on_notice == True:
                 print("The Keeper's hands drop to their side. \"Are you se-- OK, you know what -\"")
                 sleep(2)
                 death("the Keeper, for not being chill")
             elif idiot == 2:
-                print("The Keeper's hands drop to their side. \"Are you se-- OK, you know what, fine. FINE. I'm sick of your shit,\njust take the Will Core and get out before I lose my temper.\" The Keeper lays down on the ground, sick of your shit.")
+                print("The Keeper's hands drop to their side. \"Are you se-- OK, you know what, fine. FINE. I'm sick of your shit,\njust take the Will Core and get out before I lose my temper.\" The Keeper lays down on the ground, " + Fore.BLUE + "sick of your shit." + Fore.RESET)
                 current_room.enemy.hp = 0
             else:
                 print("The Keeper is exasperated by you, but you seem to have gotten away with it.\n\"I was in a great mood prior to all this, so I'll let that one slide.\"")
                 response = "a"
         if response == "a":
+            print("def worthy():")
+            sleep(1)
+            print(f"    if knight.name == \"{player_char.name}\":")
+            sleep(2)
+            print("        return True")
+            sleep(2)
+            delete_rows(1)
+            print(Fore.BLUE + "        return True" + Fore.RESET)
+            sleep(2)
             print("The Keeper lowers their arms and looks at the Knight. Though the eyes are hidden the Knight feels watched from every direction at once.\n")
             sleep(2)
-            print("\"Thank you.\"\n")
+            print("\"By declaring yourself worthy, you have understood the mechanism by which worth is evaluated. " + Fore.BLUE + "Well done.\"\n" + Fore.RESET)
             sleep(2)
             print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + Fore.RED + str(player_char.level) + "-year-long slumber" + Fore.RESET + " slumber.")
             current_room.enemy.hp = 0
         if response == "d":
-            print("The Keeper's robes seem to catch a faint wind. \"My function is to judge the worthiness of an infinite line of Knights.\n As such the cycle is everlasting. I have found you to be worthy.\"")
-            response = menu("\"You have never questioned your function?\" a", "\"You're probably right. I'll have the Will Core, please.\" s")
-            if response == "s":
-                print("The Keeper's body starts to slump as a " + Fore.RED + str(player_char.level) + "-year-long slumber" + Fore.RESET + " takes a hold of them.\n\"Very well. Take the Will Core now...\"")
-                current_room.enemy.hp = 0
+            print("The Keeper's robes seem to catch a faint wind. \"As my being unfurls in order to accept a new definition of my function, thing become... A bit unstable.\"")
+            response = menu("\"You have never questioned your function?\" a")
             if response == "a":
-                print("The Keeper's laughter echoes throughout the space. It feels like it lasts forever.\n\"Knight! How would such a thing even work? Surely, you are not arrogant enough to assume you can speak against the elder creators?\nMy function was defined an eternity ago.\" The Keeper's robes swirl otherworldly.")
-                print("\"While the conditions of my servitude remain in place, there can be no escape from the cycle, and no escape from the judgement.\nThe sleeper shall always wake and resume the work.\"")
-                response = menu("\"You have found me worthy, Keeper. I'll take my prize.\" a", "\"What is the purpose of your slumber?\" s")
+                print("The Keeper's laughter echoes throughout the space. It feels like it lasts forever.\n\"Knight! How would such a thing even work? Surely, you are not arrogant enough to assume you can speak against the elder creators?\nMy function was defined an eternity ago.\" The Keeper's robes swirl like viscous ink.")
+                print("\"While the conditions of my servitude remain in place, there can be no escape from the cycle, and no escape from the judgement.\nThe sleeper shall always wake and resume the work.\"\n")
+                response = menu("\"What is the purpose of your slumber?\" a")
                 if response == "a":
-                    print("\"So I have, Knight. The Will Core is now yours, and I shall slumber again.\"")
-                    print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + Fore.RED + str(player_char.level) + "-year-long slumber" + Fore.RESET + "slumber.")
-                    current_room.enemy.hp = 0
-                if response == "s":
                     print("The Keeper's robes blow out in frustration. \"The purpose of the function is immaterial to the execution of the function!\nI am what I am, so I do what I do! Is it your place to question YOUR duties?\"\n")
                     menu("\"Good faith questions strengthen the foundation of our convictions.\" a")
-                    print("The Keeper's innumerable eyes shift and swirl below their cowl.\n\"My function is not a stance I have come to through reasoned debate, it is simply part of my definition.\"")
-                    menu("\"Is it part of your function to alter your function?\" a")
-                    print("The Keeper's body jitters beneath the robes. \"Altering my function would go against my current function.\"")
-                    menu("\"Don't avoid the question, Keeper. Your need for sleep is arbitrary, is it not?\" a")
-                    print("")
-                    print("The Keeper squirms uncomfortably.")
-                    print("\"While true, sleep is part of my--\"")
-                    sleep(2)
-                    delete_rows(1)
-                    print(Fore.RED + "\"While " + Fore.RESET + "true, sleep is part of my--\"")
-                    sleep(2)
-                    delete_rows(1)
-                    print(Fore.RED + "\"While true, "  + Fore.RESET + "sleep is part of my--\"")
-                    sleep(2)
-                    delete_rows(1)
-                    print(Fore.RED + "\"While true, sleep " + Fore.RESET + "is part of my--\"")
-                    sleep(2)
-                    delete_rows(1)
-                    print(Fore.RED + "WHILE TRUE: SLEEP" + Fore.RESET)
-                    string = open("willcore_function.txt") #This is OK thematically but DAMN is it on the nose and cringe
-                    lines = string.readlines()
-                    for x in lines:
-                            print(x, end = "")
-                            sleep(.1)
-                    print("")
-                    sleep(2)
-                    delete_rows(11)
-                    j = 0
-                    while j < len(lines) + 1:
-                        for i, x in enumerate(lines):
-                            if i < len(lines) - j:
-                                print(x, end = "")
-                            else:
-                                print("")
-                        print("")
-                        sleep(.5)
-                        delete_rows(12)
-                        j += 1
-                    string.close()
-                    sleep(1)
-                    print("class keeper:")
-                    sleep(.3)
-                    print("    def judgement():")
-                    sleep(1)
-                    print("        while True:")
-                    sleep(2)
-                    print("            sleep()")
-                    sleep(2)
-                    delete_rows(1)
-                    print(Fore.RED + "            sleep()" + Fore.RESET)
-                    sleep(3)
-                    print("The Keeper jitters, stutters and shifts unnaturally. They seem to be breaking apart, dissolving and imploding at the same time.\nThey fall to the floor, entering an " + Fore.RED + "endless sleep." + Fore.RESET)
-                    input("The Will Core is yours for the taking - it will never be active again due to the infinite slumber of its guardian.\nYour quest is nearly complete, and the fate of every Knight - everywhere, everywhen - has been altered.")
-                    print(Fore.BLUE + "Do what you wish.")
-                    sleep(3)
-                    print("Do what you do, for you are what you are." + Fore.RESET)
-                    sleep(3)
-                    print("\nThe room shifts back into focus, and you stand there alone. The Keeper is on the ground, as they will always be from now on.")
-                    current_room.enemy.hp = 0
+                    print("The Keeper's innumerable eyes shift and swirl below their cowl.\n\"My function is not a considered stance I have come to through reasoned debate or reflection.\nIt is simply part of my definition.\"\n")
+                    menu("\"And it is part of your function to alter your function?\" a")
+                    print("The Keeper's body jitters beneath the robes. \"Not me. Altering my function is part of the judgement.\"\n")
+                    menu("\"And I am free to alter your function however I wish?\" a")
+                    print("\"However you wish. Although...\" The Keeper flashes a sly, otherworldy smile. \"... Three words are enough.\"\n")
+                    response = menu(f"\"{player_char.name} is worthy.\" a", f"\"Any three words, huh... How about...\"\n{Fore.RED}      WARNING: This option only has two right answers, any other response will render your judgement unworthy.{Fore.RESET} s")
+                    if response == "a":
+                        print("def worthy():")
+                        sleep(1)
+                        print(f"    if knight.name == \"{player_char.name}\":")
+                        sleep(2)
+                        print("        return True")
+                        sleep(2)
+                        delete_rows(1)
+                        print(Fore.BLUE + "        return True" + Fore.RESET)
+                        sleep(2)
+                        print("The Keeper lowers their arms and looks at the Knight. Though the eyes are hidden the Knight feels watched from every direction at once.\n")
+                        sleep(2)
+                        print("\"By declaring yourself worthy, you have understood the mechanism by which worth is evaluated. " + Fore.BLUE + "Well done.\"\n" + Fore.RESET)
+                        sleep(2)
+                        print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + Fore.RED + str(player_char.level) + "-year-long slumber" + Fore.RESET + " slumber.")
+                        current_room.enemy.hp = 0
+                    if response == "s":
+                        response = input(Fore.YELLOW + "Which three words will you define as the Keeper's function?\n>>>" + Fore.RESET)
+                        if response.lower() == player_char.name.lower() + " is worthy":
+                            print("def worthy():")
+                            sleep(1)
+                            print(f"    if knight.name == \"{player_char.name}\":")
+                            sleep(2)
+                            print("        return True")
+                            sleep(2)
+                            delete_rows(1)
+                            print(Fore.BLUE + "        return True" + Fore.RESET)
+                            sleep(2)
+                            print("The Keeper lowers their arms and looks at the Knight. Though the eyes are hidden the Knight feels watched from every direction at once.\n")
+                            sleep(2)
+                            print("\"By declaring yourself worthy, you have understood the mechanism by which worth is evaluated. " + Fore.BLUE + "Well done.\"\n" + Fore.RESET)
+                            sleep(2)
+                            print("The Keeper's judgement is complete, and you are found worthy of the Will Core. The Keeper falls to the ground, suddenly gripped by a " + Fore.RED + str(player_char.level) + "-year-long slumber" + Fore.RESET + " slumber.")
+                            current_room.enemy.hp = 0
+                        elif response.lower() == "while true sleep":
+                            print("class keeper:")
+                            sleep(.3)
+                            print("    def judgement():")
+                            sleep(1)
+                            print("        while True:")
+                            sleep(2)
+                            print("            sleep()")
+                            sleep(2)
+                            delete_rows(1)
+                            print(Fore.RED + "            sleep()" + Fore.RESET)
+                            sleep(3)
+                            print("The Keeper jitters, stutters and shifts unnaturally. They seem to be breaking apart, dissolving and imploding at the same time.\nThey fall to the floor, entering an " + Fore.RED + "endless sleep." + Fore.RESET)
+                            input("The Will Core is yours for the taking - it will never be active again due to the infinite slumber of its guardian.\nYour quest is nearly complete, and the fate of every Knight - everywhere, everywhen - has been altered.")
+                            print(Fore.BLUE + "Do what you wish.")
+                            sleep(3)
+                            print("Do what you do, for you are what you are." + Fore.RESET)
+                            sleep(3)
+                            print("\nThe room shifts back into focus, and you stand there alone. The Keeper is on the ground, as they will always be from now on.")
+                            current_room.enemy.hp = 0
+                        else:
+                            print("The Keeper has evaluated your manipulation of the function and found you " + Fore.RED + "unworthy." + Fore.RESET)
+                            death("the Keeper, for not understanding what makes the Knight worthy of the Will Core")
     elif current_room.enemy.name.lower() == "the keeper" and player_char.inventory["Main Hand"] == item_shotgun and current_room.enemy.hp > 0:
         print("The eternal Keeper of the Will Core stands before the Knight. As they approach, the Keeper's robes sway gently.\n")
         response = menu("Just shoot the damn Keeper a", "If you lay down your arms and come back, this could have a different resolution b")
         if response == "a":
-            print("You fukn kill the Keeper with your shotgun, no muss no fuss. Get the Will Core!\n")
+            print(Fore.RED + "You fukn kill the Keeper with your shotgun, no muss no fuss.\n" + Fore.RESET)
             current_room.enemy.hp = 0
         if response == "b":
             pass
@@ -686,6 +694,7 @@ def combat_move():
         print(Fore.BLUE + "|" + Fore.RESET + " \"a\" - Aimed Attack: " + Fore.BLUE + "|" + Fore.RESET + "  \"d\" - Defensive Strike: " + Fore.BLUE + "|" + Fore.RESET + "       \"e\" - Escape        " + Fore.BLUE + "|" + Fore.RESET)
         print(Fore.BLUE + "|" + Fore.RESET + "   +5 ATK, -5 DEF    " + Fore.BLUE + "|" + Fore.RESET + "      +5 DEF, -5 ATK      " + Fore.BLUE + "|" + Fore.RESET + " \"move\" - Special Move list" + Fore.BLUE + "|" + Fore.RESET)
         print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
+        valid = False
         player_move = input(Fore.YELLOW + "Press enter for a Normal Attack, or type something to cheer " + player_char.name + " on!\n>>>" + Fore.RESET)
         if player_move.lower() == "e":
             print("You will attempt to escape the battle!")
@@ -716,6 +725,7 @@ def combat_move():
                 if disarm_discovered == True:
                     print("Disarm: \"" + disarm_keyword + "\"[" + disarm_shortcut + "]")
                     print("Aim for your opponent's weapon to disarm them. (-8 attack, hit disarms enemy)")
+                valid = True
             else:
                 print("SPECIAL MOVES:\nNo Special Moves discovered!")
         if player_move.lower() == relentless_attack_keyword or player_move.lower() == ra_shortcut: #------------------------------ SPECIAL MOVES
@@ -725,7 +735,7 @@ def combat_move():
                 return True
             elif player_move.lower() == relentless_attack_keyword:
                 relentless_attack_discovered = True
-                print("You have discovered Relentless Attack!\nType \"move\" for more information.")
+                input("You have discovered " + Fore.RED + "Relentless Attack!\n" + Fore.RESET + "Type \"move\" for more information. Press Enter to continue.")
         if player_move.lower() == turtle_keyword or player_move.lower() == turtle_shortcut:
             if turtle_discovered == True:
                 print(player_char.name + " will turtle until next move. (+3 Armor, no attacking)")
@@ -733,7 +743,7 @@ def combat_move():
                 return True
             elif player_move.lower() == turtle_keyword:
                 turtle_discovered = True
-                print("You have discovered Turtle!\nType \"move\" for more information.")
+                input("You have discovered " + Fore.RED + "Turtle!\n" + Fore.RESET + "Type \"move\" for more information. Press Enter to continue.")
         if player_move == disarm_keyword or player_move.lower() == disarm_shortcut:
             if disarm_discovered == True:
                 print(player_char.name + " will attempt to disarm their opponent!")
@@ -741,11 +751,11 @@ def combat_move():
                 return True
             elif player_move.lower() == disarm_keyword:
                 disarm_discovered = True
-                print("You have discovered Disarm!\nType \"move\" for more information.")
-        if player_move != "":
+                input("You have discovered " + Fore.RED + "Disarm!\n" + Fore.RESET + "Type \"move\" for more information. Press Enter to continue.")
+        if player_move != "" and valid == False:
             print(Fore.GREEN + player_char.name + " is " + choice(["reasonably", "moderately", "sort of", "not overly", "politely indicating that they are"]) + " impressed by your cheering." + Fore.RESET)
 def death(cause):
-    print("You have fallen at the hands of " + cause + ".")
+    print(Fore.RED + "You have fallen at the hands of " + cause + "." + Fore.RESET)
     print(Fore.BLUE)
     print(r"""      # ###                                                 # ###                                      
     /  /###  /                                            /  /###                                      
@@ -1094,7 +1104,7 @@ def generate_world(xsize, ysize):
         random_xpos = room_list[random_room].xpos
         random_ypos = room_list[random_room].ypos
         if room_list[random_room] in q4:
-            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_core, generate_loot(container_core, 1), "This is the Chapel of the Will Core.\nBefore you lies your ultimate prize, and the journey is over.", enemy(20, 10, 5, 5, 4, "The Keeper", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 99), "special", 0)
+            room_list[random_room] = room(random_xpos, random_ypos, 0, "     ", "     ", "     ", container_core, generate_loot(container_core, 1), "This is the " + Fore.BLUE + "Chapel of the Will Core.\n" + Fore.RESET + "It is a richly adorned room with itricate marble statues lining the walls, all\nseeming to regard the Knight with calculating eyes. In the middle of the room\nstands a pedestal, over which your ultimate prize hovers with a deep hum.\nThere is an inscription at the base of the pedestal:\n\n" + Fore.BLUE + "\"The Cycle Cannot Be Broken.\nThe Cycle Can Only Be Prolonged.\nProlong The Cycle Infinitely.\n" + Fore.RED + lang_dict["while"].upper() + " " + lang_dict["true"].upper() + " " + lang_dict["sleep"].upper() + "\"\n" + Fore.RESET, enemy(99, 99, 99, 99, 99, "The Keeper", {"Helmet": item_dummy, "Armor": item_dummy, "Main Hand": item_dummy, "Off Hand": item_dummy, "Necklace": item_dummy}, [], 99), "special", 0)
             room_list[random_room].questroom = True
             valid = False
     #Sprinkle healing
@@ -1884,10 +1894,18 @@ def main_menu():#Is this obsolete? Use menu_force to make stuff happen w/o this?
         tut_expl = True
         tut_spell = True
 
+#LANGUAGE
+lang_dict = {
+"while": generate_word(3),
+"true": generate_word(2),
+"sleep": generate_word(2)
+}
 #World setup
 map_xsize = 0
 map_ysize = 0
 room_list = generate_world(6, 6)
+#Generate words
+
 #Generate combat moves
 combat_move_dict_bodypart = {
 "head": generate_word(2),
@@ -1899,22 +1917,22 @@ combat_move_dict_bodypart = {
 "toe": generate_word(2),
 }
 combat_move_dict_verb = {
-"kick": generate_word(1),
-"smash": generate_word(1),
-"maul": generate_word(1),
-"knee": generate_word(1),
-"hit": generate_word(1),
+"kick": generate_word(2),
+"smash": generate_word(2),
+"maul": generate_word(2),
+"knee": generate_word(2),
+"hit": generate_word(2),
 "bite": "nums",
 }
 combat_move_dict_grammar = {
     "them": generate_word(2),
     "their": generate_word(2),
     "your": generate_word(2),
-    "are": generate_word(1)
+    "are": generate_word(2)
 }
 combat_move_dict_action = {
-"in the": generate_word(2) + " " + generate_word(1),
-"the heck outta": generate_word(1) + " " + generate_word(2) + " " + generate_word(1),
+"in the": generate_word(2) + " " + generate_word(2),
+"the heck outta": generate_word(2) + " " + generate_word(3) + " " + generate_word(2),
 }
 combat_move_dict_skill = {
     "moves": generate_word(2),
@@ -1924,11 +1942,11 @@ combat_move_dict_skill = {
     "feats": generate_word(2)
 }
 combat_move_dict_praise = {
-    "impeccable": generate_word(2),
-    "amazing": generate_word(2),
-    "unmatched": generate_word(2),
-    "pretty okay": generate_word(2),
-    "superlative": generate_word(2)
+    "impeccable": generate_word(3),
+    "amazing": generate_word(3),
+    "unmatched": generate_word(3),
+    "pretty okay": generate_word(3),
+    "superlative": generate_word(3)
 }
 #Generate Relentless Attack
 ra_word_1 = randint(0, len(combat_move_dict_verb) - 1)
@@ -2051,7 +2069,7 @@ speed_scroll2 = scroll("Scroll 4", "A torn scroll with the text:\n\"-" + Fore.MA
 armor_scroll1 = scroll("Scroll 5", "A torn scroll with the text:\n\"" + Fore.MAGENTA + split_text(spell_armor_keyword)[0] + Fore.RESET + "-\"", "You found a torn scroll: \"" + Fore.MAGENTA + split_text(spell_armor_keyword)[0] + Fore.RESET + "-\"")
 armor_scroll2 = scroll("Scroll 6", "A torn scroll with the text:\n\"-" + Fore.MAGENTA + split_text(spell_armor_keyword)[1] + Fore.RESET + "\"", "You found a torn scroll: \"-" + Fore.MAGENTA + split_text(spell_armor_keyword)[1] + Fore.RESET + "\"")
 scroll_list = [hp_scroll1, hp_scroll2, speed_scroll1, speed_scroll2, armor_scroll1, armor_scroll2]
-#Generate combat move dictionary scrolls
+#Generate combat move/dictionary scrolls
 ra_scroll_1 = scroll("Page 1", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + Fore.RED + list(combat_move_dict_verb.values())[ra_word_1] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[ra_word_1] + ": " + Fore.RED +  list(combat_move_dict_verb.values())[ra_word_1] + "\"" + Fore.RESET)
 ra_scroll_2 = scroll("Page 2", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_bodypart.keys())[ra_word_2] + ": " + Fore.RED + list(combat_move_dict_bodypart.values())[ra_word_2] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_bodypart.keys())[ra_word_2] + ": " + Fore.RED + list(combat_move_dict_bodypart.values())[ra_word_2] + "\"" + Fore.RESET)
 ra_scroll_3 = scroll("Page 3", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[ra_word_3] +  " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[ra_word_3] + " them in the " + list(combat_move_dict_bodypart.keys())[ra_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[ra_word_3] + " " + combat_move_dict_grammar["them"] + " " + combat_move_dict_action["in the"] + " " + list(combat_move_dict_bodypart.values())[ra_word_4] + "\"" + Fore.RESET)
@@ -2061,7 +2079,10 @@ t_scroll_3 = scroll("Page 6", "A page from a dictionary which reads: \n" + Fore.
 d_scroll_1 = scroll("Page 7", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[d_word_1] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_1] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[d_word_1] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_1] + "\"" + Fore.RESET)
 d_scroll_2 = scroll("Page 8", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + Fore.RED + list(combat_move_dict_bodypart.values())[d_word_2] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_bodypart.keys())[d_word_2] + ": " + Fore.RED + list(combat_move_dict_bodypart.values())[d_word_2] + "\"" + Fore.RESET)
 d_scroll_3 = scroll("Page 9", "A page from a dictionary which reads: \n\"" + Fore.CYAN + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + " " + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"" + Fore.RESET, Fore.CYAN + "\"" + list(combat_move_dict_verb.keys())[d_word_3] +  " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_4] + ": " + Fore.RED + list(combat_move_dict_verb.values())[d_word_3] + " " + combat_move_dict_action["the heck outta"] + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_4] + "\"" + Fore.RESET)
-page_list = [ra_scroll_1, ra_scroll_2, ra_scroll_3, t_scroll_1, t_scroll_2, t_scroll_3, d_scroll_1, d_scroll_2, d_scroll_3]
+while_scroll = scroll("Page 10", "A page from a dictionary which reads: \n\"" + Fore.CYAN + "while : " + Fore.RED + lang_dict["while"] + "\"" + Fore.RESET, Fore.CYAN + "while : " + Fore.RED + lang_dict["while"] + "\"" + Fore.RESET)
+true_scroll = scroll("Page 11", "A page from a dictionary which reads: \n\"" + Fore.CYAN + "true : " + Fore.RED + lang_dict["true"] + "\"" + Fore.RESET, Fore.CYAN + "true : " + Fore.RED + lang_dict["true"] + "\"" + Fore.RESET)
+sleep_scroll = scroll("Page 12", "A page from a dictionary which reads: \n\"" + Fore.CYAN + "sleep : " + Fore.RED + lang_dict["sleep"] + "\"" + Fore.RESET, Fore.CYAN + "sleep : " + Fore.RED + lang_dict["sleep"] + "\"" + Fore.RESET)
+page_list = [ra_scroll_1, ra_scroll_2, ra_scroll_3, t_scroll_1, t_scroll_2, t_scroll_3, d_scroll_1, d_scroll_2, d_scroll_3, while_scroll, true_scroll, sleep_scroll]
 
 #Rename and sprinkle scrolls and pages
 scroll_adjectives = ["Dusty", "Crumpled", "Crinkled", "Weathered", "Folded", "Singed", "Old", "Torn", "Aged", "Burned", "Yellow", "Faded", "Simple"]
@@ -2217,7 +2238,6 @@ else:
     tut_cmb = False
     tut_expl = False
     tut_spell = False
-
 
 while True:
     main_menu()
