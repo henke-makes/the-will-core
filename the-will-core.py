@@ -327,7 +327,7 @@ when prompted for more information.""" + Fore.RESET)
         tut_cmb = False
     if current_room.enemy != [] and current_room.enemy.hp > 0 and current_room.enemy.name.lower() != "the keeper":
         combat = True
-        current_room.enemy.hp = current_room.enemy.max_hp #Dunno about this, dawg! Stopgap to stop speed cheese
+        current_room.enemy.hp = current_room.enemy.max_hp
         print("Prepare to fight a mighty " + current_room.enemy.name + "!")
     elif current_room.enemy.name.lower() == "the keeper":
         combat = False
@@ -345,23 +345,38 @@ when prompted for more information.""" + Fore.RESET)
         print("Attack:   " + str(player_char.attack) + " " * (9 - len(str(player_char.attack))) + str(current_room.enemy.attack))
         print("Defense:  " + str(player_char.defense) + " " * (9 - len(str(player_char.defense))) + str(current_room.enemy.defense))
         print("Armor:    " + str(player_char.armor) + " " * (9 - len(str(player_char.armor))) + str(current_room.enemy.armor))
+        print("")
         attack_adv = player_char.attack - current_room.enemy.defense
         if attack_adv > 0:
-            print(Fore.GREEN + str(round(((14 + attack_adv)/20)*100)) + "% to hit" + Fore.RESET)
+            print(Fore.GREEN)
         elif attack_adv < 0:
-            print(Fore.RED + str(round(((14 + attack_adv)/20)*100)) + "% to hit" + Fore.RESET)
+            print(Fore.RED)
         else:
-            print(Fore.YELLOW + "70% to hit" + Fore.RESET)
+            print(Fore.YELLOW)
+        chance_to_hit = 70 + (attack_adv * 5)
+        if chance_to_hit > 100:
+            chance_to_hit = 100
+        elif chance_to_hit < 0:
+            chance_to_hit = 0
+        delete_rows(1)
+        print(str(chance_to_hit) + "% to hit" + Fore.RESET)
         defense_adv = player_char.defense - current_room.enemy.attack
-        if defense_adv < 0:
-            print(Fore.RED + str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
-        elif defense_adv > 0:
-            print(Fore.GREEN + str(100 - round(((10 + attack_adv)/20)*100)) + "% to get hit" + Fore.RESET)
+        if defense_adv > 0:
+            print(Fore.GREEN)
+        elif defense_adv < 0:
+            print(Fore.RED)
         else:
-            print(Fore.YELLOW + "50% to get hit" + Fore.RESET)
+            print(Fore.YELLOW)
+        chance_to_be_hit = 50 - (defense_adv * 5)
+        if chance_to_be_hit > 100:
+            chance_to_be_hit = 100
+        elif chance_to_be_hit < 0:
+            chance_to_be_hit = 0
+        delete_rows(1)
+        print(str(chance_to_be_hit) + "% to be hit" + Fore.RESET)
         combat_threshold = max(player_speed, enemy_speed) * 4
-        print("Player damage: " + str(player_char.level + player_char.inventory["Main Hand"].min_dmg) + "-" + str(player_char.level + player_char.inventory["Main Hand"].max_dmg))
-        print("Enemy damage : " + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].min_dmg) + "-" + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].max_dmg))
+        print(Fore.CYAN + "Player damage: " + str(player_char.level + player_char.inventory["Main Hand"].min_dmg - current_room.enemy.armor) + "-" + str(player_char.level + player_char.inventory["Main Hand"].max_dmg - current_room.enemy.armor))
+        print(Fore.RED + "Enemy damage : " + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].min_dmg - player_char.armor) + "-" + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].max_dmg - player_char.armor) + Fore.RESET)
         player_move = ""
         enemy_move = ""
         if combat_move():
@@ -447,7 +462,7 @@ when prompted for more information.""" + Fore.RESET)
                 if enemy_turn > combat_threshold:
                     enemy_turn = combat_threshold
                 if delete_row:
-                    delete_rows(2)
+                    delete_rows(4)
                 delete_row = True
                 player_combat_percentage = round((player_turn/combat_threshold) * 10)
                 enemy_combat_percentage = round((enemy_turn/combat_threshold) * 10)
@@ -480,7 +495,9 @@ when prompted for more information.""" + Fore.RESET)
                 elif enemy_move.lower() == disarm_keyword or enemy_move.lower() == disarm_shortcut:
                     enemy_move_text = "Will attempt to Disarm! (-8 Attack)"
                 print("Player: " + Fore.CYAN + "█" * player_combat_percentage + Fore.RESET + "-" * (10 - player_combat_percentage) + " " + str(player_char.hp) + "/" + str(player_char.max_hp) + " HP | " + player_move_text)
+                print(Fore.CYAN + "Speed: " + str(player_speed) + " " * (4 - len(str(player_speed))) + "Damage: " + str(player_char.level + player_char.inventory["Main Hand"].min_dmg - current_room.enemy.armor) + "-" + str(player_char.level + player_char.inventory["Main Hand"].max_dmg - current_room.enemy.armor) + Fore.RESET)
                 print("Enemy : " + Fore.RED + "█" * enemy_combat_percentage + Fore.RESET + "-" * (10 - enemy_combat_percentage) + " " + str(current_room.enemy.hp) + " HP | " + enemy_move_text)
+                print(Fore.RED + "Speed: " + str(enemy_speed) + " " * (4 - len(str(enemy_speed))) + "Damage : " + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].min_dmg - player_char.armor) + "-" + str(current_room.enemy.level + current_room.enemy.inventory["Main Hand"].max_dmg - player_char.armor) + Fore.RESET)
                 sleep(.5)
         combat = False
     if current_room.enemy.name.lower() == "the keeper" and player_char.inventory["Main Hand"] != item_shotgun and current_room.enemy.hp > 0:
@@ -876,10 +893,11 @@ Exploration
         Can be used to declutter the ground of a room and get rid
         of items you don't want. Use with caution!""" + Fore.RESET)
         tut_expl = False
-    print(Fore.BLUE + "_____________" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.YELLOW + "EXPLORATION" + Fore.BLUE + "|" + Fore.BLUE + "_____________________________________" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect   " + Fore.BLUE + "|" + Fore.RESET + "\"t\" - Take   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn  " + Fore.BLUE + "|" + Fore.RESET)
-    print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.YELLOW + "GENERAL" + Fore.BLUE + "|____________________________________________________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"i\" - Inventory  " + Fore.BLUE + "|" + Fore.RESET + "       \"f\" - Fight      " + Fore.BLUE + "|" + Fore.RESET + " \"ex\" - Explore " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "|-----------------|------------------------|----------------|" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"nav\" - Nagivate " + Fore.BLUE + "|" + Fore.RESET + " \"spell\" - Spellcasting " + Fore.BLUE + "|" + Fore.RESET + " \"help\" - Help  " + Fore.BLUE +  "|" + Fore.RESET)
+    print(Fore.BLUE + "'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
     print(current_room.desc)
     if current_room.enemy != []:
         if current_room.enemy.name.lower() == "the keeper":
@@ -903,12 +921,11 @@ Exploration
                 print("and a " + x.name.lower() + ".")
     else:
         print("Nothing in the room to explore")
+    print(Fore.BLUE + "_____________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.YELLOW + "EXPLORATION" + Fore.BLUE + "|" + Fore.BLUE + "_____________________________________" + Fore.RESET)
+    print(Fore.BLUE + "|" + Fore.RESET + "\"in\" - Inspect   " + Fore.BLUE + "|" + Fore.RESET + "\"t\" - Take   " + Fore.BLUE + "|" + Fore.RESET + " \"burn\" - Burn  " + Fore.BLUE + "|" + Fore.RESET)
+    print(Fore.BLUE + "''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
     print(Fore.BLUE + "_________" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.YELLOW + "GENERAL" + Fore.BLUE + "|____________________________________________________" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.RESET + "\"i\" - Inventory  " + Fore.BLUE + "|" + Fore.RESET + "       \"f\" - Fight      " + Fore.BLUE + "|" + Fore.RESET + " \"ex\" - Explore " + Fore.BLUE + "|" + Fore.RESET)
-    print(Fore.BLUE + "|-----------------|------------------------|----------------|" + Fore.RESET)
-    print(Fore.BLUE + "|" + Fore.RESET + "\"nav\" - Nagivate " + Fore.BLUE + "|" + Fore.RESET + " \"spell\" - Spellcasting " + Fore.BLUE + "|" + Fore.RESET + " \"help\" - Help  " + Fore.BLUE +  "|" + Fore.RESET)
-    print(Fore.BLUE + "'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''" + Fore.RESET)
     parse_text("How will you explore the room? (\"help\" for command list)\n", "ex")
 def generate_enemy(lvl): #FIXA BÄTTRE! Basera gen på name för att göra unika fiender?
     name_list = []
@@ -1698,6 +1715,8 @@ def render_map():
         if x.xpos == player_xpos and x.ypos == player_ypos:
             if x.questroom == True:
                 x.line2 = "| "+ Fore.CYAN + "█" + Fore.BLUE + " |" + Fore.RESET
+            elif x.enemy.hp > 0:
+                x.line2 = "| "+ Fore.CYAN + "█" + Fore.RED + " |" + Fore.RESET
             else:
                 x.line2 = "| "+ Fore.CYAN + "█" + Fore.RESET + " |"
     
@@ -1708,18 +1727,24 @@ def render_map():
             for x in room_list[i*map_xsize:i*map_xsize + map_xsize]:
                 if x.questroom == True:
                     print(Fore.BLUE + x.line1 + Fore.RESET, end = " ")
+                elif x.enemy.hp > 0:
+                    print(Fore.RED + x.line1 + Fore.RESET, end = " ")
                 else:
                     print(x.line1, end = " ")
             print("")
             for x in room_list[i*map_xsize:i*map_xsize + map_xsize]:
                 if x.questroom == True:
                     print(Fore.BLUE + x.line2 + Fore.RESET, end = " ")
+                elif x.enemy.hp > 0:
+                    print(Fore.RED + x.line2 + Fore.RESET, end = " ")
                 else:
                     print(x.line2, end = " ")
             print("")
             for x in room_list[i*map_xsize:i*map_xsize + map_xsize]:
                 if x.questroom == True:
                     print(Fore.BLUE + x.line3 + Fore.RESET, end = " ")
+                elif x.enemy.hp > 0:
+                    print(Fore.RED + x.line3 + Fore.RESET, end = " ")
                 else:
                     print(x.line3, end = " ")
             print("")
@@ -1762,7 +1787,7 @@ def spellcasting():
     if spell_word.lower() == spell_hp_keyword.lower():
         if spell_hp_found == False:
             spell_fanfare()
-            player_char.max_hp += 5 #change to max HP
+            player_char.base_hp += 5 #change to base HP
             hp_gain(5)
             spell_hp_found = True
             input("You cast the magic healing spell!\nMax HP increased by 5!")
@@ -1772,7 +1797,7 @@ def spellcasting():
     elif spell_word.lower() == spell_speed_keyword.lower():
         if spell_speed_found == False:
             spell_fanfare()
-            player_char.speed += 2
+            player_char.base_speed += 2
             spell_speed_found = True
             input("You cast the magic speed spell!\nSpeed increased by 2!")
             item_logbook.text += "\n- You have cast the Speed Spell \"" + Fore.MAGENTA + spell_speed_keyword + Fore.RESET + "\" for +2 Speed!"
@@ -1781,7 +1806,7 @@ def spellcasting():
     elif spell_word.lower() == spell_armor_keyword.lower():
         if spell_armor_found == False:
             spell_fanfare()
-            player_char.armor += 2
+            player_char.base_armor += 2
             spell_armor_found = True
             input("You cast the magic armor spell!\nArmor increased by 2!")
             item_logbook.text += "\n- You have cast the Armor Spell \""+ Fore.MAGENTA + spell_armor_keyword + Fore.RESET +  "\" for +2 Armor!"
@@ -1932,7 +1957,7 @@ combat_move_dict_grammar = {
 }
 combat_move_dict_action = {
 "in the": generate_word(2) + " " + generate_word(2),
-"the heck outta": generate_word(2) + " " + generate_word(3) + " " + generate_word(2),
+"the heck outta": generate_word(2) + " " + generate_word(2) + " " + generate_word(2),
 }
 combat_move_dict_skill = {
     "moves": generate_word(2),
@@ -1942,11 +1967,11 @@ combat_move_dict_skill = {
     "feats": generate_word(2)
 }
 combat_move_dict_praise = {
-    "impeccable": generate_word(3),
-    "amazing": generate_word(3),
-    "unmatched": generate_word(3),
-    "pretty okay": generate_word(3),
-    "superlative": generate_word(3)
+    "impeccable": generate_word(2),
+    "amazing": generate_word(2),
+    "unmatched": generate_word(2),
+    "pretty okay": generate_word(2),
+    "superlative": generate_word(2)
 }
 #Generate Relentless Attack
 ra_word_1 = randint(0, len(combat_move_dict_verb) - 1)
