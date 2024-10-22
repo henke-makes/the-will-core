@@ -225,9 +225,9 @@ def attack(attacker, attacker_move, defender, defender_move):
     if type(attacker) == player:
         attacker_bonus += 4
     if attacker_move.lower() == "a":
-        attacker_bonus = 5
+        attacker_bonus += 5
     if attacker_move.lower() == "d":
-        attacker_bonus = -5
+        attacker_bonus -= 5
     if attacker_move.lower() == relentless_attack_keyword:
         ra_mult = 2
     else:
@@ -236,9 +236,9 @@ def attack(attacker, attacker_move, defender, defender_move):
         attacker_bonus -= 8
     
     if defender_move.lower() == "d":
-        defender_bonus = 5
+        defender_bonus += 5
     if defender_move.lower() == "a":
-        defender_bonus = -5
+        defender_bonus -= 5
     if defender_move.lower() == relentless_attack_keyword:
         def_ra_mult = 2
     else:
@@ -2017,7 +2017,7 @@ while d_word_4 == "":
     if d_word_4 == d_word_2:
         d_word_4 = ""
 d_gen_keyword = list(combat_move_dict_verb.keys())[d_word_1] + " the heck outta their " + list(combat_move_dict_bodypart.keys())[d_word_2]
-d_translation = list(combat_move_dict_verb.values())[ra_word_1] + " " + combat_move_dict_action["the heck outta"] + " " + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_2]
+d_translation = list(combat_move_dict_verb.values())[d_word_1] + " " + combat_move_dict_action["the heck outta"] + " " + combat_move_dict_grammar["their"] + " " + list(combat_move_dict_bodypart.values())[d_word_2]
 relentless_attack_keyword = ra_gen_keyword
 disarm_keyword = d_gen_keyword
 turtle_keyword = t_gen_keyword
