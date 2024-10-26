@@ -1788,6 +1788,7 @@ def spellcasting():
         if spell_hp_found == False:
             spell_fanfare()
             player_char.base_hp += 5 #change to base HP
+            update_stats()
             hp_gain(5)
             spell_hp_found = True
             input("You cast the magic healing spell!\nMax HP increased by 5!")
@@ -1798,6 +1799,7 @@ def spellcasting():
         if spell_speed_found == False:
             spell_fanfare()
             player_char.base_speed += 2
+            update_stats()
             spell_speed_found = True
             input("You cast the magic speed spell!\nSpeed increased by 2!")
             item_logbook.text += "\n- You have cast the Speed Spell \"" + Fore.MAGENTA + spell_speed_keyword + Fore.RESET + "\" for +2 Speed!"
@@ -1807,6 +1809,7 @@ def spellcasting():
         if spell_armor_found == False:
             spell_fanfare()
             player_char.base_armor += 2
+            update_stats()
             spell_armor_found = True
             input("You cast the magic armor spell!\nArmor increased by 2!")
             item_logbook.text += "\n- You have cast the Armor Spell \""+ Fore.MAGENTA + spell_armor_keyword + Fore.RESET +  "\" for +2 Armor!"
