@@ -770,7 +770,7 @@ def combat_move():
                 disarm_discovered = True
                 input("You have discovered " + Fore.RED + "Disarm!\n" + Fore.RESET + "Type \"move\" for more information. Press Enter to continue.")
         if player_move != "" and valid == False:
-            print(Fore.GREEN + player_char.name + " is " + choice(["reasonably", "moderately", "sort of", "not overly", "politely indicating that they are"]) + " impressed by your cheering." + Fore.RESET)
+            print(Fore.GREEN + player_char.name + " is " + choice(["reasonably", "moderately", "sort of", "not overly"]) + " impressed by your cheering, but not inspired to greatness." + Fore.RESET)
 def death(cause):
     print(Fore.RED + "You have fallen at the hands of " + cause + "." + Fore.RESET)
     print(Fore.BLUE)
